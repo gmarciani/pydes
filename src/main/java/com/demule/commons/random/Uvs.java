@@ -1,4 +1,4 @@
-package commons.random;
+package com.demule.commons.random;
 /* -------------------------------------------------------------------------  
  * This program reads a (text) data file and computes the mean, minimum, 
  * maximum, and standard deviation.   The one-pass algorithm used is due to 

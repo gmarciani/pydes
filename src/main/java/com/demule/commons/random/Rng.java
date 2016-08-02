@@ -1,4 +1,4 @@
-package commons.random;
+package com.demule.commons.random;
 /* -------------------------------------------------------------------------
  * This is an Java library for random number generation.  The use of this
  * library is recommended as a replacement for the Java class Random,

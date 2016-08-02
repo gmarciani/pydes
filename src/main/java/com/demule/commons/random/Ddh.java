@@ -1,4 +1,4 @@
-package commons.random;
+package com.demule.commons.random;
 /* ------------------------------------------------------------------------- 
  * This program illustrates a linked-list algorithm for tallying a 
  * discrete-data histogram for data read from standard input (stdin).   

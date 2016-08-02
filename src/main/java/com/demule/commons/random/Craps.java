@@ -1,4 +1,4 @@
-package commons.random;
+package com.demule.commons.random;
 /* -------------------------------------------------------------------------
  * A Monte Carlo simulation of the dice game Craps.
  *

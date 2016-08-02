@@ -1,4 +1,4 @@
-package commons.random;
+package com.demule.commons.random;
 /* -------------------------------------------------------------------------
  * This is the classic prime sieve of Eratosthenes - a simple algorithm
  * that finds all the prime numbers between 2 and the constant 'N'.

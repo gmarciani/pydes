@@ -1,4 +1,4 @@
-package commons.random;
+package com.demule.commons.random;
 /* ----------------------------------------------------------------------
  * This program reads a data sample from a text file in the format
  *                         one data point per line 

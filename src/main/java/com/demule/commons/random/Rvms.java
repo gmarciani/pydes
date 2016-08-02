@@ -1,4 +1,4 @@
-package commons.random;
+package com.demule.commons.random;
 
 /* ------------------------------------------------------------------------- 
  * This is a Java library that can be used to evaluate the probability 

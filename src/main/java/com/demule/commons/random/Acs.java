@@ -1,4 +1,4 @@
-package commons.random;
+package com.demule.commons.random;
 /* -------------------------------------------------------------------------
  * This program is based on a one-pass algorithm for the calculation of an
  * array of autocorrelations r[1], r[2], ... r[K].  The key feature of this
@@ -15,7 +15,7 @@ package commons.random;
  * statistically meaningful, K should be MUCH smaller than n.
  *
  * Name              : Acs.java (AutoCorrelation Statistics)
- * Authors           : Steve Park & Dave Geyer  
+ * Authors           : Steve Park & Dave Geyer
  * Translation by    : Jun Wang
  * Language          : Java
  * Latest Revision   : 6-16-06

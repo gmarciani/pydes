@@ -1,4 +1,4 @@
-package commons.random;
+package com.demule.commons.random;
 /* ------------------------------------------------------------------------
  * This program illustrates an array-based algorithm for tallying a 
  * continuous-data histogram for data read from standard input (stdin).

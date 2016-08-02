@@ -1,4 +1,4 @@
-package commons.random;
+package com.demule.commons.random;
 /* -------------------------------------------------------------------------
  * This program reads bivariate data from a text file and computes the mean,
  * standard deviation, minimum, maximum, correlation coefficient and

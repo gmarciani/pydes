@@ -1,4 +1,4 @@
-package commons.random;
+package com.demule.commons.random;
 
 /* ------------------------------------------------------------------------- 
  * This program is a next-event simulation of a multi-user time-sharing
