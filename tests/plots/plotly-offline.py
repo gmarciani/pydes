@@ -18,4 +18,4 @@ layout = go.Layout(title='Hello World')
 py.plot({
     'data': data,
     'layout': layout
-}, filename='out/sample-api-offline-plot.html')
+}, filename='../resources/plots/sample-api-offline-plot.html')

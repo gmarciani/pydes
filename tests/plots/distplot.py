@@ -16,4 +16,4 @@ figure = FF.create_distplot(data, labels, bin_size=[0.1, 0.2])
 
 figure['layout'].update(title='Sample Distplot')
 
-py.plot(figure, filename='out/sample-distribution-plot.html')
+py.plot(figure, filename='../resources/plots/sample-distribution-plot.html')

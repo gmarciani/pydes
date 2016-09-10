@@ -20,4 +20,4 @@ layout = go.Layout(title='Sample Scatterplot')
 py.plot({
     'data': data,
     'layout': layout
-}, filename='out/sample-scatter-plot.html')
+}, filename='../resources/plots/sample-scatter-plot.html')
