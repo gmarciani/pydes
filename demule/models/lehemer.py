@@ -7,6 +7,10 @@ class Lehemer:
         self._seed = seed
         putSeed(self._seed)
 
+    def rnd(self):
+        u = random()
+        return u
+
     def rndn(self, n):
         sample = []
         for i in range(0, n):
@@ -16,6 +20,8 @@ class Lehemer:
 
 def _testLehemer():
     generator = Lehemer(1)
+    r = generator.rnd()
+    print(r)
     sample = generator.rndn(10)
     print(sample)
 

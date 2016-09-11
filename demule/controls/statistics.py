@@ -1,5 +1,4 @@
 import math
-import numpy as np
 
 
 def get_frequencies(sample, min, max, bins):
@@ -37,12 +36,21 @@ def get_frequencies_bivariate(sample, min, max, bins):
     return frequencies
 
 
-def chi_square(observed, expected):
-    N = min(len(observed), len(expected))
-    v = 0
-    for n in range(0, N):
-        v += ((observed[n] - expected[n]) ** 2) / expected[n]
-    return v
+def chisquare_univariate(observed, expected):
+    K = len(observed)
+    value = 0
+    for x in range(0, K):
+        value += ((observed[x] - expected) ** 2) / expected
+    return value
+
+
+def chisquare_bivariate(observed, expected):
+    K = len(observed)
+    value = 0
+    for x1 in range(0, K):
+        for x2 in range(0, K):
+            value += ((observed[x1][x2] - expected) ** 2) / expected
+    return value
 
 
 

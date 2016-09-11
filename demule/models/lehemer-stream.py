@@ -8,6 +8,12 @@ class LehemerStream:
         selectStream(0)
         putSeed(self._seed)
 
+    def rnd(self, s=0):
+        selectStream(s)
+        plantSeeds(self._seed)
+        u = random()
+        return u
+
     def rndn(self, n, s=0):
         sample = []
         selectStream(s)
