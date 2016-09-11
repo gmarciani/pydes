@@ -1,1 +1,2 @@
 plotly == 1.12.9
+numpy

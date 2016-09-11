@@ -1,6 +1,7 @@
-import math
 from libs.des.rvms import idfChisquare
 from controls.statistics import get_frequencies
+import plotly.graph_objs as go
+
 
 def test(sample, bins, confidence): # hint: bins >= 1000, len(sample) >= 10bins, confidence=0.95
     report = {}
@@ -13,21 +14,12 @@ def test(sample, bins, confidence): # hint: bins >= 1000, len(sample) >= 10bins,
 
 
 def chisquare_from_sample(sample, bins):
-    frequencies = get_frequencies(sample, 0, 1, bins)
-    N = len(frequencies)
-    expected = len(sample) / N
+    samsize = len(sample)
+    observed = get_frequencies(sample, 0, 1, bins)
+    expected = samsize / bins
     v = 0
-    for n in range(0, N):
-        v += ((frequencies[n] - expected) ** 2) / expected
-    return v
-
-
-def chisquare(observed, samplesize):
-    N = len(observed)
-    expected = samplesize / N
-    v = 0
-    for n in range(0, N):
-        v += ((observed[n] - expected) ** 2) / expected
+    for bin in range(0, bins):
+        v += ((observed[bin] - expected) ** 2) / expected
     return v
 
 
@@ -37,3 +29,84 @@ def critical_min(bins, confidence):
 
 def critical_max(bins, confidence):
     return idfChisquare(bins - 1, 1 - (1 - confidence) / 2)
+
+
+def plot(data, min, max):
+    title_font = dict(
+            family='Courier New, monospace',
+            size=14,
+            color='#7f7f7f'
+    )
+
+    axis_font = dict(
+        family='Courier New, monospace',
+        size=14,
+        color='#7f7f7f'
+    )
+
+    streams = len(data)
+
+    trace = go.Scatter(
+        name='Numpy.Uniform',
+        x=[result[0] for result in data],
+        y=[result[1] for result in data],
+        mode='markers'
+    )
+
+    bound_min = go.Scatter(
+        name='Min',
+        x=[0, streams],
+        y=[min, min],
+        mode='lines'
+    )
+
+    bound_max = go.Scatter(
+        name='Max',
+        x=[0, streams],
+        y=[max, max],
+        mode='lines'
+    )
+
+    data = go.Data([trace, bound_min, bound_max])
+
+    layout = go.Layout(
+        title='Test of Uniformity',
+        font=title_font,
+        xaxis=dict(
+            title='Streams',
+            titlefont=axis_font
+        ),
+        yaxis=dict(
+            title='Chi-Square',
+            titlefont=axis_font
+        ),
+        showlegend=False,
+        annotations=[
+            dict(
+                x=0,
+                y=min,
+                xref='x',
+                yref='y',
+                text='Min',
+                showarrow=True,
+                arrowhead=7,
+                ax=-40,
+                ay=0
+            ),
+            dict(
+                x=0,
+                y=max,
+                xref='x',
+                yref='y',
+                text='Max',
+                showarrow=True,
+                arrowhead=7,
+                ax=-40,
+                ay=0
+            )
+        ]
+    )
+
+    figure = go.Figure(data=data, layout=layout)
+
+    return figure
