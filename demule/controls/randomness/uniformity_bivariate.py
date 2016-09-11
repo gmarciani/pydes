@@ -1,27 +1,35 @@
+import math
 from libs.des.rvms import idfChisquare
-from controls.statistics import get_frequencies_bivariate
+from controls.statistics import chisquare_bivariate
 import plotly.graph_objs as go
+from models.demule_settings import PlotSettings
 
 
-def test(sample, bins, confidence): # hint: bins >= 100, len(sample) >= 10(bins^2), confidence=0.95
-    report = {}
-
-    report['chi-square'] = chisquare_from_sample(sample, bins)
-    report['critical-min'] = critical_min(bins, confidence)
-    report['critical-max'] = critical_max(bins, confidence)
-
-    return report
+# hint: bins >= 100, len(sample) >= 10(bins^2), confidence=0.95
 
 
-def chisquare_from_sample(sample, bins):
-    samsize = len(sample)
-    observed = get_frequencies_bivariate(sample, 0, 1, bins)
-    expected = samsize / (bins ** 2)
-    v = 0
+def observations(generator, samsize, bins):
+    observed = []
     for bin1 in range(0, bins):
+        observed.append([])
         for bin2 in range(0, bins):
-            v += ((observed[bin1][bin2] - expected) ** 2) / expected
-    return v
+            observed[bin1].append(0)
+
+    for value in range(0, samsize):
+        r1 = generator.rnd()
+        r2 = generator.rnd()
+        bin1 = math.floor(r1 * bins)
+        bin2 = math.floor(r2 * bins)
+        observed[bin1][bin2] += 1
+
+    return observed
+
+
+def chisquare(observed, samsize):
+    bins = len(observed)
+    expected = samsize / (bins ** 2)
+    value = chisquare_bivariate(observed, expected)
+    return value
 
 
 def critical_min(bins, confidence):
@@ -33,22 +41,10 @@ def critical_max(bins, confidence):
 
 
 def plot(data, min, max):
-    title_font = dict(
-            family='Courier New, monospace',
-            size=14,
-            color='#7f7f7f'
-    )
-
-    axis_font = dict(
-        family='Courier New, monospace',
-        size=14,
-        color='#7f7f7f'
-    )
-
     streams = len(data)
 
     trace = go.Scatter(
-        name='Numpy.Uniform',
+        name='Random',
         x=[result[0] for result in data],
         y=[result[1] for result in data],
         mode='markers'
@@ -72,14 +68,14 @@ def plot(data, min, max):
 
     layout = go.Layout(
         title='Test of Bivariate Uniformity',
-        font=title_font,
+        font=PlotSettings.title_font,
         xaxis=dict(
             title='Streams',
-            titlefont=axis_font
+            titlefont=PlotSettings.axis_font
         ),
         yaxis=dict(
             title='Chi-Square',
-            titlefont=axis_font
+            titlefont=PlotSettings.axis_font
         ),
         showlegend=False,
         annotations=[

@@ -1,26 +1,31 @@
+import math
 from libs.des.rvms import idfChisquare
-from controls.statistics import get_frequencies
+from controls.statistics import chisquare_univariate
 import plotly.graph_objs as go
+from models.demule_settings import PlotSettings
 
 
-def test(sample, bins, confidence): # hint: bins >= 1000, len(sample) >= 10bins, confidence=0.95
-    report = {}
-
-    report['chi-square'] = chisquare_from_sample(sample, bins)
-    report['critical-min'] = critical_min(bins, confidence)
-    report['critical-max'] = critical_max(bins, confidence)
-
-    return report
+# hint: bins >= 1000, len(sample) >= 10bins, confidence=0.95
 
 
-def chisquare_from_sample(sample, bins):
-    samsize = len(sample)
-    observed = get_frequencies(sample, 0, 1, bins)
-    expected = samsize / bins
-    v = 0
+def observations(generator, samsize, bins):
+    observed = []
     for bin in range(0, bins):
-        v += ((observed[bin] - expected) ** 2) / expected
-    return v
+        observed.append(0)
+
+    for value in range(0, samsize):
+        r = generator.rnd()
+        bin = math.floor(r * bins)
+        observed[bin] += 1
+
+    return observed
+
+
+def chisquare(observed, samsize):
+    bins = len(observed)
+    expected = samsize / bins
+    value = chisquare_univariate(observed, expected)
+    return value
 
 
 def critical_min(bins, confidence):
@@ -32,22 +37,10 @@ def critical_max(bins, confidence):
 
 
 def plot(data, min, max):
-    title_font = dict(
-            family='Courier New, monospace',
-            size=14,
-            color='#7f7f7f'
-    )
-
-    axis_font = dict(
-        family='Courier New, monospace',
-        size=14,
-        color='#7f7f7f'
-    )
-
     streams = len(data)
 
     trace = go.Scatter(
-        name='Numpy.Uniform',
+        name='Random',
         x=[result[0] for result in data],
         y=[result[1] for result in data],
         mode='markers'
@@ -71,14 +64,14 @@ def plot(data, min, max):
 
     layout = go.Layout(
         title='Test of Uniformity',
-        font=title_font,
+        font=PlotSettings.title_font,
         xaxis=dict(
             title='Streams',
-            titlefont=axis_font
+            titlefont=PlotSettings.axis_font
         ),
         yaxis=dict(
             title='Chi-Square',
-            titlefont=axis_font
+            titlefont=PlotSettings.axis_font
         ),
         showlegend=False,
         annotations=[

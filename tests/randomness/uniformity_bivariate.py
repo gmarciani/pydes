@@ -1,5 +1,5 @@
-import numpy as np
-from controls.randomness.uniformity_bivariate import chisquare_from_sample, critical_min, critical_max, plot
+from models.lehemer import Lehemer
+from controls.randomness.uniformity_bivariate import observations, chisquare, critical_min, critical_max, plot
 import plotly.offline as py
 
 
@@ -8,14 +8,12 @@ STREAMS = 256
 BINS = 100
 CONFIDENCE = 0.95
 
+generator = Lehemer(1)
+
 data = []
 for stream in range(0, STREAMS):
-    sample = []
-    for i in range(0, SAMSIZE):
-        rnd1 = np.random.uniform(0, 1)
-        rnd2 = np.random.uniform(0, 1)
-        sample.append((rnd1, rnd2))
-    chi = chisquare_from_sample(sample, BINS)
+    observed = observations(generator, SAMSIZE, BINS)
+    chi = chisquare(observed, SAMSIZE)
     result = (stream, chi)
     data.append(result)
 
