@@ -1,19 +1,22 @@
 import math
 
-from controls.plots.randomness_plots import scatter
+from controls.plots.randomness_plots import ks_histogram
 from libs.des.rvms import cdfChisquare
 
 
-def ksdistances(statistics):
+def ksdistances(statistics, bins):
     statistics.sort()
     k = len(statistics)
-    fn = lambda x, i: sum(xi <= x for xi in statistics[:i]) / k
     distances = []
     for i in range(k):
         chi = statistics[i]
-        distance = math.abs(cdfChisquare(k, chi) - fn(chi, i))
+        distance = abs(cdfChisquare(bins - 1, chi) - (i / k))
         distances.append((chi, distance))
     return distances
+
+
+def ksstatistic(distances):
+    return max(value[1] for value in distances)
 
 
 def critical_ksdistance(samsize, confidence):
@@ -33,7 +36,7 @@ def c_factor(confidence):
     return C_FACTOR_TABLE[format(confidence, '.3f')]
 
 
-def plot(data, min, max):
+def plot(distances, mx):
     title = 'Test of Kolmogorov-Smirnov'
-    figure = scatter(title, data, min, max)
+    figure = ks_histogram(title, distances, mx)
     return figure

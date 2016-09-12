@@ -92,7 +92,7 @@ def scatter(title, data, mn, mx):
                 yref='y',
                 text='Min',
                 showarrow=True,
-                arrowhead=7,
+                arrowhead=3,
                 ax=-40,
                 ay=0
             ),
@@ -103,7 +103,62 @@ def scatter(title, data, mn, mx):
                 yref='y',
                 text='Max',
                 showarrow=True,
-                arrowhead=7,
+                arrowhead=3,
+                ax=-40,
+                ay=0
+            )
+        ]
+    )
+
+    figure = go.Figure(data=data, layout=layout)
+
+    return figure
+
+
+def ks_histogram(title, ksdistances, critical_ksdistance):
+    streams = len(ksdistances)
+
+    trace_in = go.Bar(
+        name='Random_In',
+        x=[value[0] for value in ksdistances],
+        y=[value[1] for value in ksdistances]
+    )
+
+    bound_max = go.Scatter(
+        name='Max',
+        x=[0, ksdistances[-1][0]],
+        y=[critical_ksdistance, critical_ksdistance],
+        mode='lines',
+        line=dict(
+            color=(red),
+            width=1,
+            dash='dot'
+        )
+    )
+
+    data = go.Data([trace_in, bound_max])
+
+    layout = go.Layout(
+        title=title,
+        font=title_font,
+        xaxis=dict(
+            title='Chi-Square',
+            titlefont=axis_font
+        ),
+        yaxis=dict(
+            title='KS-Distance',
+            titlefont=axis_font
+        ),
+        showlegend=False,
+        annotations=[
+            dict(
+                x=0,
+                y=critical_ksdistance,
+                xref='x',
+                yref='y',
+                text='Max',
+                showarrow=True,
+                arrowhead=3,
                 ax=-40,
                 ay=0
             )

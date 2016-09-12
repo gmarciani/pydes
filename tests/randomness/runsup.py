@@ -1,11 +1,12 @@
-from controls.randomness.runsup import observations, chisquare, critical_min, critical_max
+from controls.randomness.runsup import observations, chisquare, critical_min, critical_max, plot
 from models.generators.lehemers import LehmerMultiStream as Lehmer
+import plotly.offline as py
 
 
 def test():
 
     # Parameters
-    SAMSIZE = 7200
+    SAMSIZE = 14400
     STREAMS = 256
     BINS = 6
     CONFIDENCE = 0.95
@@ -43,13 +44,14 @@ def test():
             err_mx += 1
     err_emp = err_mn + err_mx
     err_mn_perc = err_mn / STREAMS
-    err_mx_perc = err_mn / STREAMS
+    err_mx_perc = err_mx / STREAMS
     err_emp_perc = err_emp / STREAMS
     err_emp_thr_perc = (err_emp - err_thr) / err_thr
     sugg_confidence = 1 - err_emp_perc
 
     # Result
     res = err_emp <= err_thr
+
     # Report (Object)
     report = dict(
         test_name='TEST OF UNIFORMITY - UNIVARIATE',
@@ -103,13 +105,13 @@ def test():
     print('--------------------------------------')
     print('Result: ' + ('Not Failed' if res else 'Failed'))
     print('Summary: ' + format(err_emp_perc * 100, PRECISION) + '% error' +
-          ' (' + format(err_emp_thr_perc * 100, '+'+PRECISION) + '% w.r.t. theoretical error)')
+          ' (' + format(err_emp_thr_perc * 100, '+'+PRECISION) + '% of theoretical error)')
     print('Suggested Confidence: ' + format(sugg_confidence * 100, PRECISION) + '%')
     print('\n')
 
     # Plot
-    #figure = plot(data, mn, mx)
-    #py.plot(figure, filename='../resources/randomness/test-independence-runsup.html')
+    figure = plot(data, mn, mx)
+    py.plot(figure, filename='../resources/randomness/test-independence-runsup.html')
 
     return report
 
