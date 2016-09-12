@@ -46,11 +46,43 @@ def test():
     err_mx_perc = err_mn / STREAMS
     err_emp_perc = err_emp / STREAMS
     err_emp_thr_perc = (err_emp - err_thr) / err_thr
+    sugg_confidence = 1 - err_emp_perc
 
     # Result
     res = err_emp <= err_thr
 
-    # Report
+    # Report (Object)
+    report = dict(
+        test_name='TEST OF UNIFORMITY - UNIVARIATE',
+
+        generator=generator.__class__.__name__,
+        seed=SEED,
+
+        samsize=SAMSIZE,
+        streams=STREAMS,
+        bins=BINS,
+        confidence=CONFIDENCE,
+
+        mn=mn,
+        mx=mx,
+
+        err_thr=err_thr,
+        err_emp=err_emp,
+        err_mn=err_mn,
+        err_mx=err_mx,
+
+        err_thr_perc=err_thr_perc,
+        err_emp_perc=err_emp_perc,
+        err_mn_perc=err_mn_perc,
+        err_mx_perc=err_mx_perc,
+        err_emp_thr_perc=err_emp_thr_perc,
+
+        sugg_confidence=sugg_confidence,
+
+        result=res
+    )
+
+    # Report (Printed)
     print('--------------------------------------')
     print('# TEST OF UNIFORMITY - UNIVARIATE    #')
     print('--------------------------------------')
@@ -73,16 +105,15 @@ def test():
     print('Result: ' + ('Not Failed' if res else 'Failed'))
     print('Summary: ' + format(err_emp_perc * 100, PRECISION) + '% error' +
           ' (' + format(err_emp_thr_perc * 100, '+'+PRECISION) + '% w.r.t. theoretical error)')
-    print('Suggested Confidence: ' + format((1 - err_emp_perc) * 100, PRECISION) + '%')
+    print('Suggested Confidence: ' + format(sugg_confidence * 100, PRECISION) + '%')
     print('\n')
 
     # Plot
     #figure = plot(data, mn, mx)
     #py.plot(figure, filename='../resources/randomness/test-uniformity-univariate.html')
 
+    return report
+
 
 if __name__ == '__main__':
     test()
-
-
-
