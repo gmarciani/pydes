@@ -1,33 +1,29 @@
 import math
-from libs.des.rvms import idfChisquare
+
+from controls.plots.randomness_plots import scatter
 from controls.statistics import chisquare_bivariate
-import plotly.graph_objs as go
-from models.demule_settings import PlotSettings
+from libs.des.rvms import idfChisquare
 
 
-# hint: bins >= 100, len(sample) >= 10(bins^2), confidence=0.95
+# hint: samsize >= 10*(bins^2), bins >= 100, confidence = 0.95
 
 
-def observations(generator, samsize, bins):
-    observed = []
-    for bin1 in range(0, bins):
-        observed.append([])
-        for bin2 in range(0, bins):
-            observed[bin1].append(0)
+def observations(uniform, samsize, bins):
+    observed = [[0 for _ in range(bins)] for _ in range(bins)]
 
-    for value in range(0, samsize):
-        r1 = generator.rnd()
-        r2 = generator.rnd()
-        bin1 = math.floor(r1 * bins)
-        bin2 = math.floor(r2 * bins)
-        observed[bin1][bin2] += 1
+    for value in range(samsize):
+        u1 = uniform()
+        u2 = uniform()
+        b1 = math.floor(u1 * bins)
+        b2 = math.floor(u2 * bins)
+        observed[b1][b2] += 1
 
     return observed
 
 
 def chisquare(observed, samsize):
     bins = len(observed)
-    expected = samsize / (bins ** 2)
+    expected = lambda x1, x2: samsize / (bins ** 2)
     value = chisquare_bivariate(observed, expected)
     return value
 
@@ -41,69 +37,6 @@ def critical_max(bins, confidence):
 
 
 def plot(data, min, max):
-    streams = len(data)
-
-    trace = go.Scatter(
-        name='Random',
-        x=[result[0] for result in data],
-        y=[result[1] for result in data],
-        mode='markers'
-    )
-
-    bound_min = go.Scatter(
-        name='Min',
-        x=[0, streams],
-        y=[min, min],
-        mode='lines'
-    )
-
-    bound_max = go.Scatter(
-        name='Max',
-        x=[0, streams],
-        y=[max, max],
-        mode='lines'
-    )
-
-    data = go.Data([trace, bound_min, bound_max])
-
-    layout = go.Layout(
-        title='Test of Bivariate Uniformity',
-        font=PlotSettings.title_font,
-        xaxis=dict(
-            title='Streams',
-            titlefont=PlotSettings.axis_font
-        ),
-        yaxis=dict(
-            title='Chi-Square',
-            titlefont=PlotSettings.axis_font
-        ),
-        showlegend=False,
-        annotations=[
-            dict(
-                x=0,
-                y=min,
-                xref='x',
-                yref='y',
-                text='Min',
-                showarrow=True,
-                arrowhead=7,
-                ax=-40,
-                ay=0
-            ),
-            dict(
-                x=0,
-                y=max,
-                xref='x',
-                yref='y',
-                text='Max',
-                showarrow=True,
-                arrowhead=7,
-                ax=-40,
-                ay=0
-            )
-        ]
-    )
-
-    figure = go.Figure(data=data, layout=layout)
-
+    title = 'Test of Uniformity (Bivariate)'
+    figure = scatter(title, data, min, max)
     return figure

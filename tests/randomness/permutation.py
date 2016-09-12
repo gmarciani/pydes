@@ -1,13 +1,14 @@
-from controls.randomness.uniformity_bivariate import observations, chisquare, critical_min, critical_max
+from controls.randomness.permutation import observations, chisquare, critical_min, critical_max
 from models.generators.lehemers import LehmerMultiStream as Lehmer
 
 
 def test():
 
     # Parameters
-    SAMSIZE = 100000
+    SAMSIZE = 7200
     STREAMS = 256
-    BINS = 100
+    BINS = 720
+    T = 6
     CONFIDENCE = 0.95
 
     PRECISION = '.3f'
@@ -20,7 +21,7 @@ def test():
     data = []
     for stream in range(STREAMS):
         generator.stream(stream)
-        observed = observations(generator.rnd, SAMSIZE, BINS)
+        observed = observations(generator.rnd, SAMSIZE, BINS, T)
         chi = chisquare(observed, SAMSIZE)
         result = (stream, chi)
         data.append(result)
@@ -52,7 +53,7 @@ def test():
 
     # Report
     print('--------------------------------------')
-    print('# TEST OF UNIFORMITY - BIVARIATE     #')
+    print('# TEST OF INDEPENDENCE - PERMUTATION #')
     print('--------------------------------------')
     print('Generator: ' + generator.__class__.__name__)
     print('Seed: ' + str(SEED))
@@ -60,6 +61,7 @@ def test():
     print('Sample Size: ' + str(SAMSIZE))
     print('Streams: ' + str(STREAMS))
     print('Bins: ' + str(BINS))
+    print('T: ' + str(T))
     print('Confidence: ' + format(CONFIDENCE * 100, PRECISION) + '%')
     print('--------------------------------------')
     print('Critical Lower Bound: ' + format(mn, PRECISION))
@@ -78,7 +80,7 @@ def test():
 
     # Plot
     #figure = plot(data, mn, mx)
-    #py.plot(figure, filename='../resources/randomness/test-uniformity-bivariate.html')
+    #py.plot(figure, filename='../resources/randomness/test-independence-permutation.html')
 
 
 if __name__ == '__main__':

@@ -1,13 +1,13 @@
-from controls.randomness.uniformity_bivariate import observations, chisquare, critical_min, critical_max
+from controls.randomness.uniformity_univariate import observations, chisquare, critical_min, critical_max
 from models.generators.lehemers import LehmerMultiStream as Lehmer
 
 
 def test():
 
     # Parameters
-    SAMSIZE = 100000
+    SAMSIZE = 10000
     STREAMS = 256
-    BINS = 100
+    BINS = 1000
     CONFIDENCE = 0.95
 
     PRECISION = '.3f'
@@ -52,7 +52,7 @@ def test():
 
     # Report
     print('--------------------------------------')
-    print('# TEST OF UNIFORMITY - BIVARIATE     #')
+    print('# TEST OF UNIFORMITY - UNIVARIATE    #')
     print('--------------------------------------')
     print('Generator: ' + generator.__class__.__name__)
     print('Seed: ' + str(SEED))
@@ -78,8 +78,11 @@ def test():
 
     # Plot
     #figure = plot(data, mn, mx)
-    #py.plot(figure, filename='../resources/randomness/test-uniformity-bivariate.html')
+    #py.plot(figure, filename='../resources/randomness/test-uniformity-univariate.html')
 
 
 if __name__ == '__main__':
     test()
+
+
+

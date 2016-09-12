@@ -5,20 +5,22 @@ from controls.statistics import chisquare_univariate
 from libs.des.rvms import idfChisquare
 
 
-# hint: samsize >= 10*bins, bins >= 1000, d >= 2, confidence = 0.95
+# hint: samsize >= 7200, bins = 6, confidence = 0.95
 
 
-def observations(uniform, samsize, bins, d):
-    observed = [0] * bins
+def observations(uniform, samsize, bins):
+    observed = [0] * (bins + 1)
 
     for _ in range(samsize):
-        u1 = uniform()
-        for _ in range(1, d):
-            u2 = uniform()
-            if u2 > u1:
-                u1 = u2
-        u = u1 ** d
-        b = math.floor(u * bins)
+        b = 1
+        u = uniform()
+        t = uniform()
+        while t > u:
+            b += 1
+            u = t
+            t = uniform()
+        if b > bins:
+            b = bins
         observed[b] += 1
 
     return observed
@@ -26,9 +28,10 @@ def observations(uniform, samsize, bins, d):
 
 def chisquare(observed, samsize):
     bins = len(observed)
-    expected = lambda x: samsize / bins
-    value = chisquare_univariate(observed, expected)
+    expected = lambda x: samsize * x / math.factorial(x + 1)
+    value = chisquare_univariate(observed, expected, start=1)
     return value
+
 
 def critical_min(bins, confidence):
     return idfChisquare(bins - 1, (1 - confidence) / 2)
@@ -39,6 +42,6 @@ def critical_max(bins, confidence):
 
 
 def plot(data, min, max):
-    title = 'Test of Extremes'
+    title = 'Test of Independence (Runs-Up)'
     figure = scatter(title, data, min, max)
     return figure
