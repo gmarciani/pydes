@@ -5,6 +5,7 @@ import tests.randomness.runsup
 import tests.randomness.gap
 import tests.randomness.uniformity_bivariate
 import tests.randomness.permutation
+import tests.randomness.kolmogorov_smirnov
 
 
 class RandomnessTests(unittest.TestCase):
@@ -26,3 +27,6 @@ class RandomnessTests(unittest.TestCase):
 
     def test_permutation(self):
         tests.randomness.permutation.test()
+
+    def test_ks_extremes(self):
+        tests.randomness.kolmogorov_smirnov.test_extremes()

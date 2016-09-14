@@ -1,6 +1,5 @@
-from controls.randomness.extremes import observations, chisquare, critical_min, critical_max, plot
-from models.generators.lehemers import LehmerMultiStream as Lehmer
-import plotly.offline as py
+from rnd.generators.lehemers import LehmerMultiStream as Lehmer
+from rnd.tests.extremes import observations, chisquare, critical_min, critical_max, plot
 
 
 def test():
@@ -113,8 +112,8 @@ def test():
     print('\n')
 
     # Plot
-    figure = plot(data, mn, mx)
-    py.plot(figure, filename='../resources/randomness/test-extremes.html')
+    plot('Test of Uniformity - Extremes', data, mn, mx)
+    #py.plot(figure, filename='../resources/randomness/test-extremes.html', auto_open=AUTO_OPEN)
 
     return report
 

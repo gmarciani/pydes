@@ -1,8 +1,7 @@
 import math
-
-from controls.plots.randomness_plots import scatter
-from controls.statistics import chisquare_univariate
+from statistics.chisquare import chisquare_univariate
 from libs.des.rvms import idfChisquare
+from plots.chisquare import scatter as chisquare_scatter
 
 
 # hint: samsize >= 7200, bins = 6, confidence = 0.95
@@ -41,7 +40,6 @@ def critical_max(bins, confidence):
     return idfChisquare(bins - 1, 1 - (1 - confidence) / 2)
 
 
-def plot(data, min, max):
-    title = 'Test of Independence (Runs-Up)'
-    figure = scatter(title, data, min, max)
+def plot(title, data, min, max):
+    figure = chisquare_scatter(title, data, min, max)
     return figure

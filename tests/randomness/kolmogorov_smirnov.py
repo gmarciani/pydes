@@ -1,10 +1,11 @@
-from controls.randomness.extremes import observations, chisquare
-from controls.randomness.kolmogorov_smirnov import ksdistances, ksstatistic, critical_ksdistance, plot
-from models.generators.lehemers import LehmerMultiStream as Lehmer
+from rnd.generators.lehemers import LehmerMultiStream as Lehmer
+from rnd.tests.kolmogorov_smirnov import ksdistances, kspoint, ksstatistic, critical_ksdistance, plot
+from rnd.tests.extremes import observations, chisquare
+from tests.randomness import *
 import plotly.offline as py
 
 
-def test_ks():
+def test_extremes():
 
     # Parameters
     SAMSIZE = 10000
@@ -27,6 +28,8 @@ def test_ks():
         chi = chisquare(observed, SAMSIZE)
         statistics.append(chi)
     distances = ksdistances(statistics, BINS)
+    kspnt = kspoint(distances)
+    ksstat = ksstatistic(distances)
 
     # Critical Bounds
     mx = critical_ksdistance(STREAMS, CONFIDENCE)
@@ -61,6 +64,7 @@ def test_ks():
         bins=BINS,
         confidence=CONFIDENCE,
 
+        ksstat=ksstat,
         mx=mx,
 
         err_thr=err_thr,
@@ -89,6 +93,7 @@ def test_ks():
     print('Bins: ' + str(BINS))
     print('Confidence: ' + format(CONFIDENCE * 100, PRECISION) + '%')
     print('--------------------------------------')
+    print('KS-Statistic: ' + format(ksstat, PRECISION))
     print('Critical Upper Bound: ' + format(mx, PRECISION))
     print('--------------------------------------')
     print('Theoretical Error: ' + str(err_thr) + ' (' + format(err_thr_perc * 100, PRECISION) + '%)')
@@ -102,11 +107,11 @@ def test_ks():
     print('\n')
 
     # Plot
-    figure = plot(distances, mx)
-    py.plot(figure, filename='../resources/randomness/test-ks-uniformity-univariate.html')
+    figure = plot('Test of Kolmogorov-Smirnov (Extremes)', distances, kspnt, mx)
+    py.plot(figure, filename='../resources/randomness/test-ks-extremes.html', auto_open=AUTO_OPEN)
 
     return report
 
 
 if __name__ == '__main__':
-    test_ks()
+    test_extremes()
