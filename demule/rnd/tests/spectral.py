@@ -1,10 +1,10 @@
-from plots.spectral import scatter2D as spectral_scatter
+from plots.spectral import scatter2D
 
 
-# hint: samsize >= 10000
+SAMSIZE = 10000 # SAMSIZE >= 10000
 
 
-def observations(uniform, samsize):
+def observations(uniform, samsize=SAMSIZE):
     observed = []
     u1 = uniform()
     for _ in range(samsize - 1):
@@ -15,5 +15,5 @@ def observations(uniform, samsize):
     return observed
 
 
-def plot(title, data, filename=None):
-    spectral_scatter(title, data, filename)
+def plot(data, title=None, filename=None, zoom=None):
+    scatter2D(data, title, filename, zoom)

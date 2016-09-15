@@ -1,14 +1,29 @@
 from statistics.chisquare import chisquare_univariate
 from libs.des.rvms import idfChisquare
-from plots.chisquare import scatter as chisquare_scatter
+from rnd.tests.error import error_two_tails
+from plots.chisquare import scatter
 
 
-# hint: samsize >= 10000, bins <= 2+floor(ln(10/samsize*(b-a))/(ln(1-b+a))), 0 <= a < b <= 1, confidence = 0.95,
+SAMSIZE = 10000     # SAMSIZE >= 10000
+BINS = 78           # BINS <= 2+floor(ln(10/samsize*(b-a))/(ln(1-b+a)))
+A = 0.94            # 0 <= a < b <= 1
+B = 0.99            # 0 <= a < b <= 1
+CONFIDENCE = 0.95   # CONFIDENCE >= 0.95
+
+
+def statistics(generator, streams, samsize=SAMSIZE, bins=BINS, a=A, b=B):
+    data = []
+    for stream in range(streams):
+        generator.stream(stream)
+        observed = observations(generator.rnd, samsize, bins, a, b)
+        chi = chisquare(observed, samsize, a, b)
+        result = (stream, chi)
+        data.append(result)
+    return data
 
 
 def observations(uniform, samsize, bins, a, b):
     observed = [0] * bins
-
     for _ in range(samsize):
         b = 0
         u = uniform()
@@ -18,7 +33,6 @@ def observations(uniform, samsize, bins, a, b):
         if b > bins - 1:
             b = bins - 1
         observed[b] += 1
-
     return observed
 
 
@@ -29,14 +43,17 @@ def chisquare(observed, samsize, a, b):
     return value
 
 
-def critical_min(bins, confidence):
+def critical_min(bins, confidence=CONFIDENCE):
     return idfChisquare(bins - 1, (1 - confidence) / 2)
 
 
-def critical_max(bins, confidence):
+def critical_max(bins, confidence=CONFIDENCE):
     return idfChisquare(bins - 1, 1 - (1 - confidence) / 2)
 
 
-def plot(title, data, min, max):
-    figure = chisquare_scatter(title, data, min, max)
-    return figure
+def error(data, mn, mx, confidence=CONFIDENCE):
+    return error_two_tails(data, mn, mx, confidence)
+
+
+def plot(data, mn, mx, title=None, filename=None):
+    scatter(data, mn, mx, title, filename)

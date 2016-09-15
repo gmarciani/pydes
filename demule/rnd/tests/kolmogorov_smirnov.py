@@ -1,15 +1,20 @@
 import math
 from libs.des.rvms import cdfChisquare
+from rnd.tests.error import error_one_tail
 from plots.kolmogorov_smirnov import histogram as kshistogram
+from plots.kolmogorov_smirnov import histogram2 as kshistogram2
+
+
+CONFIDENCE = 0.95
 
 
 def ksdistances(chisquares, bins):
-    chisquares.sort()
+    chisquares.sort(key=lambda v: v[1])
     streams = len(chisquares)
     distances = []
     for i in range(streams):
-        chi = chisquares[i]
-        distance = abs(cdfChisquare(bins - 1, chi) - (i / streams))
+        chi = chisquares[i][1]
+        distance = max(abs(cdfChisquare(bins - 1, chi) - (i / streams)), abs(cdfChisquare(bins - 1, chi) - ((i - 1) / streams)))
         distances.append((chi, distance))
     return distances
 
@@ -38,7 +43,13 @@ C_FACTOR_TABLE = {
 def c_factor(confidence):
     return C_FACTOR_TABLE[format(confidence, '.3f')]
 
+def error(data, mx, confidence):
+    return error_one_tail(data, mx, confidence)
 
-def plot(title, ksdistances, kspoint, kscritical):
-    figure = kshistogram(title, ksdistances, kspoint, kscritical)
-    return figure
+
+def plot(ksdistances, kspoint, kscritical, title=None, filename=None):
+    kshistogram(ksdistances, kspoint, kscritical, title, filename)
+
+
+def plot2(chisquares, bins, kspoint, title=None, filename=None):
+    kshistogram2(chisquares, bins, kspoint, title, filename)

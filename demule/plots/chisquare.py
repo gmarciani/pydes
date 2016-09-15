@@ -1,34 +1,47 @@
-from plots import *
 import matplotlib.pyplot as plt
+from plots import *
 
 
-def scatter(title, data, mn, mx):
+def scatter(data, mn, mx, title=None, filename=None):
     streams = len(data)
 
     data_in = [v for v in data if mn <= v[1] <= mx]
-
     data_out = [v for v in data if v[1] < mn or v[1] > mx]
 
-    plt.scatter(
-        label='Success',
-        x=[result[0] for result in data_in],
-        y=[result[1] for result in data_in],
-        color='blue'
-    )
+    x_in = [v[0] for v in data_in]
+    y_in = [v[1] for v in data_in]
+    x_out = [v[0] for v in data_out]
+    y_out = [v[1] for v in data_out]
 
-    plt.scatter(
-        label='Failure',
-        x=[result[0] for result in data_out],
-        y=[result[1] for result in data_out],
-        color='red'
-    )
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
 
-    plt.axhline(y=mn, color='red', linestyle='dashed')
-    plt.axhline(y=mx, color='red', linestyle='dashed')
+    ax.scatter(x_in, y_in, color=BLACK)
+    ax.scatter(x_out, y_out, color=LGRAY)
+    ax.axhline(y=mn, linestyle='dashed')
+    ax.axhline(y=mx, linestyle='dashed')
 
-    plt.suptitle(title)
-    plt.xlabel('Streams')
-    plt.ylabel('Chi-Square')
-    plt.xlim(0, streams -1)
+    if title is not None:
+        ax.set_title(title)
+    ax.set_xlabel('$Stream$')
+    ax.set_ylabel('$\chi^{2}$', rotation=0)
 
-    plt.show()
+    ax.set_xticks([0, streams - 1])
+    ax.set_yticks([mn, mx])
+    ax.set_yticklabels(['$\chi^{2}_{min}$', '$\chi^{2}_{max}$'])
+
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_visible(True)
+    ax.get_xaxis().tick_bottom()
+    ax.get_yaxis().tick_left()
+    ax.tick_params(axis='x', direction='out')
+    ax.tick_params(axis='y', direction='out')
+    for spine in ax.spines.values():
+        spine.set_position(('outward', 5))
+    ax.set_axisbelow(True)
+
+    if filename is not None:
+        plt.savefig(filename, bbox_inches='tight')
+    else:
+        fig.show()
