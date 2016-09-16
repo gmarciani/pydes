@@ -156,12 +156,32 @@
   \def\@permissionCodeTwo{0100}
 }
 %
-\DeclareOption{gmsurvey}{
+\DeclareOption{gmcs}{
 	\typeout{}
-	\typeout{Using ACM, GMB's option: 2010/05/18 by Giacomo Marciani}
+	\typeout{Using ACM, GMCS's option: 2016/09/01 by Giacomo Marciani}
 	\typeout{}
-	\def\@journalName{GM Computer Science Books}
+	\def\@journalName{GM Computer Science}
 	\def\@journalNameShort{GM Comp. Sci.}
+	\def\@permissionCodeOne{1544-3558}
+	\def\@permissionCodeTwo{0100}
+}
+%
+\DeclareOption{gmlecture}{
+	\typeout{}
+	\typeout{Using ACM, GMB's option: 2016/09/01 by Giacomo Marciani}
+	\typeout{}
+	\def\@journalName{GM Computer Science Lecture Notes}
+	\def\@journalNameShort{GM Comp. Sci. Lect.}
+	\def\@permissionCodeOne{1544-3558}
+	\def\@permissionCodeTwo{0100}
+}
+%
+\DeclareOption{gmportfolio}{
+	\typeout{}
+	\typeout{Using ACM, GMP's option: 2016/09/01 by Giacomo Marciani}
+	\typeout{}
+	\def\@journalName{GM Computer Science Portfolio}
+	\def\@journalNameShort{GM Comp. Sci. Portfolio}
 	\def\@permissionCodeOne{1544-3558}
 	\def\@permissionCodeTwo{0100}
 }
