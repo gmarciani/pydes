@@ -31,9 +31,9 @@ def test():
     sugg_confidence = 1 - err['err_emp_perc']
 
     # Report
-    print('--------------------------------------')
-    print('# TEST OF UNIFORMITY - EXTREMES      #')
-    print('--------------------------------------')
+    print('======================================')
+    print('TEST OF UNIFORMITY - EXTREMES         ')
+    print('======================================')
     print('Generator: %s' % GENERATOR.__class__.__name__)
     print('Streams: %d' % STREAMS)
     print('Seed: %d' % SEED)

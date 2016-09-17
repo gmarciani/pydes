@@ -52,9 +52,9 @@ def test(testname, params):
     sugg_confidence = 1 - err['err_emp_perc']
 
     # Report
-    print('--------------------------------------')
-    print('# TEST OF KOLMOGOROV-SMIRNOV         #')
-    print('--------------------------------------')
+    print('======================================')
+    print('TEST OF KOLMOGOROV-SMIRNOV            ')
+    print('======================================')
     print('Chi-Square Test: %s' % testname)
     print('--------------------------------------')
     print('Generator: %s' % GENERATOR.__class__.__name__)

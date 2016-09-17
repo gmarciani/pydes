@@ -15,9 +15,9 @@ def test():
     data = observations(generator.rnd, SAMSIZE)
 
     # Report
-    print('--------------------------------------')
-    print('# SPECTRAL TEST                      #')
-    print('--------------------------------------')
+    print('======================================')
+    print('SPECTRAL TEST                         ')
+    print('======================================')
     print('Generator: %s' % generator.__class__.__name__)
     print('Seed: %d' % SEED)
     print('--------------------------------------')
