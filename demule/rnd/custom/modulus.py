@@ -15,7 +15,7 @@ class PrimeFinder(threading.Thread):
     def run(self):
         global M
         for m in self.rng:
-            if M: break
+            if M != 0: break
             if isprime(m):
                 M = m
                 break
@@ -25,7 +25,7 @@ def find_modulus(bits):
     mx = 2**(bits - 1) - 1
     pool = []
     for t in range(THREADS):
-        rng = range(mx, 0, -(t + 1))
+        rng = range(mx - t, 0, -THREADS)
         finder = PrimeFinder(rng)
         pool.append(finder)
     for finder in pool:

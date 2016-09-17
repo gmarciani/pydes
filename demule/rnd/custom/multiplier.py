@@ -1,20 +1,21 @@
 from math import floor
 from demule.common.mathutils import gcd
+from demule.rnd.custom.gfunc import g
 
 
-def generateFullPeriodModulusCompatibleMultipliers(multiplier, modulus):
+def generate_fpmc_multipliers(multiplier, modulus):
     multipliers = []
     i = 1
     x = multiplier
     while x != 1:
-        if isModulusCompatible(multiplier, modulus) and gcd(i, modulus - 1):
+        if is_mc_multiplier(multiplier, modulus) and gcd(i, modulus - 1):
             multipliers.append(x)
         i += 1
         x = g(x, multiplier, modulus)
     return multipliers
 
 
-def generateFullPeriodMultipliers(multiplier, modulus): # multiplier must be a full-period multiplier, modulus must be prime
+def generate_fp_multipliers(multiplier, modulus): # multiplier must be a full-period multiplier, modulus must be prime
     multipliers = []
     i = 1
     x = multiplier
@@ -26,7 +27,7 @@ def generateFullPeriodMultipliers(multiplier, modulus): # multiplier must be a f
     return multipliers
 
 
-def isFullPeriodMultiplier(multiplier, modulus): # m must be prime
+def is_fp_multiplier(multiplier, modulus): # m must be prime
     period = 1
     x = multiplier
     while x != 1:
@@ -38,5 +39,5 @@ def isFullPeriodMultiplier(multiplier, modulus): # m must be prime
         return False
 
 
-def isModulusCompatible(multiplier, modulus):
+def is_mc_multiplier(multiplier, modulus):
     return (modulus % multiplier) < floor(modulus / multiplier)
