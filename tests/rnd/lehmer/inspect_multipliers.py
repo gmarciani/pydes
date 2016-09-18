@@ -1,7 +1,9 @@
 from demule.rnd.custom.multiplier import is_fp_multiplier, is_mc_multiplier
+from demule.plots.multipliers import scatter
+from tests.rnd.lehmer import PLOT_DIR, PLOT_EXT
 
 
-MODULUS = 9223372036854775783 # 127 (8bit), 32749 (16bit), 2147483647 (32bit), 9223372036854775783 (64bit)
+MODULUS = 401 # 127 (8bit), 32749 (16bit), 2147483647 (32bit), 9223372036854775783 (64bit)
 
 fp_multipliers = []
 mc_multipliers = []
@@ -33,3 +35,8 @@ print('FP/MC Multipliers: %d (%.3f %%)' % (len(fpmc_multipliers), (len(fpmc_mult
 print('--------------------------------------')
 print('Candidates: %s' % ','.join(map(str, fpmc_multipliers)))
 print('\n')
+
+# Plot
+data = (fp_multipliers, mc_multipliers, fpmc_multipliers)
+filename = '%s/%s.%s' % (PLOT_DIR, 'test-inspection-multipliers', PLOT_EXT)
+scatter(data, MODULUS, filename=filename)
