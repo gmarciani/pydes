@@ -1,8 +1,9 @@
 import threading
-from demule.rnd.custom.multiplier import is_fp_multiplier, is_mc_multiplier
+from rnd.inspection.multiplier import is_fp_multiplier, is_mc_multiplier
 
-THREADS = 4
-M = 0
+
+THREADS = 8
+MULTIPLIER = 0
 
 
 class MultiplierFinder(threading.Thread):
@@ -13,11 +14,11 @@ class MultiplierFinder(threading.Thread):
         self.rng = rng
 
     def run(self):
-        global M
-        for m in self.rng:
-            if M != 0: break
-            if is_fp_multiplier(m, self.modulus) and is_mc_multiplier(m, self.modulus):
-                M = m
+        global MULTIPLIER
+        for multiplier in self.rng:
+            if MULTIPLIER != 0: break
+            if is_fp_multiplier(multiplier, self.modulus) and is_mc_multiplier(multiplier, self.modulus):
+                MULTIPLIER = multiplier
                 break
 
 
@@ -32,11 +33,11 @@ def find_multiplier(modulus):
         finder.start()
     for finder in pool:
         finder.join()
-    return M
+    return MULTIPLIER
 
 
 if __name__ == '__main__':
-    MODULUS = 32749  # 127 (8bit), 32749 (16bit), 2147483647 (32bit), 9223372036854775783 (64bit)
+    MODULUS = 2147483647  # 127 (8bit), 32749 (16bit), 2147483647 (32bit), 9223372036854775783 (64bit)
     fpmc_multiplier = find_multiplier(MODULUS)
 
     # Report

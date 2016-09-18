@@ -1,4 +1,4 @@
-from demule.rnd.custom.modulus import find_modulus
+from rnd.inspection.modulus import find_modulus
 
 
 BITS = 64  # 8, 16, 32, 64

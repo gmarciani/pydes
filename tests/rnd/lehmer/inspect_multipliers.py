@@ -1,7 +1,6 @@
-from demule.rnd.custom.multiplier import is_fp_multiplier, is_mc_multiplier
 from demule.plots.multipliers import scatter
+from rnd.inspection.multiplier import is_fp_multiplier, is_mc_multiplier
 from tests.rnd.lehmer import PLOT_DIR, PLOT_EXT
-
 
 MODULUS = 401 # 127 (8bit), 32749 (16bit), 2147483647 (32bit), 9223372036854775783 (64bit)
 
