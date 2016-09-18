@@ -1,10 +1,11 @@
 from time import time
 
+
 MULTIPLIER = 48271
 MODULUS = 9223372036854775783 # 2^63 -25, that is the greatest prime less than 2^63 -1
 ISEED = 1 # could be any number in [1,MODULUS -1]
 STREAMS = 256
-JUMPER = 22925
+JUMPER = 22925 #
 
 seed = [int(ISEED)] * STREAMS
 stream = 0
@@ -24,20 +25,6 @@ def rnd():
         seed[stream] = int(t + MODULUS)
 
     return float(seed[stream] / MODULUS)
-
-
-def put_seed(x):
-    global seed
-    if x > 0:
-        x = x % MODULUS
-    else:
-        x = time()
-        x = x % MODULUS
-    seed[stream] = int(x)
-
-
-def get_seed():
-    return seed[stream]
 
 
 def select_stream(id):
@@ -66,3 +53,17 @@ def plant_seeds(x):
       seed[j] = x
     else:
       seed[j] = x + MODULUS
+
+
+def put_seed(x):
+    global seed
+    if x > 0:
+        x = x % MODULUS
+    else:
+        x = time()
+        x = x % MODULUS
+    seed[stream] = int(x)
+
+
+def get_seed():
+    return seed[stream]
