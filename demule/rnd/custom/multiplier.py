@@ -1,5 +1,5 @@
 from math import floor
-from demule.common.mathutils import gcd
+from demule.utils.mathutils import gcd
 from demule.rnd.custom.gfunc import g
 
 

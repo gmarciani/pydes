@@ -1,5 +1,5 @@
 import threading
-from demule.common.mathutils import isprime
+from demule.utils.mathutils import isprime
 
 
 THREADS = 8

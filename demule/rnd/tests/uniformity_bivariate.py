@@ -1,5 +1,5 @@
 import math
-from statistics.chisquare import chisquare_bivariate
+from stats.chisquare import chisquare_bivariate
 from libs.des.rvms import idfChisquare
 from rnd.tests.error import error_two_tails
 from plots.chisquare import scatter
