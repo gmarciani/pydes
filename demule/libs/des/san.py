@@ -19,7 +19,7 @@ MAXNODE = 50
 MAXPATHS = 50
 N = 10000                           # number of replications */
 
-M = [[None for i in range(0,MAXEDGE)] for i in range(0,MAXNODE)]
+M = [[None for i in range(0, MAXEDGE)] for i in range(0, MAXNODE)]
 Paths = [[None for i in range(0,MAXEDGE)] for i in range(0,MAXPATHS)]
 UpperLimit = [None for i in range(0,MAXEDGE)]
 p = [None for i in range(0,MAXEDGE)]

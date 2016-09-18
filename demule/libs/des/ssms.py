@@ -59,7 +59,7 @@ def NextFailure(failure,m):
   t = float(failure[0])
 
   m[0] = i
-  for i in range(1,M):
+  for i in range(1, M):
     if (failure[i] < t): 
       t = failure[i]
       m[0] = i
@@ -96,7 +96,7 @@ sum = sumOf()
 
 plantSeeds(123456789)
 
-for m in range(0,M):                 # initial failures */
+for m in range(0, M):                 # initial failures */
   failure.append(START + GetFailure())
 
 m = [m] #convert to list to become mutable when passing to NextFailure
@@ -121,7 +121,7 @@ while (index < LAST):
 
 sum.interarrival = arrival - START
 
-print("\nfor a pool of {0:1d} machines and {1:1d} simulated failures\n".format(M,index)) 
+print("\nfor a pool of {0:1d} machines and {1:1d} simulated failures\n".format(M, index))
 print("average interarrival time .. = {0:6.2f}".format(sum.interarrival / index))
 print("average wait ............... = {0:6.2f}".format(sum.wait / index))
 print("average delay .............. = {0:6.2f}".format(sum.delay / index))
