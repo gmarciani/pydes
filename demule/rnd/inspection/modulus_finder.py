@@ -35,7 +35,10 @@ def find_modulus(bits):
     return MODULUS
 
 
-if __name__ == '__main__':
+def _test():
+    """
+    Tests the correctness of functions.
+    """
     BITS = 32  # 8, 16, 32, 64
 
     modulus = find_modulus(BITS)
@@ -48,3 +51,6 @@ if __name__ == '__main__':
     print('--------------------------------------')
     print('Candidate: %d' % modulus)
     print('\n')
+
+if __name__ == '__main__':
+    _test()

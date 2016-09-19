@@ -183,4 +183,7 @@ def testRandom():
   else:
     print("\n ERROR - the implementation of Rngs.py is not correct")
 
+if __name__ == '__main__':
+  testRandom()
+
   

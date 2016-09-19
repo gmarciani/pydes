@@ -1,8 +1,9 @@
 import threading
+from math import sqrt
 from rnd.inspection.multiplier import is_fp_multiplier, is_mc_multiplier
 
 
-THREADS = 8
+THREADS = 32
 MULTIPLIER = 0
 
 
@@ -16,17 +17,19 @@ class MultiplierFinder(threading.Thread):
     def run(self):
         global MULTIPLIER
         for multiplier in self.rng:
+            print('Testing: %d' % multiplier)
             if MULTIPLIER != 0: break
-            if is_fp_multiplier(multiplier, self.modulus) and is_mc_multiplier(multiplier, self.modulus):
+            if is_mc_multiplier(multiplier, self.modulus) and is_fp_multiplier(multiplier, self.modulus):
                 MULTIPLIER = multiplier
                 break
 
 
 def find_multiplier(modulus):
-    mx = modulus - 1
+    mx = int(sqrt(modulus)) - 1
     pool = []
     for t in range(THREADS):
-        rng = range(mx - t, 0, -THREADS)
+        #rng = range(mx - t, 0, -THREADS)
+        rng = range(1+t, mx, THREADS)
         finder = MultiplierFinder(modulus, rng)
         pool.append(finder)
     for finder in pool:
@@ -36,7 +39,10 @@ def find_multiplier(modulus):
     return MULTIPLIER
 
 
-if __name__ == '__main__':
+def _test():
+    """
+    Tests the correctness of functions.
+    """
     MODULUS = 2147483647  # 127 (8bit), 32749 (16bit), 2147483647 (32bit), 9223372036854775783 (64bit)
     fpmc_multiplier = find_multiplier(MODULUS)
 
@@ -48,3 +54,7 @@ if __name__ == '__main__':
     print('--------------------------------------')
     print('Candidate: %d' % fpmc_multiplier)
     print('\n')
+
+
+if __name__ == '__main__':
+    _test()

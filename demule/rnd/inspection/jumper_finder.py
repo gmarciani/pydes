@@ -40,7 +40,10 @@ def find_jumper(modulus, multiplier, streams):
     return JUMPER, JSIZE
 
 
-if __name__ == '__main__':
+def _test():
+    """
+    Tests the correctness of functions.
+    """
     MODULUS = 2147483647    # 127 (8bit), 32749 (16bit), 2147483647 (32bit), 9223372036854775783 (64bit)
     MULTIPLIER = 48271      # -, -, 48271, -
     STREAMS = 256           # 256, 512, 1024, 2048
@@ -59,3 +62,6 @@ if __name__ == '__main__':
     print('Jump Size: %d' % jsize)
     print('\n')
 
+
+if __name__ == '__main__':
+    _test()
