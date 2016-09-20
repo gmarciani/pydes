@@ -1,7 +1,6 @@
 from matplotlib import rc
 from matplotlib import style
 
-#rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
 rc('text', usetex=True)
 

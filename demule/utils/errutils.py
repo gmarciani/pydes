@@ -5,6 +5,16 @@ confidence.
 
 
 def error_two_tails(data, mn, mx, confidence):
+    """
+    Computes error statistics for data w.r.t. upper and lower bounds at the
+    level of confidence.
+    :param data: (List(Float)) sample.
+    :param mn: (Float) lower bound.
+    :param mx: (Float) upper bound.
+    :param confidence: (Float) confidence in [0,1].
+    :return: (Dict)
+    """
+
     streams = len(data)
 
     # Theoretical Error
@@ -40,6 +50,14 @@ def error_two_tails(data, mn, mx, confidence):
     return error
 
 def error_one_tail(data, mx, confidence):
+    """
+    Computes error statistics for data w.r.t. upper bound at the level of
+    confidence.
+    :param data: (List(Float)) sample.
+    :param mx: (Float) upper bound.
+    :param confidence: (Float) confidence in [0,1].
+    :return: (Dict)
+    """
     streams = len(data)
 
     # Theoretical Error

@@ -1,7 +1,13 @@
-from plots import *
+"""
+Collection of functions to build Matplotlib plots for the Kolmogorov-Smirnov
+Test.
+"""
+
+
 import matplotlib.pyplot as plt
-from libs.des.rvms import cdfChisquare
 import numpy as np
+from demule.utils.rvms import cdfChisquare
+from plots import *
 
 
 def histogram(ksdistances, kspoint, kscritical, title=None, filename=None):

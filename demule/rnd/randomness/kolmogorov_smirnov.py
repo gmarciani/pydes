@@ -3,11 +3,11 @@ Kolmogorov-Smirnov test of randomness.
 """
 
 import math
-
-from libs.des.rvms import cdfChisquare
+from demule.utils import rvms
+from demule.utils import errutils
 from plots.kolmogorov_smirnov import histogram as kshistogram
 from plots.kolmogorov_smirnov import histogram2 as kshistogram2
-from utils.error import error_one_tail
+
 
 CONFIDENCE = 0.95
 
@@ -18,7 +18,7 @@ def ksdistances(chisquares, bins):
     distances = []
     for i in range(streams):
         chi = chisquares[i][1]
-        distance = max(abs(cdfChisquare(bins - 1, chi) - (i / streams)), abs(cdfChisquare(bins - 1, chi) - ((i - 1) / streams)))
+        distance = max(abs(rvms.cdfChisquare(bins - 1, chi) - (i / streams)), abs(rvms.cdfChisquare(bins - 1, chi) - ((i - 1) / streams)))
         distances.append((chi, distance))
     return distances
 
@@ -48,7 +48,7 @@ def c_factor(confidence):
     return C_FACTOR_TABLE[format(confidence, '.3f')]
 
 def error(data, mx, confidence):
-    return error_one_tail(data, mx, confidence)
+    return errutils.error_one_tail(data, mx, confidence)
 
 
 def plot(ksdistances, kspoint, kscritical, title=None, filename=None):

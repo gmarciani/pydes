@@ -1,0 +1,22 @@
+Metadata-Version: 1.1
+Name: demule
+Version: 1.0.0
+Summary: Python discrete-event simulation suite
+Home-page: http://gmarciani.com/workspace/demule
+Author: Giacomo Marciani
+Author-email: giacomo.marciani@gmail.com
+License: MIT
+Download-URL: http://gmarciani.com/workspace/demule/installing.html
+Description:
+                demule is a discrete-event simulation suite.
+
+Platform: any
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: Python Software Foundation License
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Topic :: Scientific/Engineering :: Visualization

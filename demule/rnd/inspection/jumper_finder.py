@@ -1,67 +1,41 @@
 import threading
 from demule.rnd.inspection.multiplier import is_mc_multiplier
 
-THREADS = 8
-JUMPER = 0
-JSIZE = 0
+
+_THREADS = 32
+_JUMPER = 0
+_JSIZE = 0
 
 
 class JumperFinder(threading.Thread):
 
     def __init__(self, modulus, multiplier, rng):
         threading.Thread.__init__(self)
-        self.modulus = modulus
-        self.multiplier = multiplier
-        self.rng = rng
+        self._modulus = modulus
+        self._multiplier = multiplier
+        self._rng = rng
 
     def run(self):
-        global JUMPER
-        global JSIZE
-        for jsize in self.rng:
-            if JSIZE != 0: break
-            jumper = (self.multiplier ** jsize) % self.modulus
-            if is_mc_multiplier(jumper, self.modulus):
-                JUMPER = jumper
-                JSIZE = jsize
+        global _JUMPER
+        global _JSIZE
+        for jsize in self._rng:
+            if _JSIZE != 0: break
+            jumper = (self._multiplier ** jsize) % self._modulus
+            if is_mc_multiplier(jumper, self._modulus):
+                _JUMPER = jumper
+                _JSIZE = jsize
                 break
 
 
-def find_jumper(modulus, multiplier, streams):
+def find_jumper(modulus, multiplier, streams, threads=_THREADS):
     mx = int(modulus + 1 / streams)
     pool = []
-    for t in range(THREADS):
-        rng = range(mx - t, 0, -THREADS)
+    for t in range(threads):
+        rng = range(mx - t, 0, -threads)
         finder = JumperFinder(modulus, multiplier, rng)
         pool.append(finder)
     for finder in pool:
         finder.start()
     for finder in pool:
         finder.join()
-    return JUMPER, JSIZE
-
-
-def _test():
-    """
-    Tests the correctness of functions.
-    """
-    MODULUS = 2147483647    # 127 (8bit), 32749 (16bit), 2147483647 (32bit), 9223372036854775783 (64bit)
-    MULTIPLIER = 48271      # -, -, 48271, -
-    STREAMS = 256           # 256, 512, 1024, 2048
-
-    jumper, jsize = find_jumper(MODULUS, MULTIPLIER, STREAMS)
-
-    # Report
-    print('======================================')
-    print('INSPECTION: JUMPER                    ')
-    print('======================================')
-    print('Modulus: %d' % MODULUS)
-    print('Multiplier: %d' % MULTIPLIER)
-    print('Streams: %d' % STREAMS)
-    print('--------------------------------------')
-    print('Candidate: %d' % jumper)
-    print('Jump Size: %d' % jsize)
-    print('\n')
-
-
-if __name__ == '__main__':
-    _test()
+    return _JUMPER, _JSIZE

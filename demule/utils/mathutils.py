@@ -6,12 +6,23 @@ import math
 
 
 def gcd(a, b):
+    """
+    Computes the greatest common divisor of a and b.
+    :param a: (int) first term.
+    :param b: (int) second term
+    :return: (int) the greatest common divisor of a and b.
+    """
     while b:
         a, b = b, a % b
     return a
 
 
 def isprime(n):
+    """
+    Checks if n is a prime number.
+    :param n: (int) the number to check.
+    :return: (Boolean) True if n is prime, False otherwise.
+    """
     if n == 2:
         return True
     if n % 2 == 0:
@@ -26,8 +37,16 @@ def isprime(n):
 
 
 def get_frequencies(sample, min, max, bins):
-    frequencies = []
+    """
+    Computes the frequencies of a bounded sample.
+    :param sample: (List(Float)) array of sample values.
+    :param min: (Float) the lower bound.
+    :param max: (Float) the upper bound.
+    :param bins: (Int) the number of bins to divide the interval into.
+    :return: (List[Int]) the list of frequencies in bins.
+    """
 
+    frequencies = []
     interval = max - min
     binsize = interval / bins
 
@@ -42,8 +61,16 @@ def get_frequencies(sample, min, max, bins):
 
 
 def get_frequencies_bivariate(sample, min, max, bins):
-    frequencies = []
+    """
+    Computes the frequencies of a bounded bivariate sample.
+    :param sample: (List((Float,Float)) array of bivariate sample values.
+    :param min: (Float) the lower bound.
+    :param max: (Float) the upper bound.
+    :param bins: (Int) the number of bins to divide the interval into.
+    :return: (List[Int]) the list of frequencies in bins.
+    """
 
+    frequencies = []
     interval = max -min
     binsize = interval / bins
 
@@ -61,6 +88,14 @@ def get_frequencies_bivariate(sample, min, max, bins):
 
 
 def chisquare_univariate(observed, expected, start=0):
+    """
+    Computes the chi-square statistics for chi-square tests.
+    :param observed: (List) array of observations.
+    :param expected: (List) array of expected values.
+    :param start: (int) index of array from where to start
+    :return: (Float) the chi-square statistics.
+    """
+
     K = len(observed)
     value = 0
     for x in range(start, K):
@@ -69,6 +104,14 @@ def chisquare_univariate(observed, expected, start=0):
 
 
 def chisquare_bivariate(observed, expected, start=0):
+    """
+    Computes the chi-square statistics for bivariate chi-square tests.
+    :param observed: (List) array of observations.
+    :param expected: (List) array of expected values.
+    :param start: (int) index of array from where to start
+    :return: (Float) the chi-square statistics.
+    """
+
     K = len(observed)
     value = 0
     for x1 in range(start, K):

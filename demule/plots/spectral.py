@@ -1,3 +1,8 @@
+"""
+Collection of functions to build Matplotlib plots for the Spectral Test.
+"""
+
+
 import matplotlib.pyplot as plt
 import numpy as np
 from plots import *

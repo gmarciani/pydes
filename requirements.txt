@@ -1,2 +1,2 @@
-plotly == 1.12.9
-numpy
+matplotlib=1.5.3
+numpy>=1.11.1

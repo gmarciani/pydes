@@ -8,13 +8,13 @@ Keep in mind the following table:
 ║            ╠═════╦═══════╦════════════╦═════════════════════╣
 ║            ║ 8   ║ 16    ║ 32         ║ 64                  ║
 ╠════════════╬═════╬═══════╬════════════╬═════════════════════╣
-║ MODULUS    ║ 127 ║ 32719 ║ 2147483647 ║ 9223372036854775783 ║
+║ MODULUS    ║ 127 ║ 32479 ║ 2147483647 ║ 9223372036854775783 ║
 ╠════════════╬═════╬═══════╬════════════╬═════════════════════╣
 ║ MULTIPLIER ║ 14  ║ 16374 ║ 48271      ║                     ║
 ╠════════════╬═════╬═══════╬════════════╬═════════════════════╣
 ║ STREAMS    ║ 64  ║ 128   ║ 256        ║ 512                 ║
 ╠════════════╬═════╬═══════╬════════════╬═════════════════════╣
-║ JUMPER     ║     ║       ║ 22925      ║                     ║
+║ JUMPER     ║ 14  ║ 32748 ║ 22925      ║                     ║
 ╠════════════╬═════╬═══════╬════════════╬═════════════════════╣
 ║ CHECKV     ║     ║       ║ 399268537  ║                     ║
 ╠════════════╬═════╬═══════╬════════════╬═════════════════════╣
@@ -22,19 +22,13 @@ Keep in mind the following table:
 ╚════════════╩═════╩═══════╩════════════╩═════════════════════╝
 """
 
-from time import time
+_MODULUS = 2147483647
+_MULTIPLIER = 48271
+_ISEED = 1
+_STREAMS = 256
+_JUMPER = 22925
 
-
-MODULUS = 2147483647
-MULTIPLIER = 48271
-ISEED = 1
-STREAMS = 256
-JUMPER = 22925
-
-CHECK_VALUE = 399268537
-CHECK_ITERS = 10000
-
-seed = [int(ISEED)] * STREAMS
+seed = [int(_ISEED)] * _STREAMS
 stream = 0
 init = False
 
@@ -84,16 +78,16 @@ def rnd():
     """
     global seed
 
-    Q = int(MODULUS / MULTIPLIER)
-    R = int(MODULUS % MULTIPLIER)
+    Q = int(_MODULUS / _MULTIPLIER)
+    R = int(_MODULUS % _MULTIPLIER)
 
-    t = int(MULTIPLIER * (seed[stream] % Q) - R * int(seed[stream] / Q))
+    t = int(_MULTIPLIER * (seed[stream] % Q) - R * int(seed[stream] / Q))
     if t > 0:
         seed[stream] = int(t)
     else:
-        seed[stream] = int(t + MODULUS)
+        seed[stream] = int(t + _MODULUS)
 
-    return float(seed[stream] / MODULUS)
+    return float(seed[stream] / _MODULUS)
 
 
 def select_stream(sid):
@@ -102,9 +96,9 @@ def select_stream(sid):
     :param sid: stream index in [0,STREAMS-1].
     """
     global stream
-    stream = sid % STREAMS
-    if not init and stream != 0:
-        plant_seeds(ISEED)
+    stream = sid % _STREAMS
+    if init is False and stream != 0:
+        plant_seeds(_ISEED)
 
 
 def plant_seeds(x):
@@ -117,20 +111,20 @@ def plant_seeds(x):
     global stream
     global seed
 
-    Q = int(MODULUS / JUMPER)
-    R = int(MODULUS % JUMPER)
+    Q = int(_MODULUS / _JUMPER)
+    R = int(_MODULUS % _JUMPER)
 
     init = True
     s = stream
     select_stream(0)
     put_seed(x)
     stream = s
-    for j in range(1, STREAMS):
-        x = int(JUMPER * (seed[j - 1] % Q) - R * int((seed[j - 1] / Q)))
-    if x > 0:
-        seed[j] = x
-    else:
-        seed[j] = x + MODULUS
+    for j in range(1, _STREAMS):
+        x = int(_JUMPER * (seed[j - 1] % Q) - R * int((seed[j - 1] / Q)))
+        if x > 0:
+            seed[j] = x
+        else:
+            seed[j] = x + _MODULUS
 
 
 def put_seed(x):
@@ -140,10 +134,7 @@ def put_seed(x):
     """
     global seed
     if x > 0:
-        x = x % MODULUS
-    else:
-        x = time()
-        x = x % MODULUS
+        x %= _MODULUS
     seed[stream] = int(x)
 
 
@@ -153,30 +144,3 @@ def get_seed():
     :return: (int) the seed of the current stream.
     """
     return seed[stream]
-
-
-def _test():
-    """
-    Tests the correctness of the pseudo-random generator.
-    """
-    ok = False
-
-    select_stream(0)
-    put_seed(1)
-    for i in range(0, CHECK_ITERS):
-        u = rnd()
-    x = get_seed()
-    ok = (x == CHECK_VALUE)
-
-    select_stream(1)
-    plant_seeds(1)
-    x = get_seed()
-    ok = (ok == True) and (x == JUMPER)
-    if (ok == True):
-        print("\nThe implementation of rndgen is correct")
-    else:
-        print("\nThe implementation of rndgen is not correct")
-
-
-if __name__ == '__main__':
-    _test()

@@ -3,11 +3,11 @@ The Test of Extremes for uniformity.
 """
 
 import math
-
+from demule.utils import rvms
+from demule.utils import errutils
 from demule.utils import mathutils
-from libs.des.rvms import idfChisquare
 from plots.chisquare import scatter
-from utils.error import error_two_tails
+
 
 SAMSIZE = 10000     # SAMSIZE >= 10*BINS
 BINS = 1000         # BINS >= 1000
@@ -48,15 +48,15 @@ def chisquare(observed, samsize):
 
 
 def critical_min(bins, confidence=CONFIDENCE):
-    return idfChisquare(bins - 1, (1 - confidence) / 2)
+    return rvms.idfChisquare(bins - 1, (1 - confidence) / 2)
 
 
 def critical_max(bins, confidence=CONFIDENCE):
-    return idfChisquare(bins - 1, 1 - (1 - confidence) / 2)
+    return rvms.idfChisquare(bins - 1, 1 - (1 - confidence) / 2)
 
 
 def error(data, mn, mx, confidence=CONFIDENCE):
-    return error_two_tails(data, mn, mx, confidence)
+    return errutils.error_two_tails(data, mn, mx, confidence)
 
 
 def plot(data, mn, mx, title=None, filename=None):

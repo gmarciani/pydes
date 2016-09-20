@@ -1,9 +1,9 @@
 import threading
-from demule.utils.mathutils import isprime
+from demule.utils import mathutils
 
 
-THREADS = 8
-MODULUS = 0
+_THREADS = 32
+_MODULUS = 0
 
 
 class ModulusFinder(threading.Thread):
@@ -13,44 +13,23 @@ class ModulusFinder(threading.Thread):
         self.rng = rng
 
     def run(self):
-        global MODULUS
+        global _MODULUS
         for modulus in self.rng:
-            if MODULUS != 0: break
-            if isprime(modulus):
-                MODULUS = modulus
+            if _MODULUS != 0: break
+            if mathutils.isprime(modulus):
+                _MODULUS = modulus
                 break
 
 
-def find_modulus(bits):
+def find_modulus(bits, threads=_THREADS):
     mx = 2**(bits - 1) - 1
     pool = []
-    for t in range(THREADS):
-        rng = range(mx - t, 0, -THREADS)
+    for t in range(threads):
+        rng = range(mx - t, 0, -threads)
         finder = ModulusFinder(rng)
         pool.append(finder)
     for finder in pool:
         finder.start()
     for finder in pool:
         finder.join()
-    return MODULUS
-
-
-def _test():
-    """
-    Tests the correctness of functions.
-    """
-    BITS = 32  # 8, 16, 32, 64
-
-    modulus = find_modulus(BITS)
-
-    # Report
-    print('======================================')
-    print('INSPECTION: MODULUS                   ')
-    print('======================================')
-    print('Bits: %d' % BITS)
-    print('--------------------------------------')
-    print('Candidate: %d' % modulus)
-    print('\n')
-
-if __name__ == '__main__':
-    _test()
+    return _MODULUS

@@ -1,3 +1,8 @@
+"""
+Collection of functions to build Matplotlib plots for Chi-Square Tests.
+"""
+
+
 import matplotlib.pyplot as plt
 from plots import *
 

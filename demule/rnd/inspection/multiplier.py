@@ -11,7 +11,7 @@ Keep in mind the following table:
 ║            ╠═════╦═══════╦════════════╦═════════════════════╣
 ║            ║ 8   ║ 16    ║ 32         ║ 64                  ║
 ╠════════════╬═════╬═══════╬════════════╬═════════════════════╣
-║ MODULUS    ║ 127 ║ 32719 ║ 2147483647 ║ 9223372036854775783 ║
+║ MODULUS    ║ 127 ║ 32479 ║ 2147483647 ║ 9223372036854775783 ║
 ╠════════════╬═════╬═══════╬════════════╬═════════════════════╣
 ║ MULTIPLIER ║ 14  ║ 16374 ║ 48271      ║                     ║
 ╚════════════╩═════╩═══════╩════════════╩═════════════════════╝
@@ -33,7 +33,7 @@ def generate_fpmc_multipliers(multiplier, modulus):
     i = 1
     x = multiplier
     while x != 1:
-        if is_mc_multiplier(multiplier, modulus) and gcd(i, modulus - 1):
+        if is_mc_multiplier(multiplier, modulus) and mathutils.gcd(i, modulus - 1):
             multipliers.append(x)
         i += 1
         x = _g(x, multiplier, modulus)
