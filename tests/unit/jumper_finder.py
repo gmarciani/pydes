@@ -6,16 +6,17 @@ class JumperTest(unittest.TestCase):
 
     def test_find_jumper_8bit(self):
         MODULUS = 127
-        MULTIPLIER = 14
+        MULTIPLIER = 3
         STREAMS = 64
-        JUMPER = 14
-        #JSIZE = 127
+        JUMPER = 3
+        JSIZE = 127
 
         jumper, jsize = jumper_finder.find_jumper(MODULUS, MULTIPLIER, STREAMS)
 
         self.assertEqual(jumper, JUMPER, 'Jumper (8 bit) not correct.')
-        #self.assertEqual(jsize, JSIZE, 'Jumper Size (8 bit) not correct.')
+        self.assertEqual(jsize, JSIZE, 'Jumper Size (8 bit) not correct.')
 
+    @unittest.skip('Test too expensive for this machine.')
     def test_find_jumper_16bit(self):
         MODULUS = 32479
         MULTIPLIER = 16374

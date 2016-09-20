@@ -9,7 +9,7 @@ from tests.experiments.randomness import PLOT_DIR, PLOT_EXT
 
 
 def _experiment():
-    MODULUS = 32749
+    MODULUS = 127
 
     fp_multipliers = []
     mc_multipliers = []

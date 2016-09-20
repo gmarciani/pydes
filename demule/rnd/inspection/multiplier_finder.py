@@ -17,7 +17,6 @@ class MultiplierFinder(threading.Thread):
     def run(self):
         global _MULTIPLIER
         for multiplier in self._rng:
-            print('Testing: %d' % multiplier)
             if _MULTIPLIER != 0: break
             if is_mc_multiplier(multiplier, self._modulus) and is_fp_multiplier(multiplier, self._modulus):
                 _MULTIPLIER = multiplier

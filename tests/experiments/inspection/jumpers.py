@@ -8,7 +8,7 @@ from demule.rnd.inspection import jumper_finder
 
 def _experiment():
     MODULUS = 127
-    MULTIPLIER = 14
+    MULTIPLIER = 3
     STREAMS = 64
 
     jumper, jumpsize = jumper_finder.find_jumper(MODULUS, MULTIPLIER, STREAMS)

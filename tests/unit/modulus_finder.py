@@ -12,6 +12,7 @@ class ModulusTest(unittest.TestCase):
 
         self.assertEqual(modulus, MODULUS, 'Modulus (8 bit) not correct.')
 
+    @unittest.skip('Test too expensive for this machine.')
     def test_find_jumper_16bit(self):
         BITS = 16
         MODULUS = 32479
