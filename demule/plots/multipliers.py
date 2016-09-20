@@ -2,10 +2,9 @@
 Collection of functions to build Matplotlib plots for the multiplier analysis.
 """
 
-
 import matplotlib.pyplot as plt
 import numpy as np
-from plots import *
+from demule.plots import *
 
 
 def scatter(data, modulus, title=None, filename=None):
@@ -50,3 +49,5 @@ def scatter(data, modulus, title=None, filename=None):
         plt.savefig(filename, bbox_inches='tight')
     else:
         fig.show()
+
+    plt.close(fig)

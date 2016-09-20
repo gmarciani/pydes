@@ -7,7 +7,7 @@ Test.
 import matplotlib.pyplot as plt
 import numpy as np
 from demule.utils.rvms import cdfChisquare
-from plots import *
+from demule.plots import *
 
 
 def histogram(ksdistances, kspoint, kscritical, title=None, filename=None):
@@ -57,6 +57,8 @@ def histogram(ksdistances, kspoint, kscritical, title=None, filename=None):
     else:
         plt.show()
 
+    plt.close(fig)
+
 
 def histogram2(chisquares, bins, kspoint, title=None, filename=None):
     chisquares.sort(key=lambda v: v[1])
@@ -104,3 +106,5 @@ def histogram2(chisquares, bins, kspoint, title=None, filename=None):
         plt.savefig(filename, bbox_inches='tight')
     else:
         plt.show()
+
+    plt.close(fig)

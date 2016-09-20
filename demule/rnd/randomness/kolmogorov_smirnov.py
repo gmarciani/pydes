@@ -5,8 +5,8 @@ Kolmogorov-Smirnov test of randomness.
 import math
 from demule.utils import rvms
 from demule.utils import errutils
-from plots.kolmogorov_smirnov import histogram as kshistogram
-from plots.kolmogorov_smirnov import histogram2 as kshistogram2
+from demule.plots.kolmogorov_smirnov import histogram as kshistogram
+from demule.plots.kolmogorov_smirnov import histogram2 as kshistogram2
 
 
 CONFIDENCE = 0.95

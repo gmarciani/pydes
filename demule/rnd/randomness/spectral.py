@@ -1,4 +1,4 @@
-from plots.spectral import scatter2D
+from demule.plots.spectral import scatter2D
 
 
 SAMSIZE = 10000 # SAMSIZE >= 10000

@@ -5,7 +5,8 @@ Collection of functions to build Matplotlib plots for the Spectral Test.
 
 import matplotlib.pyplot as plt
 import numpy as np
-from plots import *
+from demule.plots import *
+
 
 def scatter2D(data, title=None, filename=None, zoom=None):
 
@@ -53,3 +54,5 @@ def scatter2D(data, title=None, filename=None, zoom=None):
         plt.savefig(filename, bbox_inches='tight')
     else:
         fig.show()
+
+    plt.close(fig)

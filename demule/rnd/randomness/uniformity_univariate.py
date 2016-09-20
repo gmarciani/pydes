@@ -6,7 +6,7 @@ import math
 from demule.utils.rvms import idfChisquare
 from demule.utils import errutils
 from demule.utils import mathutils
-from plots.chisquare import scatter
+from demule.plots.chisquare import scatter
 
 
 SAMSIZE = 10000     # SAMSIZE >= 10*BINS
@@ -23,6 +23,7 @@ def statistics(generator, streams, samsize=SAMSIZE, bins=BINS):
         result = (stream, chi)
         data.append(result)
     return data
+
 
 def observations(uniform, samsize, bins):
     observed = [0] * bins

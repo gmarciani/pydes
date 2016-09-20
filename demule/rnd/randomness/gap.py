@@ -5,7 +5,7 @@ The Gap Test for independence.
 from demule.utils import rvms
 from demule.utils import errutils
 from demule.utils import mathutils
-from plots.chisquare import scatter
+from demule.plots.chisquare import scatter
 
 
 SAMSIZE = 10000     # SAMSIZE >= 10000

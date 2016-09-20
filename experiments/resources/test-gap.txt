@@ -1,0 +1,25 @@
+======================================
+TEST OF INDEPENDENCE - GAP            
+======================================
+Generator: MarcianiMultiStream
+Streams: 256
+Seed: 1
+--------------------------------------
+Sample Size: 10000
+Bins: 78
+A: 0
+B: 0
+Confidence: +95.000 %
+--------------------------------------
+Critical Lower Bound: +54.623 %
+Critical Upper Bound: +103.158 %
+--------------------------------------
+Theoretical Error: 13 (5.078 %)
+Empirical Error: 256 (100.000 %)
+	Error(s) Min: 0 (0.000 %)
+	Error(s) Max: 256 (100.000 %)
+--------------------------------------
+Result: Failed
+Summary: 100.000 % error (+1869.231 % of theoretical error)
+Suggested Confidence: 0.000 %
+

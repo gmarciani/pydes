@@ -1,0 +1,24 @@
+======================================
+TEST OF INDEPENDENCE - PERMUTATION    
+======================================
+Generator: MarcianiMultiStream
+Streams: 256
+Seed: 1
+--------------------------------------
+Sample Size: 7200
+Bins: 720
+T: 6
+Confidence: +95.000 %
+--------------------------------------
+Critical Lower Bound: +646.588 %
+Critical Upper Bound: +795.200 %
+--------------------------------------
+Theoretical Error: 13 (5.078 %)
+Empirical Error: 16 (6.250 %)
+	Error(s) Min: 10 (3.906 %)
+	Error(s) Max: 6 (2.344 %)
+--------------------------------------
+Result: Failed
+Summary: 6.250 % error (+23.077 % of theoretical error)
+Suggested Confidence: 93.750 %
+

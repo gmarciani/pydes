@@ -1,0 +1,23 @@
+======================================
+TEST OF UNIFORMITY - BIVARIATE        
+======================================
+Generator: MarcianiMultiStream
+Streams: 256
+Seed: 1
+--------------------------------------
+Sample Size: 100000
+Bins: 100
+Confidence: +95.000 %
+--------------------------------------
+Critical Lower Bound: +9723.732 %
+Critical Upper Bound: +10278.056 %
+--------------------------------------
+Theoretical Error: 13 (5.078 %)
+Empirical Error: 13 (5.078 %)
+	Error(s) Min: 9 (3.516 %)
+	Error(s) Max: 4 (1.562 %)
+--------------------------------------
+Result: Not Failed
+Summary: 5.078 % error (+0.000 % of theoretical error)
+Suggested Confidence: 94.922 %
+
