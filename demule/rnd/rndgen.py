@@ -38,8 +38,21 @@ class MarcianiMultiStream(object):
     Utility class to encapsulate rndgen functionalities.
     """
 
-    def __init__(self, seed):
-        self._seed = seed
+    def __init__(self, iseed=_ISEED):
+        """
+        Creates a new random number generator.
+        :param iseed: (int) the initial seed.
+        """
+        self._seed = iseed
+        select_stream(0)
+        plant_seeds(self._seed)
+
+    def plant_seeds(self, iseed):
+        """
+        Initializes all the streams of the generator.
+        :param iseed: (int) the initial seed.
+        """
+        self._seed = iseed
         select_stream(0)
         plant_seeds(self._seed)
 
@@ -47,7 +60,6 @@ class MarcianiMultiStream(object):
         """
         Selects the current stream.
         :param stream: stream index in [0,STREAMS-1]
-        :return:
         """
         select_stream(stream)
 

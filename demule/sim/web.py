@@ -259,3 +259,7 @@ print('\tAverage service            : %.5f' % bend_average_service)
 print('\tAverage requests in node   : %.5f' % bend_average_requests_in_node)
 print('\tAverage requests in queue  : %.5f' % bend_average_requests_in_queue)
 print('\tUtilization                : %.5f' % bend_utilization)
+
+
+if __name__ == '__main__':
+    simparams = SimulationParameters()

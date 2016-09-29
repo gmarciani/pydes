@@ -45,6 +45,5 @@ class MathUtilsTest(unittest.TestCase):
             self.assertAlmostEqual(stats.get_variance(), variance, 2, 'variance not correct.')
 
 
-
 if __name__ == '__main__':
     unittest.main()

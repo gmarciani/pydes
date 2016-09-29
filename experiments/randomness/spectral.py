@@ -4,6 +4,7 @@ Experiment: Spectral Test of Randomness.
 
 from demule.rnd.randomness import spectral
 from demule.rnd.rndgen import MarcianiMultiStream as RandomGenerator
+from demule.utils.report import SimpleReport
 from experiments import EXP_DIR, PLT_EXT, RES_EXT
 
 
@@ -11,31 +12,23 @@ def experiment():
 
     # Generator
     SEED = 1
-    generator = RandomGenerator(SEED)
+    GENERATOR = RandomGenerator(SEED)
 
     # Test Parameters
     SAMSIZE = 100000 #2147483646
 
     # Test
-    data = spectral.observations(generator.rnd, SAMSIZE)
+    data = spectral.observations(GENERATOR.rnd, SAMSIZE)
 
     # Report
-    report = \
-        '======================================' + '\n' + \
-        'SPECTRAL TEST                         ' + '\n' + \
-        '======================================' + '\n' + \
-        'Generator: %s' % (generator.__class__.__name__,) + '\n' + \
-        'Seed: %d' % (SEED,) + '\n' + \
-        '--------------------------------------' + '\n' + \
-        'Sample Size: %d' % (SAMSIZE,)  + '\n' + \
-        '--------------------------------------' + '\n\n'
+    r = SimpleReport('SPECTRAL TEST')
+    r.add('Generator', 'Class', GENERATOR.__class__.__name__)
+    r.add('Generator', 'Seed', SEED)
+    r.add('Test Parameters', 'Sample Size', SAMSIZE)
 
-    print(report)
+    r.save('%s/%s.%s' % (EXP_DIR, 'test-spectral', PLT_EXT))
 
-    # Report on file
-    filename = '%s/%s.%s' % (EXP_DIR, 'test-spectral', PLT_EXT)
-    with open(filename, 'w') as resfile:
-        resfile.write(report)
+    print(r)
 
     # Plot
     filename = '%s/%s.%s' % (EXP_DIR, 'test-spectral', PLT_EXT)

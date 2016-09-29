@@ -10,6 +10,7 @@ from demule.rnd.randomness import runsup
 from demule.rnd.randomness import uniformity_bivariate
 from demule.rnd.randomness import uniformity_univariate
 from demule.rnd.rndgen import MarcianiMultiStream as RandomGenerator
+from demule.utils.report import SimpleReport
 from experiments import EXP_DIR, PLT_EXT, RES_EXT
 
 
@@ -56,46 +57,34 @@ def test(testname, params):
     sugg_confidence = 1 - err['err_emp_perc']
 
     # Report
-    report = \
-        '======================================' + '\n' + \
-        'TEST OF KOLMOGOROV-SMIRNOV            ' + '\n' + \
-        '======================================' + '\n' + \
-        'Chi-Square Test: %s' % (testname,) + '\n' + \
-        '--------------------------------------' + '\n' + \
-        'Generator: %s' % (GENERATOR.__class__.__name__,) + '\n' + \
-        'Streams: %d' % (STREAMS,) + '\n' + \
-        'Seed: %d' % (SEED,) + '\n' + \
-        '--------------------------------------' + '\n' + \
-        'Sample Size: %d' % (SAMSIZE,) + '\n' + \
-        'Bins: %d' % (BINS,) + '\n'
+    r = SimpleReport('TEST OF KOLMOGOROV-SMIRNOV')
+    r.add('Generator', 'Class', GENERATOR.__class__.__name__)
+    r.add('Generator', 'Streams', STREAMS)
+    r.add('Generator', 'Seed', SEED)
+    r.add('Test Parameters', 'Chi-Square Test', testname)
+    r.add('Test Parameters', 'Sample Size', SAMSIZE)
+    r.add('Test Parameters', 'Bins', BINS)
+    r.add('Test Parameters', 'Confidence', '%.3F' % (CONFIDENCE * 100))
     if testname is 'extremes':
-        report += 'D: %d' % (params['d'],)
+        r.add('Test Parameters', 'D', params['d'])
     elif testname is 'gap':
-        report += 'A: %d' % (params['a'],)
-        report += 'B: %d' % (params['b'],)
+        r.add('Test Parameters', 'A', params['a'])
+        r.add('Test Parameters', 'B', params['b'])
     elif testname is 'permutation':
-        report += 'T: %d' % (params['t'],)
-    report += \
-        'Confidence: %+.3f %%' % (CONFIDENCE * 100,) + '\n' + \
-        '--------------------------------------' + '\n' + \
-        'KS-Statistic: %.3f' % (ksstat,) + '\n' + \
-        'Critical Upper Bound: %.3f' % (mx,) + '\n' + \
-        '--------------------------------------' + '\n' + \
-        'Theoretical Error: %d (%.3f %%)' % (err['err_thr'], err['err_thr_perc'] * 100) + '\n' + \
-        'Empirical Error: %d (%.3f %%)' % (err['err_emp'], err['err_emp_perc'] * 100) + '\n' + \
-        '\tError(s) Max: %d (%.3f %%)' % (err['err_mx'], err['err_mx_perc'] * 100) + '\n' + \
-        '--------------------------------------' + '\n' + \
-        'Result: ' + ('Not Failed' if res else 'Failed') + '\n' + \
-        'Summary: %.3f %% error (%+.3f %% of theoretical error)' % (
-        err['err_emp_perc'] * 100, err['err_emp_thr_perc'] * 100) + '\n' + \
-        'Suggested Confidence: %.3f %%' % (sugg_confidence * 100) + '\n\n'
+        r.add('Test Parameters', 'T', params['t'])
+    r.add('Critical Bounds', 'KS Statistic', '%.3F' % ksstat)
+    r.add('Critical Bounds', 'Upper Bound', '%.3F' % mx)
+    r.add('Error', 'Theoretical',
+          '%d (%.3f %%)' % (err['err_thr'], err['err_thr_perc'] * 100))
+    r.add('Error', 'Empirical',
+          '%d (%.3f %%)' % (err['err_emp'], err['err_emp_perc'] * 100))
+    r.add('Error', 'Empirical Upper Bound',
+          '%d (%.3f %%)' % (err['err_mx'], err['err_mx_perc'] * 100))
+    r.add('Result', 'Confidence', '%.3f %%' % (sugg_confidence * 100))
 
-    print(report)
+    r.save('%s/%s.%s' % (EXP_DIR, 'test-ks', RES_EXT))
 
-    # Report on file
-    filename = '%s/%s-%s.%s' % (EXP_DIR, 'test-ks', testname, RES_EXT)
-    with open(filename, 'w') as resfile:
-        resfile.write(report)
+    print(r)
 
     # Plot
     filename = '%s/%s-%s.%s' % (EXP_DIR, 'test-ks', testname, PLT_EXT)

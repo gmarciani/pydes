@@ -4,6 +4,7 @@ generator.
 """
 
 from demule.rnd.inspection import jumper_finder
+from demule.utils.report import SimpleReport
 from experiments import EXP_DIR,RES_EXT
 
 
@@ -15,23 +16,15 @@ def experiment():
     jumper, jumpsize = jumper_finder.find_jumper(MODULUS, MULTIPLIER, STREAMS)
 
     # Report
-    report = \
-        '======================================' + '\n' + \
-        'INSPECTION: JUMPER                    ' + '\n' + \
-        '======================================' + '\n' + \
-        'Modulus: %d' % (MODULUS,) + '\n' + \
-        'Multiplier: %d' % (MULTIPLIER,) + '\n' + \
-        'Streams: %d' % (STREAMS,) + '\n' + \
-        '--------------------------------------' + '\n' + \
-        'Candidate: %d' % jumper + '\n' + \
-        'Jump Size: %d' % jumpsize + '\n\n'
+    r = SimpleReport('JUMPER')
+    r.add('General', 'Modulus', MODULUS)
+    r.add('General', 'Multiplier', MULTIPLIER)
+    r.add('General', 'Streams', STREAMS)
+    r.add('Result', 'Jumper', jumper)
+    r.add('Result', 'Jump Size', jumpsize)
+    r.save('%s/%s.%s' % (EXP_DIR, 'test-inspection-jumper', RES_EXT))
 
-    print(report)
-
-    # Report on file
-    filename = '%s/%s.%s' % (EXP_DIR, 'test-inspection-jumper', RES_EXT)
-    with open(filename, 'w') as resfile:
-        resfile.write(report)
+    print(r)
 
 
 if __name__ == '__main__':

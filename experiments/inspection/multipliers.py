@@ -3,8 +3,9 @@ Experiment: find suitable FP,MC,FP/MC multipliers for a multi-stream Lehmer
 pseudo-random generator.
 """
 
-from demule.plots.multipliers import scatter
 from demule.rnd.inspection import multiplier
+from demule.utils.report import SimpleReport
+from demule.plots.multipliers import scatter
 from experiments import EXP_DIR, PLT_EXT, RES_EXT
 
 
@@ -30,24 +31,20 @@ def experiment():
             mc_multipliers.append(i)
 
     # Report
-    report = \
-        '======================================' + '\n' + \
-        'INSPECTION: MULTIPLIERS               ' + '\n' + \
-        '======================================' + '\n' + \
-        'Modulus: %d' % (MODULUS,) + '\n' + \
-        '--------------------------------------' + '\n' + \
-        'FP Multipliers: %d (%.3f %%)' % (len(fp_multipliers), (len(fp_multipliers) / (MODULUS - 1)) * 100) + '\n' + \
-        'MC Multipliers: %d (%.3f %%)' % (len(mc_multipliers), (len(mc_multipliers) / (MODULUS - 1)) * 100) + '\n' + \
-        'FP/MC Multipliers: %d (%.3f %%)' % (len(fpmc_multipliers), (len(fpmc_multipliers) / (MODULUS - 1)) * 100) + '\n' + \
-        '--------------------------------------' + '\n' + \
-        'Candidates: %s' % ','.join(map(str, fpmc_multipliers)) + '\n\n'
+    r = SimpleReport('MULTIPLIERS')
+    r.add('General', 'Modulus', MODULUS)
+    r.add('Multipliers', 'FP', len(fp_multipliers))
+    r.add('Multipliers', 'MC', len(mc_multipliers))
+    r.add('Multipliers', 'FP/MC', len(fpmc_multipliers))
+    r.add('Multipliers (%)', 'FP', '%.3F' % (100 * len(fp_multipliers) / (MODULUS - 1)))
+    r.add('Multipliers (%)', 'MC', '%.3F' % (100 * len(mc_multipliers) / (MODULUS - 1)))
+    r.add('Multipliers (%)', 'FP/MC', '%.3F' % (100 * len(fpmc_multipliers) / (MODULUS - 1)))
+    r.add('Result', 'Multiplier',
+          fpmc_multipliers[-1] if len(fpmc_multipliers) > 0 else '-')
 
-    print(report)
+    r.save('%s/%s.%s' % (EXP_DIR, 'test-inspection-multipliers', RES_EXT))
 
-    # Report on file
-    filename = '%s/%s.%s' % (EXP_DIR, 'test-inspection-multipliers', RES_EXT)
-    with open(filename, 'w') as resfile:
-        resfile.write(report)
+    print(r)
 
     # Plot
     data = (fp_multipliers, mc_multipliers, fpmc_multipliers)
