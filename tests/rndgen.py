@@ -11,7 +11,7 @@ class RndgenTest(unittest.TestCase):
 
         ok = False
 
-        generator = MarcianiMultiStream(iseed=1)
+        generator = MarcianiMultiStream(1)
 
         #rndgen.select_stream(0)
         #rndgen.put_seed(1)
@@ -25,7 +25,8 @@ class RndgenTest(unittest.TestCase):
         x = generator.get_seed()
         ok = (ok == True) and (x == JUMPER)
 
-        self.assertTrue(ok, 'The implementation of rndgen (32bit) is not correct.')
+        self.assertTrue(ok,
+                        'The implementation of rndgen (32bit) is not correct.')
 
 
 if __name__ == '__main__':
