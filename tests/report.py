@@ -13,7 +13,22 @@ class ReportTest(unittest.TestCase):
         r.add('Section-2', '2nd Value', 2.123)
         r.add('Section-2', '3rd Value', 'Hello World')
 
-        print(r)
+        s = '\n'
+        s += '============================================================\n'
+        s += '                       SAMPLE REPORT                        \n'
+        s += '============================================================\n'
+        s += '\n'
+        s += '                         Section-1                          \n'
+        s += '1st Value..................................................1\n'
+        s += '2nd Value..............................................2.123\n'
+        s += '3rd Value........................................Hello World\n'
+        s += '\n'
+        s += '                         Section-2                          \n'
+        s += '1st Value..................................................1\n'
+        s += '2nd Value..............................................2.123\n'
+        s += '3rd Value........................................Hello World\n'
+
+        self.assertEqual(str(r), s, 'String representation of report is not correct.')
 
 if __name__ == '__main__':
     unittest.main()

@@ -45,7 +45,7 @@ class SimpleReport(object):
     def __str__(self):
         title_separator = '=' * 60
 
-        s = '\n{}\n{:^50}\n{}\n'.format(title_separator, self.title, title_separator)
+        s = '\n{}\n{:^60}\n{}\n'.format(title_separator, self.title, title_separator)
 
         for section in self.params.items():
             s += '\n{:^60}\n'.format(section[0])

@@ -1,5 +1,5 @@
 import unittest
-from demule.rnd import rndgen
+from demule.rnd.rndgen import MarcianiMultiStream
 
 
 class RndgenTest(unittest.TestCase):
@@ -11,16 +11,18 @@ class RndgenTest(unittest.TestCase):
 
         ok = False
 
-        rndgen.select_stream(0)
-        rndgen.put_seed(1)
+        generator = MarcianiMultiStream(iseed=1)
+
+        #rndgen.select_stream(0)
+        #rndgen.put_seed(1)
         for i in range(0, CHECK_ITERS):
-            u = rndgen.rnd()
-        x = rndgen.get_seed()
+            generator.rnd()
+        x = generator.get_seed()
         ok = (x == CHECK_VALUE)
 
-        rndgen.select_stream(1)
-        rndgen.plant_seeds(1)
-        x = rndgen.get_seed()
+        generator.stream(1)
+        generator.plant_seeds(1)
+        x = generator.get_seed()
         ok = (ok == True) and (x == JUMPER)
 
         self.assertTrue(ok, 'The implementation of rndgen (32bit) is not correct.')
