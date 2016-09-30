@@ -2,7 +2,7 @@
 Collection of functions to build Matplotlib plots for the Spectral Test.
 """
 
-
+import os
 import matplotlib.pyplot as plt
 import numpy as np
 from demule.plots import *
@@ -51,6 +51,7 @@ def scatter2D(data, title=None, filename=None, zoom=None):
                 spine.set_position(('outward', 5))
 
     if filename is not None:
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
         plt.savefig(filename, bbox_inches='tight')
     else:
         fig.show()

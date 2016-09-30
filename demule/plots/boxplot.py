@@ -2,7 +2,7 @@
 Collection of functions to build Matplotlib boxplots.
 """
 
-
+import os
 import matplotlib.pyplot as plt
 from demule.utils import mathutils
 import numpy as np
@@ -42,6 +42,7 @@ def batch_means(domain, means, intervals, replications, theoretical=None, title=
             bbox=dict(boxstyle='square', fc='#ffffff', ec='#000000'))
 
     if filename is not None:
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
         plt.savefig(filename, bbox_inches='tight')
     else:
         fig.show()

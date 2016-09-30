@@ -24,18 +24,14 @@ Keep in mind the following table:
 
 _MODULUS = 2147483647
 _MULTIPLIER = 48271
-_ISEED = 123456789
 _STREAMS = 256
 _JUMPER = 22925
-
-seed = [int(_ISEED)] * _STREAMS
-stream = 0
-init = False
+_ISEED = 1
 
 
 class MarcianiMultiStream(object):
     """
-    Utility class to encapsulate rndgen functionalities.
+    Implementation of a multi-stream Lehmer pseudo-random number generator.
     """
 
     def __init__(self, iseed=_ISEED,
@@ -75,10 +71,6 @@ class MarcianiMultiStream(object):
         Initializes all the streams of the generator.
         :param x: (int) the initial seed.
         """
-        #self._seed = x
-        #self.stream(0)
-        #plant_seeds(self._seed)
-
         Q = int(self._modulus / self._jumper)
         R = int(self._modulus % self._jumper)
 
@@ -93,6 +85,13 @@ class MarcianiMultiStream(object):
                 self._seeds[j] = x
             else:
                 self._seeds[j] = x + self._modulus
+
+    def get_initial_seed(self):
+        """
+        Retrieves the initial seed for the 1st stream.
+        :return: (int) the initial seed of 1st stream.
+        """
+        return self._iseed
 
     def get_seed(self):
         """
@@ -123,6 +122,13 @@ class MarcianiMultiStream(object):
         if self._init is False and self._stream != 0:
             self.plant_seeds(self._iseed)
 
+    def get_streams_number(self):
+        """
+        Retrieves the total number of streams.
+        :return: (int) the number of streams.
+        """
+        return self._streams
+
     def rnd(self):
         """
         Generates a pseudo-random number from uniform distribution in [0,1)
@@ -134,9 +140,9 @@ class MarcianiMultiStream(object):
         t = int(self._multiplier * (self._seeds[self._stream] % Q) -
                 R * int(self._seeds[self._stream] / Q))
         if t > 0:
-            self._seeds[stream] = int(t)
+            self._seeds[self._stream] = int(t)
         else:
-            self._seeds[stream] = int(t + self._modulus)
+            self._seeds[self._stream] = int(t + self._modulus)
 
         return float(self._seeds[self._stream] / self._modulus)
 

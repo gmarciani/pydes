@@ -2,41 +2,46 @@
 Experiment: Spectral Test of Randomness.
 """
 
-from demule.rnd.randomness import spectral
 from demule.rnd.rndgen import MarcianiMultiStream as RandomGenerator
+from demule.rnd.randomness import spectral as test
 from demule.utils.report import SimpleReport
 from experiments import EXP_DIR, PLT_EXT, RES_EXT
 
+# Generator
+GENERATOR = RandomGenerator()
 
-def experiment():
+# Test Parameters
+SAMSIZE = 100000
 
-    # Generator
-    SEED = 1
-    GENERATOR = RandomGenerator(SEED)
+# Plot
+FILENAME = '{}/{}'.format(EXP_DIR, 'test-spectral')
 
-    # Test Parameters
-    SAMSIZE = 100000 #2147483646
+
+def experiment(generator=GENERATOR,
+               samsize=SAMSIZE,
+               filename=FILENAME):
 
     # Test
-    data = spectral.observations(GENERATOR.rnd, SAMSIZE)
+    data = test.observations(GENERATOR.rnd, SAMSIZE)
 
     # Report
     r = SimpleReport('SPECTRAL TEST')
-    r.add('Generator', 'Class', GENERATOR.__class__.__name__)
-    r.add('Generator', 'Seed', SEED)
-    r.add('Test Parameters', 'Sample Size', SAMSIZE)
+    r.add('Generator', 'Class', generator.__class__.__name__)
+    r.add('Generator', 'Seed', generator.get_initial_seed())
+    r.add('Test Parameters', 'Sample Size', samsize)
 
-    r.save('%s/%s.%s' % (EXP_DIR, 'test-spectral', PLT_EXT))
+    rep_filename = '{}.{}'.format(filename, RES_EXT)
+    r.save(rep_filename)
 
     print(r)
 
     # Plot
-    filename = '%s/%s.%s' % (EXP_DIR, 'test-spectral', PLT_EXT)
-    spectral.plot(data, filename=filename)
+    fig_filename = '{}.{}'.format(filename, PLT_EXT)
+    test.plot(data, filename=fig_filename)
 
     # Plot (with zoom)
-    filename = '%s/%s.%s' % (EXP_DIR, 'test-spectral_zoom', PLT_EXT)
-    spectral.plot(data, filename=filename, zoom=(0.5, 0.6))
+    fig_filename = '{}-zoom.{}'.format(filename, PLT_EXT)
+    test.plot(data, filename=fig_filename, zoom=(0.5, 0.6))
 
 
 if __name__ == '__main__':

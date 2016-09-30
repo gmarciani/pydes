@@ -2,34 +2,42 @@
 Experiment: Permutation Test of Independence.
 """
 
-from demule.rnd.randomness import permutation
 from demule.rnd.rndgen import MarcianiMultiStream as RandomGenerator
+from demule.rnd.randomness import permutation as test
 from demule.utils.report import SimpleReport
 from experiments import EXP_DIR, PLT_EXT, RES_EXT
 
 
-def experiment():
+# Generator
+GENERATOR = RandomGenerator()
 
-    # Generator
-    SEED = 1
-    STREAMS = 256
-    GENERATOR = RandomGenerator(SEED)
+# Test Parameters
+SAMSIZE = 7200
+BINS = 720
+CONFIDENCE = 0.95
+T = 6
 
-    # Test Parameters
-    SAMSIZE = 7200
-    BINS = 720
-    T = 6
-    CONFIDENCE = 0.95
+# Result File
+FILENAME = '{}/{}'.format(EXP_DIR, 'test-runsup')
+
+
+def experiment(generator=GENERATOR,
+               samsize=SAMSIZE,
+               bins=BINS,
+               confidence=CONFIDENCE,
+               t=T,
+               filename=FILENAME
+               ):
 
     # Test
-    data = permutation.statistics(GENERATOR, STREAMS, SAMSIZE, BINS, T)
+    data = test.statistics(generator, generator.get_streams_number(), samsize, bins, t)
 
     # Critical Bounds
-    mn = permutation.critical_min(BINS, CONFIDENCE)
-    mx = permutation.critical_max(BINS, CONFIDENCE)
+    mn = test.critical_min(bins, confidence)
+    mx = test.critical_max(bins, confidence)
 
     # Theoretical/Empirical Error
-    err = permutation.error(data, mn, mx, CONFIDENCE)
+    err = test.error(data, mn, mx, confidence)
 
     # Result
     res = err['err_emp'] <= err['err_thr']
@@ -37,12 +45,12 @@ def experiment():
 
     # Report
     r = SimpleReport('TEST OF PERMUTATION')
-    r.add('Generator', 'Class', GENERATOR.__class__.__name__)
-    r.add('Generator', 'Streams', STREAMS)
-    r.add('Generator', 'Seed', SEED)
-    r.add('Test Parameters', 'Sample Size', SAMSIZE)
-    r.add('Test Parameters', 'Bins', BINS)
-    r.add('Test Parameters', 'Confidence', '%.3F' % (CONFIDENCE * 100))
+    r.add('Generator', 'Class', generator.__class__.__name__)
+    r.add('Generator', 'Streams', generator.get_streams_number())
+    r.add('Generator', 'Seed', generator.get_initial_seed())
+    r.add('Test Parameters', 'Sample Size', samsize)
+    r.add('Test Parameters', 'Bins', bins)
+    r.add('Test Parameters', 'Confidence', '%.3F' % (confidence * 100))
     r.add('Test Parameters', 'T', T)
     r.add('Critical Bounds', 'Lower Bound', mn)
     r.add('Critical Bounds', 'Upper Bound', mx)
@@ -56,13 +64,14 @@ def experiment():
           '%d (%.3f %%)' % (err['err_mx'], err['err_mx_perc'] * 100))
     r.add('Result', 'Confidence', '%.3f %%' % (sugg_confidence * 100))
 
-    r.save('%s/%s.%s' % (EXP_DIR, 'test-permutation', RES_EXT))
+    rep_filename = '{}.{}'.format(filename, RES_EXT)
+    r.save(rep_filename)
 
     print(r)
 
     # Plot
-    filename = '%s/%s.%s' % (EXP_DIR, 'test-permutation', PLT_EXT)
-    permutation.plot(data, mn, mx, filename=filename)
+    fig_filename = '{}.{}'.format(filename, PLT_EXT)
+    test.plot(data, mn, mx, filename=fig_filename)
 
 
 if __name__ == '__main__':

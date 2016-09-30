@@ -2,6 +2,7 @@
 Collection of functions to build Matplotlib plots for the multiplier analysis.
 """
 
+import os
 import matplotlib.pyplot as plt
 import numpy as np
 from demule.plots import *
@@ -46,6 +47,7 @@ def scatter(data, modulus, title=None, filename=None):
     ax.set_axisbelow(True)
 
     if filename is not None:
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
         plt.savefig(filename, bbox_inches='tight')
     else:
         fig.show()

@@ -2,7 +2,7 @@
 Collection of functions to build Matplotlib plots for Chi-Square Tests.
 """
 
-
+import os
 import matplotlib.pyplot as plt
 from demule.plots import *
 
@@ -47,6 +47,7 @@ def scatter(data, mn, mx, title=None, filename=None):
     ax.set_axisbelow(True)
 
     if filename is not None:
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
         plt.savefig(filename, bbox_inches='tight')
     else:
         fig.show()

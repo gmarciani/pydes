@@ -3,7 +3,7 @@ Collection of functions to build Matplotlib plots for the Kolmogorov-Smirnov
 Test.
 """
 
-
+import os
 import matplotlib.pyplot as plt
 import numpy as np
 from demule.utils.rvms import cdfChisquare
@@ -53,6 +53,7 @@ def histogram(ksdistances, kspoint, kscritical, title=None, filename=None):
                 )
 
     if filename is not None:
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
         plt.savefig(filename, bbox_inches='tight')
     else:
         plt.show()
@@ -103,6 +104,7 @@ def histogram2(chisquares, bins, kspoint, title=None, filename=None):
     ax.legend(loc='lower right')
 
     if filename is not None:
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
         plt.savefig(filename, bbox_inches='tight')
     else:
         plt.show()
