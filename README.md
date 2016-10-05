@@ -20,7 +20,7 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
 Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
 ## Authors
-Giacomo Marciani, [giacomo.marciani@gmail.com](mailto:giacomo.marciani@gmail.com)
+Giacomo Marciani, [gmarciani@ieee.org](mailto:gmarciani@ieee.org)
 
 ## REFERENCES
 * "Discrete-Event Simulation", 2006, L.M. Leemis, S.K. Park
@@ -33,5 +33,4 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
 Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
 ## License
-Demule is released under the [MIT License](https://opensource.org/licenses/MIT).
-Please, read the file LICENSE.md for details.
+The project is released under the [MIT License](https://opensource.org/licenses/MIT).
