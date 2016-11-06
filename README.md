@@ -20,7 +20,7 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
 Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
 ## Authors
-Giacomo Marciani, [gmarciani@ieee.org](mailto:gmarciani@ieee.org)
+Giacomo Marciani, [gmarciani@acm.org](mailto:gmarciani@acm.org)
 
 ## REFERENCES
 * "Discrete-Event Simulation", 2006, L.M. Leemis, S.K. Park
