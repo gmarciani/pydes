@@ -1,5 +1,5 @@
 import unittest
-from demule.rnd.inspection import modulus_finder
+from core.rnd.inspection import modulus_finder
 
 
 class ModulusTest(unittest.TestCase):

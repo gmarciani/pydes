@@ -1,5 +1,5 @@
 import unittest
-from demule.rnd.inspection import multiplier_finder
+from core.rnd.inspection import multiplier_finder
 
 
 class MultiplierTest(unittest.TestCase):

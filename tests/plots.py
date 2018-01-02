@@ -3,8 +3,8 @@ Experiment: Bivariate correlation
 """
 
 import unittest
-from demule.rnd.rndgen import MarcianiMultiStream as RandomGenerator
-from demule.plots import scatter
+from core.rnd.rndgen import MarcianiMultiStream as RandomGenerator
+from core.plots import scatter
 from tests import RES_DIR, PLT_EXT
 
 

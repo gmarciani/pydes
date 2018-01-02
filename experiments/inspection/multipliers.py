@@ -3,9 +3,9 @@ Experiment: find suitable FP,MC,FP/MC multipliers for a multi-stream Lehmer
 pseudo-random generator.
 """
 
-from demule.rnd.inspection import multiplier
-from demule.utils.report import SimpleReport
-from demule.plots.multipliers import scatter
+from core.rnd.inspection import multiplier
+from core.utils.report import SimpleReport
+from core.plots.multipliers import scatter
 from experiments import EXP_DIR, PLT_EXT, RES_EXT
 
 

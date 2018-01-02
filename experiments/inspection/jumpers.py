@@ -3,8 +3,8 @@ Experiment: find a suitable jumper for a multi-stream Lehmer pseudo-random
 generator.
 """
 
-from demule.rnd.inspection import jumper_finder
-from demule.utils.report import SimpleReport
+from core.rnd.inspection import jumper_finder
+from core.utils.report import SimpleReport
 from experiments import EXP_DIR,RES_EXT
 
 

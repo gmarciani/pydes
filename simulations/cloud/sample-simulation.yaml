@@ -1,0 +1,17 @@
+##
+# DEMULE
+# Cloud Simulator
+##
+
+general:
+  t_stop: 50000
+  replica: 3
+  random:
+    generator: "MarcianiMultiStream"
+    seed: 123456789
+cloudlet:
+  n_servers: 20
+cloud:
+  t_service_rate_1: 0.75
+  t_service_rate_2: 0.85
+  t_setup: 95

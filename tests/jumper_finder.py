@@ -1,5 +1,5 @@
 import unittest
-from demule.rnd.inspection import jumper_finder
+from core.rnd.inspection import jumper_finder
 
 
 class JumperTest(unittest.TestCase):

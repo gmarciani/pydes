@@ -2,9 +2,9 @@
 Experiment: Spectral Test of Randomness.
 """
 
-from demule.rnd.rndgen import MarcianiMultiStream as RandomGenerator
-from demule.rnd.randomness import spectral as test
-from demule.utils.report import SimpleReport
+from core.rnd.rndgen import MarcianiMultiStream as RandomGenerator
+from core.rnd.randomness import spectral as test
+from core.utils.report import SimpleReport
 from experiments import EXP_DIR, PLT_EXT, RES_EXT
 
 # Generator

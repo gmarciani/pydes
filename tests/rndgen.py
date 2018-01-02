@@ -1,5 +1,5 @@
 import unittest
-from demule.rnd.rndgen import MarcianiMultiStream
+from core.rnd.rndgen import MarcianiMultiStream
 
 
 class RndgenTest(unittest.TestCase):

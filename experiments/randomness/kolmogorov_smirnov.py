@@ -2,15 +2,15 @@
 Experiment: Kolmogorov-Smirnov test.
 """
 
-from demule.rnd.rndgen import MarcianiMultiStream as RandomGenerator
-from demule.rnd.randomness import kolmogorov_smirnov as test
-from demule.rnd.randomness import extremes
-from demule.rnd.randomness import gap
-from demule.rnd.randomness import permutation
-from demule.rnd.randomness import runsup
-from demule.rnd.randomness import uniformity_bivariate
-from demule.rnd.randomness import uniformity_univariate
-from demule.utils.report import SimpleReport
+from core.rnd.rndgen import MarcianiMultiStream as RandomGenerator
+from core.rnd.randomness import kolmogorov_smirnov as test
+from core.rnd.randomness import extremes
+from core.rnd.randomness import gap
+from core.rnd.randomness import permutation
+from core.rnd.randomness import runsup
+from core.rnd.randomness import uniformity_bivariate
+from core.rnd.randomness import uniformity_univariate
+from core.utils.report import SimpleReport
 from experiments import EXP_DIR, PLT_EXT, RES_EXT
 
 

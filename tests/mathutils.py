@@ -1,6 +1,6 @@
 import unittest
-from demule.utils import mathutils
-from demule.utils import rvms
+from core.utils import mathutils
+from core.utils import rvms
 
 
 class MathUtilsTest(unittest.TestCase):
