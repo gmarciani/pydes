@@ -50,6 +50,6 @@ class SimpleReport(object):
         for section in self.params.items():
             s += '\n{:^60}\n'.format(section[0])
             for p in section[1]:
-                s += '{:.<30}{:.>30}\n'.format(p[0], p[1])
+                s += '{:.<30}{:.>30}\n'.format(str(p[0]), str(p[1]))
 
         return s

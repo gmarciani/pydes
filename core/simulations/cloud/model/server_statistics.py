@@ -17,8 +17,8 @@ class SimpleServerStatistics:
         String representation.
         :return: the string representation.
         """
-        sb = ["{attr}='{value}'".format(attr=attr, value=self.__dict__[attr]) for attr in self.__dict__ if not attr.startswith('__') and not callable(getattr(self, attr))]
-        return "ServerStatistics({}:{})".format(id(self), ', '.join(sb))
+        sb = ["{attr}='{value}'".format(attr=attr, value=self.__dict__[attr]) for attr in self.__dict__ if not attr.startswith("__") and not callable(getattr(self, attr))]
+        return "ServerStatistics({}:{})".format(id(self), ", ".join(sb))
 
     def __repr__(self):
         """

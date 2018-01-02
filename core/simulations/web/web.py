@@ -5,7 +5,7 @@ Next-Event simulation for a multi-tiered web-service.
 from core.rnd import rndgen
 from core.rnd import rndvar
 from core.simulations.web.metrics import NodeMetricTracker
-from core.simulations.web.calendar import Calendar
+from core.simulations.utils.calendar import NextEventCalendar
 
 # Queueing Network Parameters
 SESSION_ARRIVAL_RATE = 35.0     # requests/second (exponentially distributed
@@ -34,7 +34,7 @@ START = 0.0
 STOP = 3600.0
 
 # Calendar
-calendar = Calendar([
+calendar = NextEventCalendar([
     SESSION_ARRIVAL,
     REQUEST_ARRIVAL,
     FEND_COMPLETION,

@@ -1,6 +1,6 @@
-class Calendar(object):
+class NextEventCalendar(object):
     """
-    Implementation of a Next-Event calendar.
+    Implementation of a simple Next-Event calendar.
     """
 
     def __init__(self, event_classes, t_clock=0.0):

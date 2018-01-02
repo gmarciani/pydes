@@ -3,16 +3,17 @@ class SimpleCloud:
     A simple Cloud server, defined by its state.
     """
 
-    def __init__(self, t_service_rate_1, t_service_rate_2, t_setup):
+    def __init__(self, service_rate_1, service_rate_2, t_setup_mean):
         """
-        Create a new Cloud server
-        :param t_service_rate_1: the service rate for job of type 1.
-        :param t_service_rate_2: the service rate for job of type 2.
-        :param t_setup:  the average setup time for the server.
+        Create a new Cloud server.
+        :param service_rate_1: (float) the service rate for job of type 1 (tasks/s).
+        :param service_rate_2: (float) the service rate for job of type 2 (tasks/s).
+        :param t_setup_mean: (float) the mean setup time to restart a task of type 2 in the Cloud (s).
         """
-        self.t_service_rate_1 = t_service_rate_1
-        self.t_service_rate_2 = t_service_rate_2
-        self.t_setup = t_setup
+        self.service_rate_1 = service_rate_1
+        self.service_rate_2 = service_rate_2
+        self.t_setup_mean = t_setup_mean
+
         self.t_service = 0.0
         self.t_service_1 = 0.0
         self.t_service_2 = 0.0
@@ -30,8 +31,8 @@ class SimpleCloud:
         String representation.
         :return: the string representation.
         """
-        sb = ["{attr}='{value}'".format(attr=attr, value=self.__dict__[attr]) for attr in self.__dict__ if not attr.startswith('__') and not callable(getattr(self, attr))]
-        return "Cloud({}:{})".format(id(self), ', '.join(sb))
+        sb = ["{attr}='{value}'".format(attr=attr, value=self.__dict__[attr]) for attr in self.__dict__ if not attr.startswith("__") and not callable(getattr(self, attr))]
+        return "Cloud({}:{})".format(id(self), ", ".join(sb))
 
     def __repr__(self):
         """

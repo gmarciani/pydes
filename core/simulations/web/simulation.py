@@ -1,6 +1,6 @@
 from core.rnd import rndgen
 from core.rnd import rndvar
-from core.simulations.web.calendar import Calendar
+from core.simulations.utils.calendar import NextEventCalendar
 from core.simulations.web.metrics import NodeMetricTracker
 from core.utils.report import SimpleReport
 from core.utils import guiutils
@@ -58,7 +58,7 @@ class Simulation(object):
         self._generator = rndgen.MarcianiMultiStream(123456789)
 
         # Calendar
-        self._calendar = Calendar([
+        self._calendar = NextEventCalendar([
             SESSION_ARRIVAL,
             REQUEST_ARRIVAL,
             FEND_COMPLETION,

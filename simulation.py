@@ -1,6 +1,6 @@
 from core.simulations.utils.cli import CmdParser
 from core.simulations.cloud.config.configuration import default_configuration
-from core.simulations.cloud.model.simulation import SimpleCloudSimulation as Simulation
+from core.simulations.cloud.simulation import SimpleCloudSimulation as Simulation
 import yaml
 import os
 import logging
