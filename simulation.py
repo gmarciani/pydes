@@ -51,6 +51,7 @@ if __name__ == "__main__":
     # SIMULATION
     ##
     simulation = Simulation(config)
+    #report = None
     report = simulation.run()
 
     ##

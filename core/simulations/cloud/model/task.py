@@ -1,5 +1,7 @@
-from enum import Enum
+from enum import Enum, unique
 
+
+@unique
 class TaskType(Enum):
     """
     The types of tasks.
@@ -14,7 +16,7 @@ class SimpleTask:
 
     def __init__(self, type, t_arrival):
         """
-        Create a new job.
+        Create a new task.
         :param type: (TaskType) the type of the task.
         :param t_arrival: (float) the arrival time of the task (s).
         """

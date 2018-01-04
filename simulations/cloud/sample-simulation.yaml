@@ -4,7 +4,7 @@
 ##
 
 general:
-  t_stop: 50000  # the stop time (s)
+  t_stop: 100  # the stop time (s) 1hour=3600, 1day=86400, 1week=604800, 1month=2.628e+6
   replica: 3  # the number of simulation replica
   random:
     generator: "MarcianiMultiStream"  # the class name of the random generator
@@ -14,13 +14,14 @@ tasks:
   arrival_rate_1: 3.25  # the arrival rate for tasks of type 1 (tasks/s)
   arrival_rate_2: 6.25  # the arrival rate for tasks of type 2 (tasks/s)
 
-cloudlet:
-  n_servers: 20  # the number of servers
-  service_rate_1: 0.45  # the service rate for tasks of type 1 (tasks/s)
-  service_rate_2: 0.30  # the service rate for tasks of type 2 (tasks/s)
-  threshold: 20  # the occupancy threshold
+system:
+  cloudlet:
+    n_servers: 20  # the number of servers
+    service_rate_1: 0.45  # the service rate for tasks of type 1 (tasks/s)
+    service_rate_2: 0.30  # the service rate for tasks of type 2 (tasks/s)
+    threshold: 20  # the occupancy threshold
 
-cloud:
-  service_rate_1: 0.25  # the service rate for job of type 1 (tasks/s).
-  service_rate_2: 0.22  # the service rate for job of type 2 (tasks/s).
-  t_setup_mean: 0.8  # the mean setup time to restart a task of type 2 in the Cloud (s).
+  cloud:
+    service_rate_1: 0.25  # the service rate for job of type 1 (tasks/s).
+    service_rate_2: 0.22  # the service rate for job of type 2 (tasks/s).
+    t_setup_mean: 0.8  # the mean setup time to restart a task of type 2 in the Cloud (s).
