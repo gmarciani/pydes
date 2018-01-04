@@ -23,4 +23,15 @@ def equilikely(a, b, u):
     :param u: (float) random number in (0,1).
     :return: (float) the Equilikely(a,b) random variate.
     """
-    return a + int(u * (b - a + 1))
+    return a + int((b - a + 1)*u)
+
+
+def uniform(a, b, u):
+    """
+    Generates a Uniform random variate in *(a,b)*.
+    :param a: (float) lower bound.
+    :param b: (float) upper bound.
+    :param u: (float) random number in (0,1).
+    :return: (float) the Uniform(a,b) random variate.
+    """
+    return a + (b - a) * u

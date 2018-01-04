@@ -1,9 +1,7 @@
 from core.simulations.cloud.model.system import SimpleCloudletCloudSystem as System
 from core.rnd import rndgen
-from core.rnd import rndvar
 from core.simulations.cloud.model.taskgen import SimpleTaskgen as Taskgen
 from core.simulations.utils.calendar import NextEventCalendar as Calendar
-from core.utils.report import SimpleReport as Report
 from core.simulations.cloud.model.event import SimpleEvent as Event
 from core.simulations.cloud.model.event import EventType
 from core.utils.guiutils import print_progress
@@ -53,7 +51,7 @@ class SimpleCloudSimulation:
     def run(self):
         """
         Run the simulation.
-        :return: (SimpleReport) the simulation report.
+        :return: (void)
         """
 
         # Simulation Start.
@@ -81,7 +79,7 @@ class SimpleCloudSimulation:
             logger.debug("Next: %s", event)
 
             # If the stop condition holds, stop the simulation.
-            if self.stop_condition():
+            if self._stop_condition():
                 logger.debug("Stopping simulation")
                 break
 
@@ -134,51 +132,12 @@ class SimpleCloudSimulation:
         # Simulation End.
         logger.info("Simulation stopped")
 
-        # Reporting.
-        report = self.generate_report()
-        logger.info("Report generated")
-
-        return report
-
-    def stop_condition(self):
+    def _stop_condition(self):
         """
         Check if the stop condition is satsfied for the simulation.
         :return: True, if the simulation should stop; False, otherwise.
         """
         return self.calendar.get_clock() >= self.t_stop
-
-    def generate_report(self):
-        report = Report('SIMULATION')
-
-        # Report - General
-        report.add("general", "simulation_class", self.__class__.__name__)
-        report.add("general", "t_stop", self.t_stop)
-        report.add("general", "replica", self.replica)
-        report.add("general", "random_generator", self.rndgen.__class__.__name__)
-        report.add("general", "random_seed", self.rndgen.get_initial_seed())
-
-        # Report - Tasks
-        for attr in self.taskgen.__dict__:
-            if not attr.startswith("__") and not attr.startswith("_") and not callable(getattr(self.taskgen, attr)):
-                report.add("tasks", attr, self.taskgen.__dict__[attr])
-
-        # Report - System
-        report.add("system", "n_tasks_1", self.system.n_tasks_1)
-        report.add("system", "n_tasks_2", self.system.n_tasks_2)
-        report.add("system", "n_served_1", self.system.n_served_1)
-        report.add("system", "n_served_2", self.system.n_served_2)
-
-        # Report - System/Cloudlet
-        for attr in self.system.cloudlet.__dict__:
-            if not attr.startswith("__") and not attr.startswith("_") and not callable(getattr(self.system.cloudlet, attr)):
-                report.add("system/cloudlet", attr, self.system.cloudlet.__dict__[attr])
-
-        # Report - System/Cloud
-        for attr in self.system.cloud.__dict__:
-            if not attr.startswith("__") and not attr.startswith("_") and not callable(getattr(self.system.cloud, attr)):
-                report.add("system/cloud", attr, self.system.cloud.__dict__[attr])
-
-        return report
 
     def __str__(self):
         """

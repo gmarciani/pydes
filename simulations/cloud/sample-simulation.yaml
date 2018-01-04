@@ -5,7 +5,7 @@
 
 general:
   t_stop: 100  # the stop time (s) 1hour=3600, 1day=86400, 1week=604800, 1month=2.628e+6
-  replica: 3  # the number of simulation replica
+  replica: 1  # the number of simulation replica
   random:
     generator: "MarcianiMultiStream"  # the class name of the random generator
     seed: 123456789  # the initial seed for the random generator

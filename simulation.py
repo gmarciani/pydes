@@ -33,6 +33,7 @@ def configure():
 
 
 if __name__ == "__main__":
+    from core.simulations.cloud.stats.report import generate_report
 
     ##
     # CONFIGURATION
@@ -51,10 +52,10 @@ if __name__ == "__main__":
     # SIMULATION
     ##
     simulation = Simulation(config)
-    #report = None
-    report = simulation.run()
+    simulation.run()
 
     ##
     # REPORT
     ##
+    report = generate_report(simulation)
     logger.info("Report: %s", report)
