@@ -26,7 +26,6 @@ class SimpleCloudSimulation:
         # Configuration - General
         config_general = config["general"]
         self.t_stop = config_general["t_stop"]
-        self.replica = config_general["replica"]
         self.rndgen = getattr(rndgen, config_general["random"]["generator"])(config_general["random"]["seed"])
 
         # Configuration - Tasks

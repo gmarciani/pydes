@@ -46,6 +46,7 @@ class SimpleServer:
         self.n_served_2 = 0  # the total amount of served tasks of type 2
         self.n_interrupted_2 = 0  # the total amount of interrupted tasks of type 2
         self.idle_time = 0.0  # the total idle time (float) (s)
+        self.busy_time = 0.0  # the total busy time (float) (s)
         self.wasted_time = 0.0  # the total wasted time (float) (s)
 
     def submit_task_1(self, t_clock):
@@ -99,6 +100,7 @@ class SimpleServer:
 
         # record statistics
         self.n_interrupted_2 += 1
+        self.busy_time += (t_clock - self.t_arrival)
         self.wasted_time += (t_clock - self.t_arrival)
 
         # state transition
@@ -122,6 +124,7 @@ class SimpleServer:
             self.n_served_2 += 1
         else:
             raise ValueError("Unknown task type: {}".format(self.task_type))
+        self.busy_time += (self.t_completion - self.t_arrival)
 
         # state transition
         self.state = ServerState.IDLE

@@ -12,7 +12,6 @@ def generate_report(sim):
     # Report - General
     report.add("general", "simulation_class", sim.__class__.__name__)
     report.add("general", "t_stop", sim.t_stop)
-    report.add("general", "replica", sim.replica)
     report.add("general", "random_generator", sim.rndgen.__class__.__name__)
     report.add("general", "random_seed", sim.rndgen.get_initial_seed())
 
@@ -28,6 +27,9 @@ def generate_report(sim):
     report.add("system", "n_arrival_2", sim.system.n_arrival_2)
     report.add("system", "n_served_1", sim.system.n_served_1)
     report.add("system", "n_served_2", sim.system.n_served_2)
+    report.add("system", "throughput", round((sim.system.n_served_1 + sim.system.n_served_2) / sim.calendar.get_clock(), 3))
+    report.add("system", "response_time (mean)", round(sim.system.response_time.get_mean(), 3))
+    report.add("system", "response_time (stddev)", round(sim.system.response_time.get_stddev(), 3))
 
     # Report - System/Cloudlet
     for attr in sim.system.cloudlet.__dict__:

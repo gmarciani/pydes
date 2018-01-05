@@ -36,6 +36,12 @@ class SimpleCloud:
         self.n_served_2 = 0  # number of tasks of type 2 served in the Cloud
         self.n_restarted_2 = 0  # number of tasks of type 2 restarted in the Cloudlet
 
+        self.t_last_arrival = 0.0  # the last arrival time (float) (s)
+        self.t_last_completion = 0.0  # the last completion time (float) (s)
+        self.t_last_idle = 0.0  # the last idle time (float) (s)
+
+        self.busy_time = 0.0  # the total busy time (float) (s)
+
     def submit_arrival_task_1(self, event_time):
         """
         Submit to the Cloud the arrival of a task of type 1.
@@ -51,6 +57,8 @@ class SimpleCloud:
         # completion event
         t_completion = event_time + self.get_service_time_task_1()
         completion_event = Event(EventType.COMPLETION_CLOUD_TASK_1, t_completion)
+
+        self.t_last_arrival = event_time
 
         return completion_event
 
@@ -69,6 +77,8 @@ class SimpleCloud:
         # completion event
         t_completion = event_time + self.get_service_time_task_2()
         completion_event = Event(EventType.COMPLETION_CLOUD_TASK_2, t_completion)
+
+        self.t_last_arrival = event_time
 
         return completion_event
 
@@ -89,6 +99,8 @@ class SimpleCloud:
         t_completion = event_time + self.get_service_time_restarted_task_2()
         completion_event = Event(EventType.COMPLETION_CLOUD_TASK_2, t_completion)
 
+        self.t_last_arrival = event_time
+
         return completion_event
 
     def submit_completion_task_1(self, event_time):
@@ -97,8 +109,15 @@ class SimpleCloud:
         :param event_time: (float) the occurrence time of the event.
         :return: (void)
         """
+        # state change
         self.n_1 -= 1
+
+        # record statistics
         self.n_served_1 += 1
+        self.t_last_completion = event_time
+
+        if self.n_1 + self.n_2 == 0:
+            self.t_last_idle = event_time
 
     def submit_completion_task_2(self, event_time):
         """
@@ -106,8 +125,15 @@ class SimpleCloud:
         :param event_time: (float) the occurrence time of the event.
         :return: (void)
         """
+        # state change
         self.n_2 -= 1
+
+        # record statistics
         self.n_served_2 += 1
+        self.t_last_completion = event_time
+
+        if self.n_1 + self.n_2 == 0:
+            self.t_last_idle = event_time
 
     def get_service_time_task_1(self):
         """

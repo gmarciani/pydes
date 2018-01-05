@@ -4,7 +4,6 @@ default_configuration = {
 
     "general": {
         "t_stop": 1000,  # the stop time (s)
-        "replica": 1,  # the number of simulation replica
         "random": {
             "generator": "MarcianiMultiStream",  # the class name of the random generator
             "seed": 123456789  # the initial seed for the random generator

@@ -1,5 +1,6 @@
 from core.simulations.cloud.model.cloudlet import SimpleCloudLet as Cloudlet
 from core.simulations.cloud.model.cloud import SimpleCloud as Cloud
+from core.statistics.sample_statistics import SimpleSampleStatistics as SampleStatistic
 import logging
 
 # Configure logger
@@ -42,12 +43,13 @@ class SimpleCloudletCloudSystem:
         self.n_arrival_2 = 0  # total number of arrived tasks of type 2
         self.n_served_1 = 0  # total number of served tasks of type 1
         self.n_served_2 = 0  # total number of served tasks of type 2
+        self.response_time = SampleStatistic()  # the response time statistics
 
     def submit_arrival_task_1(self, event_time):
         """
         Submit to the system the arrival of a task of type 1.
         :param event_time: (float) the occurrence time of the event.
-        :return: (c1,c2,c3) (SimpleEvent,SimpleEvent)completion events, where
+        :return: (c1,c2,c3) (SimpleEvent,SimpleEvent) completion events, where
         *c1* is the completion event of the submitted task of type 1;
         *c2* is the completion event of the restarted task of type 2, if present; if it is not present, *c2* is None;
         *c3* is the completion time of the interrupted task of type 2 in the Cloudlet, if present; if it is not
@@ -63,11 +65,21 @@ class SimpleCloudletCloudSystem:
         if self.cloudlet.n_1 == self.cloudlet.n_servers:
             logger.debug("ARRIVAL_TASK_1 submitted to CLOUD at time {}".format(event_time))
             completion_event = self.cloud.submit_arrival_task_1(event_time)
+
+            # Update response time
+            self.response_time.add_value(completion_event.time - event_time)
+
             return completion_event, None, None
+
         elif self.cloudlet.n_1 + self.cloudlet.n_2 < self.cloudlet.threshold:
             logger.debug("ARRIVAL_TASK_1 submitted to CLOUDLET at time {}".format(event_time))
             completion_event = self.cloudlet.submit_arrival_task_1(event_time)
+
+            # Update response time
+            self.response_time.add_value(completion_event.time - event_time)
+
             return completion_event, None, None
+
         elif self.cloudlet.n_2 > 0:
             logger.debug("REMOVAL_TASK_2 from CLOUDLET at time {}".format(event_time))
             completion_to_ignore = self.cloudlet.submit_removal_task_2(event_time)
@@ -75,10 +87,19 @@ class SimpleCloudletCloudSystem:
             completion_restart_event = self.cloud.submit_restart_task_2(event_time)
             logger.debug("ARRIVAL_TASK_1 submitted to CLOUDLET at time {}".format(event_time))
             completion_event = self.cloudlet.submit_arrival_task_1(event_time)
+
+            # Update response time
+            self.response_time.add_value(completion_event.time - event_time)
+
             return completion_event, completion_restart_event, completion_to_ignore
+
         else:
             logger.debug("ARRIVAL_TASK_1 submitted to CLOUDLET at time {}".format(event_time))
             completion_event = self.cloudlet.submit_arrival_task_1(event_time)
+
+            # Update response time
+            self.response_time.add_value(completion_event.time - event_time)
+
             return completion_event, None, None
 
     def submit_arrival_task_2(self, event_time):
@@ -97,10 +118,18 @@ class SimpleCloudletCloudSystem:
         if self.cloudlet.n_1 + self.cloudlet.n_2 >= self.cloudlet.threshold:
             logger.debug("ARRIVAL_TASK_2 submitted to CLOUD at time {}".format(event_time))
             completion_event = self.cloud.submit_arrival_task_2(event_time)
+
+            # Update response time
+            self.response_time.add_value(completion_event.time - event_time)
+
             return completion_event
         else:
             logger.debug("ARRIVAL_TASK_2 submitted to CLOUDLET at time {}".format(event_time))
             completion_event = self.cloudlet.submit_arrival_task_2(event_time)
+
+            # Update response time
+            self.response_time.add_value(completion_event.time - event_time)
+
             return completion_event
 
     def submit_completion_cloudlet_task_1(self, event_time):
