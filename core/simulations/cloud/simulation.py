@@ -16,12 +16,14 @@ class SimpleCloudSimulation:
     A simple simulation about Cloud computing.
     """
 
-    def __init__(self, config):
+    def __init__(self, config, name="SIMULATION"):
         """
         Create a new simulation.
-        :param config: the configuration for the simulation
+        :param config: the configuration for the simulation.
+        :param name: the name of the simulation.
         """
         self.config = config
+        self.name = name
 
         # Configuration - General
         config_general = config["general"]

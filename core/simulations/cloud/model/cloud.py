@@ -12,18 +12,18 @@ class SimpleCloud:
     A simple Cloud server, defined by its state.
     """
 
-    def __init__(self, rndgen, service_rate_1, service_rate_2, t_setup_mean):
+    def __init__(self, rndgen, service_rate_1, service_rate_2, setup_mean):
         """
         Create a new Cloud server.
         :param rndgen: (object) the multi-stream random number generator.
         :param service_rate_1: (float) the service rate for job of type 1 (tasks/s).
         :param service_rate_2: (float) the service rate for job of type 2 (tasks/s).
-        :param t_setup_mean: (float) the mean setup time to restart a task of type 2 in the Cloud (s).
+        :param setup_mean: (float) the mean setup time to restart a task of type 2 in the Cloud (s).
         """
         self._rndgen = rndgen
         self.service_rate_1 = service_rate_1
         self.service_rate_2 = service_rate_2
-        self.t_setup_mean = t_setup_mean
+        self.setup_mean = setup_mean
 
         # state
         self.n_1 = 0  # number of tasks of type 1 serving in the Cloud
@@ -36,11 +36,8 @@ class SimpleCloud:
         self.n_served_2 = 0  # number of tasks of type 2 served in the Cloud
         self.n_restarted_2 = 0  # number of tasks of type 2 restarted in the Cloudlet
 
-        self.t_last_arrival = 0.0  # the last arrival time (float) (s)
-        self.t_last_completion = 0.0  # the last completion time (float) (s)
-        self.t_last_idle = 0.0  # the last idle time (float) (s)
-
-        self.busy_time = 0.0  # the total busy time (float) (s)
+        self.t_service_1 = 0.0  # the total service time for tasks of type 1
+        self.t_service_2 = 0.0  # the total service time for tasks of type 2
 
     def submit_arrival_task_1(self, event_time):
         """
@@ -48,17 +45,17 @@ class SimpleCloud:
         :param event_time: (float) the occurrence time of the event.
         :return: (SimpleEvent) the completion event of the submitted task of type 1.
         """
-        # record statistics
-        self.n_arrival_1 += 1
-
         # state change
         self.n_1 += 1
 
         # completion event
-        t_completion = event_time + self.get_service_time_task_1()
+        t_service = self.get_service_time_task_1()
+        t_completion = event_time + t_service
         completion_event = Event(EventType.COMPLETION_CLOUD_TASK_1, t_completion)
 
-        self.t_last_arrival = event_time
+        # record statistics
+        self.n_arrival_1 += 1
+        self.t_service_1 += t_service
 
         return completion_event
 
@@ -68,17 +65,17 @@ class SimpleCloud:
         :param event_time: (float) the occurrence time of the event.
         :return: (SimpleEvent) the completion event of the submitted task of type 2.
         """
-        # record statistics
-        self.n_arrival_2 += 1
-
         # state change
         self.n_2 += 1
 
         # completion event
-        t_completion = event_time + self.get_service_time_task_2()
+        t_service = self.get_service_time_task_2()
+        t_completion = event_time + t_service
         completion_event = Event(EventType.COMPLETION_CLOUD_TASK_2, t_completion)
 
-        self.t_last_arrival = event_time
+        # record statistics
+        self.n_arrival_2 += 1
+        self.t_service_2 += t_service
 
         return completion_event
 
@@ -88,18 +85,18 @@ class SimpleCloud:
         :param event_time: (float) the occurrence time of the event.
         :return: (float) the completion time for the submitted task.
         """
-        # record statistics
-        self.n_arrival_2 += 1
-        self.n_restarted_2 += 1
-
         # state change
         self.n_2 += 1
 
         # completion event
-        t_completion = event_time + self.get_service_time_restarted_task_2()
+        t_service = self.get_service_time_restarted_task_2()
+        t_completion = event_time + t_service
         completion_event = Event(EventType.COMPLETION_CLOUD_TASK_2, t_completion)
 
-        self.t_last_arrival = event_time
+        # record statistics
+        self.n_arrival_2 += 1
+        self.n_restarted_2 += 1
+        self.t_service_2 += t_service
 
         return completion_event
 
@@ -114,10 +111,6 @@ class SimpleCloud:
 
         # record statistics
         self.n_served_1 += 1
-        self.t_last_completion = event_time
-
-        if self.n_1 + self.n_2 == 0:
-            self.t_last_idle = event_time
 
     def submit_completion_task_2(self, event_time):
         """
@@ -130,10 +123,6 @@ class SimpleCloud:
 
         # record statistics
         self.n_served_2 += 1
-        self.t_last_completion = event_time
-
-        if self.n_1 + self.n_2 == 0:
-            self.t_last_idle = event_time
 
     def get_service_time_task_1(self):
         """
@@ -164,7 +153,7 @@ class SimpleCloud:
         u = self._rndgen.rnd()
         m = 1.0 / self.service_rate_2
         u_setup = self._rndgen.rnd()
-        m_setup = self.t_setup_mean
+        m_setup = self.setup_mean
         return exponential(m, u) + exponential(m_setup, u_setup)
 
     def __str__(self):

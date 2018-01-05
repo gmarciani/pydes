@@ -54,10 +54,15 @@ if __name__ == "__main__":
     ##
     # SIMULATION
     ##
+    filename = "results/simulation_cloud.csv"
     for replication in range(replications):
         config["general"]["random"]["seed"] += replication
         logger.info("Initializing simulation (replication {} out of {})".format(replication+1, replications))
-        simulation = Simulation(config)
+        simulation = Simulation(config, "SIMULATION-{}".format(replication))
         simulation.run()
         report = generate_report(simulation)
         logger.info("Report: %s", report)
+        if replication == 0:
+            report.save_csv(filename)
+        else:
+            report.append_csv(filename)

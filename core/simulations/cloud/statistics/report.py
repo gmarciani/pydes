@@ -1,13 +1,14 @@
 from core.utils.report import SimpleReport as Report
 
 
-def generate_report(sim):
+def generate_report(sim, float_prec=3):
     """
     Generate a full report about the given simulation.
     :param simulation: the simulation to generate the report from.
+    :param float_prec: (int) the number of decimals for float values.
     :return: (SimpleReport) the report.
     """
-    report = Report('SIMULATION')
+    report = Report(sim.name)
 
     # Report - General
     report.add("general", "simulation_class", sim.__class__.__name__)
@@ -16,9 +17,7 @@ def generate_report(sim):
     report.add("general", "random_seed", sim.rndgen.get_initial_seed())
 
     # Report - Tasks
-    for attr in sim.taskgen.__dict__:
-        if not attr.startswith("__") and not attr.startswith("_") and not callable(getattr(sim.taskgen, attr)):
-            report.add("tasks", attr, sim.taskgen.__dict__[attr])
+    report.add_all("tasks", sim.taskgen)
 
     # Report - System
     report.add("system", "n_1", sim.system.n_1)
@@ -27,18 +26,16 @@ def generate_report(sim):
     report.add("system", "n_arrival_2", sim.system.n_arrival_2)
     report.add("system", "n_served_1", sim.system.n_served_1)
     report.add("system", "n_served_2", sim.system.n_served_2)
-    report.add("system", "throughput", round((sim.system.n_served_1 + sim.system.n_served_2) / sim.calendar.get_clock(), 3))
-    report.add("system", "response_time (mean)", round(sim.system.response_time.get_mean(), 3))
-    report.add("system", "response_time (stddev)", round(sim.system.response_time.get_stddev(), 3))
+    report.add("system", "throughput", round((sim.system.n_served_1 + sim.system.n_served_2) / sim.calendar.get_clock(), float_prec))
+    report.add("system", "response_time (mean)", round(sim.system.response_time.get_mean(), float_prec))
+    report.add("system", "response_time (stddev)", round(sim.system.response_time.get_stddev(), float_prec))
 
     # Report - System/Cloudlet
-    for attr in sim.system.cloudlet.__dict__:
-        if not attr.startswith("__") and not attr.startswith("_") and not callable(getattr(sim.system.cloudlet, attr)):
-            report.add("system/cloudlet", attr, sim.system.cloudlet.__dict__[attr])
+    report.add_all("system/cloudlet", sim.system.cloudlet)
 
     # Report - System/Cloud
-    for attr in sim.system.cloud.__dict__:
-        if not attr.startswith("__") and not attr.startswith("_") and not callable(getattr(sim.system.cloud, attr)):
-            report.add("system/cloud", attr, sim.system.cloud.__dict__[attr])
+    report.add_all("system/cloud", sim.system.cloud)
 
     return report
+
+

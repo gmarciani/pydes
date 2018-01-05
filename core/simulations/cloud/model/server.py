@@ -93,7 +93,7 @@ class SimpleServer:
         """
         Interrupt the running task of type 2.
         :param t_clock: (float) the current time (s).
-        :return: (float) the completion time to ignore (s).
+        :return: (a,c) where *a* is the arrival time of the interrupted task and *c* is the completion time to ignore (s).
         """
         assert self.state is ServerState.BUSY and self.task_type is TaskType.TASK_2
         assert self.t_completion >= t_clock
@@ -108,7 +108,7 @@ class SimpleServer:
         self.task_type = None
         self.t_interruption = t_clock
 
-        return self.t_completion
+        return self.t_arrival, self.t_completion
 
     def submit_completion(self):
         """

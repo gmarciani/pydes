@@ -42,6 +42,10 @@ class SimpleCloudLet:
         self.n_served_2 = 0  # number of tasks of type 2 served in the Cloudlet
         self.n_removed_2 = 0  # number of tasks of type 2 removed from the Cloudlet
 
+        self.t_service_1 = 0.0  # the total service time for tasks of type 1
+        self.t_service_2 = 0.0  # the total service time for tasks of type 2
+        self.t_wasted_2 = 0.0  # the total service time for tasks of type 2, wasted due to removal
+
     def submit_arrival_task_1(self, event_time):
         """
         Submit to the Cloudlet the arrival of a task of type 1.
@@ -50,19 +54,19 @@ class SimpleCloudLet:
         """
         assert self.n_1 + self.n_2 < self.n_servers
 
-        # record statistics
-        self.n_arrival_1 += 1
-
         # state change
         server_idx = self.select_idle_server_idx()
         if server_idx is None:
             raise RuntimeError("Cannot find idle server for arrival of task of type 1 \n {}".format(self))
         t_completion = self._servers[server_idx].submit_task_1(event_time)
-
         self.n_1 += 1
 
         # completion event
         completion_event = Event(EventType.COMPLETION_CLOUDLET_TASK_1, t_completion)
+
+        # record statistics
+        self.n_arrival_1 += 1
+        self.t_service_1 += (t_completion - event_time)
 
         return completion_event
 
@@ -74,19 +78,19 @@ class SimpleCloudLet:
         """
         assert self.n_1 + self.n_2 < self.n_servers
 
-        # record statistics
-        self.n_arrival_2 += 1
-
         # state change
         server_idx = self.select_idle_server_idx()
         if server_idx is None:
             raise RuntimeError("Cannot find free server for arrival of task of type 2 \n {}".format(self))
         t_completion = self._servers[server_idx].submit_task_2(event_time)
-
         self.n_2 += 1
 
         # completion event
         completion_event = Event(EventType.COMPLETION_CLOUDLET_TASK_2, t_completion)
+
+        # record statistics
+        self.n_arrival_2 += 1
+        self.t_service_2 += (t_completion - event_time)
 
         return completion_event
 
@@ -98,18 +102,19 @@ class SimpleCloudLet:
         """
         assert self.n_2 > 0
 
-        # record statistics
-        self.n_removed_2 += 1
-
         # state change
         server_idx = self.select_interruption_server_idx()
         if server_idx is None:
             raise RuntimeError("Cannot find interruption server at time ", event_time)
-        t_completion_to_ignore = self._servers[server_idx].interrupt_task_2(event_time)
+        t_arrival, t_completion_to_ignore = self._servers[server_idx].interrupt_task_2(event_time)
         self.n_2 -= 1
 
         # completion event to ignore
         completion_event_to_ignore = Event(EventType.COMPLETION_CLOUDLET_TASK_2, t_completion_to_ignore)
+
+        # record statistics
+        self.n_removed_2 += 1
+        self.t_wasted_2 += (event_time - t_arrival)
 
         return completion_event_to_ignore
 
@@ -121,16 +126,15 @@ class SimpleCloudLet:
         """
         assert self.n_1 > 0
 
-        # record statistics
-        self.n_served_1 += 1
-
         # state change
         server_idx = self.find_completion_server_idx(TaskType.TASK_1, event_time)
         if server_idx is None:
             raise RuntimeError("Cannot find completion server for task of type 1 and completion time ", event_time)
         self._servers[server_idx].submit_completion()
-
         self.n_1 -= 1
+
+        # record statistics
+        self.n_served_1 += 1
 
     def submit_completion_task_2(self, event_time):
         """
@@ -140,16 +144,15 @@ class SimpleCloudLet:
         """
         assert self.n_2 > 0
 
-        # record statistics
-        self.n_served_2 += 1
-
         # state change
         server_idx = self.find_completion_server_idx(TaskType.TASK_2, event_time)
         if server_idx is None:
             raise RuntimeError("Cannot find completion server for task of type 2 and completion time ", event_time)
         self._servers[server_idx].submit_completion()
-
         self.n_2 -= 1
+
+        # record statistics
+        self.n_served_2 += 1
 
     def select_idle_server_idx(self):
         """
