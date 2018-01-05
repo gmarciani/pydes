@@ -13,6 +13,7 @@ from tests import rndgen
 from tests import modulus_finder
 from tests import jumper_finder
 from tests import multiplier_finder
+from tests import simulation_cloud
 
 
 def suite():
@@ -23,6 +24,7 @@ def suite():
     suite.addTest(loader.loadTestsFromModule(modulus_finder))
     suite.addTest(loader.loadTestsFromModule(multiplier_finder))
     suite.addTest(loader.loadTestsFromModule(jumper_finder))
+    suite.addTest(loader.loadTestsFromModule(simulation_cloud))
 
     return suite
 

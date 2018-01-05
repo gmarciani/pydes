@@ -3,7 +3,7 @@ Experiment: find a suitable jumper for a multi-stream Lehmer pseudo-random
 generator.
 """
 
-from core.rnd.inspection import jumper_finder
+from core.random.inspection import jumper_finder
 from core.utils.report import SimpleReport
 from experiments import EXP_DIR,RES_EXT
 

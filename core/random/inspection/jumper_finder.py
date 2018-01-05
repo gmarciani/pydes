@@ -1,5 +1,5 @@
 import threading
-from core.rnd.inspection.multiplier import is_mc_multiplier
+from core.random.inspection.multiplier import is_mc_multiplier
 
 
 _THREADS = 32

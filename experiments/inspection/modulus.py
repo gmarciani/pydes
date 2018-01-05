@@ -3,7 +3,7 @@ Experiment: find a suitable modulus for a multi-stream Lehmer pseudo-random
 generator.
 """
 
-from core.rnd.inspection import modulus_finder
+from core.random.inspection import modulus_finder
 from core.utils.report import SimpleReport
 from experiments import EXP_DIR, RES_EXT
 

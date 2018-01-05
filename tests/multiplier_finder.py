@@ -1,5 +1,5 @@
 import unittest
-from core.rnd.inspection import multiplier_finder
+from core.random.inspection import multiplier_finder
 
 
 class MultiplierTest(unittest.TestCase):

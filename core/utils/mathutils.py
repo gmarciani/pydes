@@ -3,7 +3,7 @@ A collection of mathematical and statistical utilities.
 """
 
 import math
-from core.utils import rvms
+from _ignore.leemis import rvms
 
 
 def gcd(a, b):

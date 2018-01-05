@@ -34,10 +34,12 @@ class SimpleCloudletCloudSystem:
         )
 
         # state
-        self.n_tasks_1 = 0  # total number of submitted tasks of type 1
-        self.n_tasks_2 = 0  # total number of submitted tasks of type 2
+        self.n_1 = 0  # total number of serving tasks of type 1
+        self.n_2 = 0  # total number of serving tasks of type 2
 
         # statistics
+        self.n_arrival_1 = 0  # total number of arrived tasks of type 1
+        self.n_arrival_2 = 0  # total number of arrived tasks of type 2
         self.n_served_1 = 0  # total number of served tasks of type 1
         self.n_served_2 = 0  # total number of served tasks of type 2
 
@@ -52,18 +54,21 @@ class SimpleCloudletCloudSystem:
         present, *c3* is None.
         """
         # state change
-        self.n_tasks_1 += 1
+        self.n_1 += 1
+
+        # record statistics
+        self.n_arrival_1 += 1
 
         # processing
-        if self.cloudlet.n_tasks_1 == self.cloudlet.n_servers:
+        if self.cloudlet.n_1 == self.cloudlet.n_servers:
             logger.debug("ARRIVAL_TASK_1 submitted to CLOUD at time {}".format(event_time))
             completion_event = self.cloud.submit_arrival_task_1(event_time)
             return completion_event, None, None
-        elif self.cloudlet.n_tasks_1 + self.cloudlet.n_tasks_2 < self.cloudlet.threshold:
+        elif self.cloudlet.n_1 + self.cloudlet.n_2 < self.cloudlet.threshold:
             logger.debug("ARRIVAL_TASK_1 submitted to CLOUDLET at time {}".format(event_time))
             completion_event = self.cloudlet.submit_arrival_task_1(event_time)
             return completion_event, None, None
-        elif self.cloudlet.n_tasks_2 > 0:
+        elif self.cloudlet.n_2 > 0:
             logger.debug("REMOVAL_TASK_2 from CLOUDLET at time {}".format(event_time))
             completion_to_ignore = self.cloudlet.submit_removal_task_2(event_time)
             logger.debug("RESTART_TASK_2 submitted to CLOUD at time {}".format(event_time))
@@ -83,10 +88,13 @@ class SimpleCloudletCloudSystem:
         :return: (SimpleEvent) completion event of the submitted task of type 2.
         """
         # state change
-        self.n_tasks_2 += 1
+        self.n_2 += 1
+
+        # record statistics
+        self.n_arrival_2 += 1
 
         # processing
-        if self.cloudlet.n_tasks_1 + self.cloudlet.n_tasks_2 >= self.cloudlet.threshold:
+        if self.cloudlet.n_1 + self.cloudlet.n_2 >= self.cloudlet.threshold:
             logger.debug("ARRIVAL_TASK_2 submitted to CLOUD at time {}".format(event_time))
             completion_event = self.cloud.submit_arrival_task_2(event_time)
             return completion_event
@@ -103,6 +111,9 @@ class SimpleCloudletCloudSystem:
         """
         logger.debug("COMPLETION_TASK_1 submitted to CLOUDLET at time {}".format(event_time))
 
+        # state change
+        self.n_1 -= 1
+
         # record statistics
         self.n_served_1 += 1
 
@@ -116,6 +127,9 @@ class SimpleCloudletCloudSystem:
         :return: (void)
         """
         logger.debug("COMPLETION_TASK_2 submitted to CLOUDLET at time {}".format(event_time))
+
+        # state change
+        self.n_2 -= 1
 
         # record statistics
         self.n_served_2 += 1
@@ -131,6 +145,9 @@ class SimpleCloudletCloudSystem:
         """
         logger.debug("COMPLETION_TASK_1 submitted to CLOUD at time {}".format(event_time))
 
+        # state change
+        self.n_1 -= 1
+
         # record statistics
         self.n_served_1 += 1
 
@@ -144,6 +161,9 @@ class SimpleCloudletCloudSystem:
         :return: (void)
         """
         logger.debug("COMPLETION_TASK_2 submitted to CLOUD at time {}".format(event_time))
+
+        # state change
+        self.n_2 -= 1
 
         # record statistics
         self.n_served_2 += 1
@@ -175,7 +195,7 @@ class SimpleCloudletCloudSystem:
 
 if __name__ == "__main__":
     from core.simulations.cloud.config.configuration import default_configuration
-    from core.rnd.rndgen import MarcianiMultiStream as RandomGenerator
+    from core.random.rndgen import MarcianiMultiStream as RandomGenerator
 
     rndgen = RandomGenerator(123456789)
 

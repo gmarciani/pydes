@@ -1,16 +1,16 @@
 """
-The Test of Bivariate Uniformity for uniformity.
+The Test of Univariate Uniformity for uniformity.
 """
 
 import math
-from core.utils import rvms
+from _ignore.leemis.rvms import idfChisquare
 from core.utils import errutils
 from core.utils import mathutils
 from core.plots.chisquare import scatter
 
 
-SAMSIZE = 10000     # SAMSIZE >= 10*(BINS^2)
-BINS = 1000         # BINS >= 100
+SAMSIZE = 10000     # SAMSIZE >= 10*BINS
+BINS = 1000         # BINS >= 1000
 CONFIDENCE = 0.95   # CONFIDENCE >= 0.95
 
 
@@ -26,29 +26,27 @@ def statistics(generator, streams, samsize=SAMSIZE, bins=BINS):
 
 
 def observations(uniform, samsize, bins):
-    observed = [[0 for _ in range(bins)] for _ in range(bins)]
-    for value in range(samsize):
-        u1 = uniform()
-        u2 = uniform()
-        b1 = math.floor(u1 * bins)
-        b2 = math.floor(u2 * bins)
-        observed[b1][b2] += 1
+    observed = [0] * bins
+    for _ in range(samsize):
+        u = uniform()
+        b = math.floor(u * bins)
+        observed[b] += 1
     return observed
 
 
 def chisquare(observed, samsize):
     bins = len(observed)
-    expected = lambda x1, x2: samsize / (bins ** 2)
-    value = mathutils.chisquare_bivariate(observed, expected)
+    expected = lambda x: samsize / bins
+    value = mathutils.chisquare_univariate(observed, expected)
     return value
 
 
 def critical_min(bins, confidence=CONFIDENCE):
-    return rvms.idfChisquare((bins ** 2) - 1, (1 - confidence) / 2)
+    return idfChisquare(bins - 1, (1 - confidence) / 2)
 
 
 def critical_max(bins, confidence=CONFIDENCE):
-    return rvms.idfChisquare((bins ** 2) - 1, 1 - (1 - confidence) / 2)
+    return idfChisquare(bins - 1, 1 - (1 - confidence) / 2)
 
 
 def error(data, mn, mx, confidence=CONFIDENCE):

@@ -1,6 +1,6 @@
 import unittest
 from core.utils import mathutils
-from core.utils import rvms
+from _ignore.leemis import rvms
 
 
 class MathUtilsTest(unittest.TestCase):

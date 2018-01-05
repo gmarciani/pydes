@@ -1,7 +1,7 @@
 from enum import Enum, unique
 from core.simulations.cloud.model.event import EventType
 from core.simulations.cloud.model.task import TaskType
-from core.rnd.rndvar import exponential
+from core.random.rndvar import exponential
 import logging
 
 # Configure logger
@@ -169,7 +169,7 @@ class SimpleServer:
 
 
 if __name__ == "__main__":
-    from core.rnd.rndgen import MarcianiMultiStream as RandomGenerator
+    from core.random.rndgen import MarcianiMultiStream as RandomGenerator
 
     rndgen = RandomGenerator(123456789)
 

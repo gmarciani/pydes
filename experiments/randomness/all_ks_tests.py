@@ -3,7 +3,7 @@ Experiment: Kolmogorov-Smirnov test on all Chi-Square tests.
 """
 
 from randomness import kolmogorov_smirnov as test
-from core.rnd.rndgen import MarcianiMultiStream as RandomGenerator
+from core.random.rndgen import MarcianiMultiStream as RandomGenerator
 
 
 def experiment():

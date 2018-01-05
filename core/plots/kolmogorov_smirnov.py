@@ -6,7 +6,7 @@ Test.
 import os
 import matplotlib.pyplot as plt
 import numpy as np
-from core.utils.rvms import cdfChisquare
+from _ignore.leemis.rvms import cdfChisquare
 from core.plots import *
 
 

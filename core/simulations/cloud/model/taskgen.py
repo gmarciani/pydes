@@ -1,6 +1,6 @@
 from core.simulations.cloud.model.event import SimpleEvent as Event
 from core.simulations.cloud.model.event import EventType
-from core.rnd.rndvar import exponential
+from core.random.rndvar import exponential
 import logging
 
 # Configure logger
@@ -24,8 +24,8 @@ class SimpleTaskgen:
         self.arrival_rate_2 = arrival_rate_2
 
         # state
-        self.n_tasks_1 = 0  # total number of generated tasks of type 1
-        self.n_tasks_2 = 0  # total number of generated tasks of type 2
+        self.n_generated_1 = 0  # total number of generated tasks of type 1
+        self.n_generated_2 = 0  # total number of generated tasks of type 2
 
     def generate_new_arrival_1(self, t_clock):
         """
@@ -37,7 +37,7 @@ class SimpleTaskgen:
         arrival = Event(EventType.ARRIVAL_TASK_1, arrival_time)
 
         # state change
-        self.n_tasks_1 += 1
+        self.n_generated_1 += 1
 
         return arrival
 
@@ -51,7 +51,7 @@ class SimpleTaskgen:
         arrival = Event(EventType.ARRIVAL_TASK_2, arrival_time)
 
         # state change
-        self.n_tasks_2 += 1
+        self.n_generated_2 += 1
 
         return arrival
 
@@ -99,7 +99,7 @@ class SimpleTaskgen:
 
 
 if __name__ == "__main__":
-    from core.rnd.rndgen import MarcianiMultiStream as RandomGenerator
+    from core.random.rndgen import MarcianiMultiStream as RandomGenerator
 
     rndgen = RandomGenerator(123456789)
 

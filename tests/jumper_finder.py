@@ -1,5 +1,5 @@
 import unittest
-from core.rnd.inspection import jumper_finder
+from core.random.inspection import jumper_finder
 
 
 class JumperTest(unittest.TestCase):

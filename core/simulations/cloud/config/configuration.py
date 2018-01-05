@@ -1,7 +1,9 @@
+import copy
+
 default_configuration = {
 
     "general": {
-        "t_stop": 10000,  # the stop time (s)
+        "t_stop": 1000,  # the stop time (s)
         "replica": 1,  # the number of simulation replica
         "random": {
             "generator": "MarcianiMultiStream",  # the class name of the random generator
@@ -31,5 +33,21 @@ default_configuration = {
 }
 
 
+def get_default_configuration():
+    """
+    Get a copy of default configuration.
+    :return: a copy of default configuration.
+    """
+    return copy.deepcopy(default_configuration)
+
+
 if __name__ == "__main__":
-    print("Default Configuration:", default_configuration)
+    # Creation
+    config_1 = get_default_configuration()
+    config_2 = get_default_configuration()
+
+    # Equality check
+    print("Config 1 equals Config 2 (before editing): {}".format(config_1 == config_2))
+    config_2["general"]["t_stop"] = 25000
+    print("Config 1 equals Config 2 (after editing): {}".format(config_1 == config_2))
+

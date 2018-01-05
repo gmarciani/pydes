@@ -2,8 +2,8 @@
 Experiment: Spectral Test of Randomness.
 """
 
-from core.rnd.rndgen import MarcianiMultiStream as RandomGenerator
-from core.rnd.randomness import spectral as test
+from core.random.rndgen import MarcianiMultiStream as RandomGenerator
+from core.random.randomness import spectral as test
 from core.utils.report import SimpleReport
 from experiments import EXP_DIR, PLT_EXT, RES_EXT
 

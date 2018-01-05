@@ -2,14 +2,14 @@
 Experiment: Kolmogorov-Smirnov test.
 """
 
-from core.rnd.rndgen import MarcianiMultiStream as RandomGenerator
-from core.rnd.randomness import kolmogorov_smirnov as test
-from core.rnd.randomness import extremes
-from core.rnd.randomness import gap
-from core.rnd.randomness import permutation
-from core.rnd.randomness import runsup
-from core.rnd.randomness import uniformity_bivariate
-from core.rnd.randomness import uniformity_univariate
+from core.random.rndgen import MarcianiMultiStream as RandomGenerator
+from core.random.randomness import kolmogorov_smirnov as test
+from core.random.randomness import extremes
+from core.random.randomness import gap
+from core.random.randomness import permutation
+from core.random.randomness import runsup
+from core.random.randomness import uniformity_bivariate
+from core.random.randomness import uniformity_univariate
 from core.utils.report import SimpleReport
 from experiments import EXP_DIR, PLT_EXT, RES_EXT
 

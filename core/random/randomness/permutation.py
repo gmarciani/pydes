@@ -1,49 +1,52 @@
 """
-The Test of Runs-Up for independence.
+The Test of Permutation for independence.
 """
 
-import math
-from core.utils import rvms
+from _ignore.leemis import rvms
 from core.utils import errutils
 from core.utils import mathutils
 from core.plots.chisquare import scatter
 
 
-SAMSIZE = 14400     # SAMSIZE >= 7200
-BINS = 6            # BINS >= 6
+SAMSIZE = 7200      # SAMSIZE >= 10*BINS
+BINS = 720          # BINS = T!
+T = 6               # T> 3
 CONFIDENCE = 0.95   # CONFIDENCE >= 0.95
 
 
-def statistics(generator, streams, samsize=SAMSIZE, bins=BINS):
+def statistics(generator, streams, samsize=SAMSIZE, bins=BINS, t=T):
     data = []
     for stream in range(streams):
         generator.stream(stream)
-        observed = observations(generator.rnd, samsize, bins)
+        observed = observations(generator.rnd, samsize, bins, t)
         chi = chisquare(observed, samsize)
         result = (stream, chi)
         data.append(result)
     return data
 
 
-def observations(uniform, samsize, bins):
-    observed = [0] * (bins + 1)
-    for _ in range(samsize):
-        b = 1
-        u = uniform()
-        t = uniform()
-        while t > u:
-            b += 1
-            u = t
-            t = uniform()
-        if b > bins:
-            b = bins
+def observations(uniform, samsize, bins, t):
+    observed = [0] * bins
+    for i in range(samsize):
+        U = [uniform() for _ in range(t)]
+        r = t - 1
+        b = 0
+        while r > 0:
+            mx = 0
+            for j in range(1,r + 1):
+                if U[j] > U[mx]:
+                    mx = j
+            b = (r + 1) * b + mx
+            U[mx], U[r] = U[r], U[mx]
+            r -= 1
         observed[b] += 1
     return observed
 
 
 def chisquare(observed, samsize):
-    expected = lambda x: samsize * x / math.factorial(x + 1)
-    value = mathutils.chisquare_univariate(observed, expected, start=1)
+    bins = len(observed)
+    expected = lambda x: samsize / bins
+    value = mathutils.chisquare_univariate(observed, expected)
     return value
 
 

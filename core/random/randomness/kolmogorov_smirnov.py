@@ -3,7 +3,7 @@ Kolmogorov-Smirnov test of randomness.
 """
 
 import math
-from core.utils import rvms
+from _ignore.leemis import rvms
 from core.utils import errutils
 from core.plots.kolmogorov_smirnov import histogram as kshistogram
 from core.plots.kolmogorov_smirnov import histogram2 as kshistogram2
@@ -18,7 +18,8 @@ def ksdistances(chisquares, bins):
     distances = []
     for i in range(streams):
         chi = chisquares[i][1]
-        distance = max(abs(rvms.cdfChisquare(bins - 1, chi) - (i / streams)), abs(rvms.cdfChisquare(bins - 1, chi) - ((i - 1) / streams)))
+        distance = max(abs(rvms.cdfChisquare(bins - 1, chi) - (i / streams)), abs(
+            rvms.cdfChisquare(bins - 1, chi) - ((i - 1) / streams)))
         distances.append((chi, distance))
     return distances
 

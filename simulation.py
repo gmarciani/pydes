@@ -1,5 +1,5 @@
-from core.simulations.utils.cli import CmdParser
-from core.simulations.cloud.config.configuration import default_configuration
+from core.simulations.common.cli import CmdParser
+from core.simulations.cloud.config.configuration import get_default_configuration
 from core.simulations.cloud.simulation import SimpleCloudSimulation as Simulation
 import yaml
 import os
@@ -27,13 +27,13 @@ def configure():
             config = yaml.load(config_file)
     else:
         config_path = "default"
-        config = default_configuration
+        config = get_default_configuration()
 
     return config_path, config
 
 
 if __name__ == "__main__":
-    from core.simulations.cloud.stats.report import generate_report
+    from core.simulations.cloud.statistics.report import generate_report
 
     ##
     # CONFIGURATION

@@ -22,8 +22,10 @@ def generate_report(sim):
             report.add("tasks", attr, sim.taskgen.__dict__[attr])
 
     # Report - System
-    report.add("system", "n_tasks_1", sim.system.n_tasks_1)
-    report.add("system", "n_tasks_2", sim.system.n_tasks_2)
+    report.add("system", "n_1", sim.system.n_1)
+    report.add("system", "n_2", sim.system.n_2)
+    report.add("system", "n_arrival_1", sim.system.n_arrival_1)
+    report.add("system", "n_arrival_2", sim.system.n_arrival_2)
     report.add("system", "n_served_1", sim.system.n_served_1)
     report.add("system", "n_served_2", sim.system.n_served_2)
 

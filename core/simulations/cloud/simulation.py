@@ -1,7 +1,7 @@
 from core.simulations.cloud.model.system import SimpleCloudletCloudSystem as System
-from core.rnd import rndgen
+from core.random import rndgen
 from core.simulations.cloud.model.taskgen import SimpleTaskgen as Taskgen
-from core.simulations.utils.calendar import NextEventCalendar as Calendar
+from core.simulations.common.calendar import NextEventCalendar as Calendar
 from core.simulations.cloud.model.event import SimpleEvent as Event
 from core.simulations.cloud.model.event import EventType
 from core.utils.guiutils import print_progress
@@ -46,7 +46,15 @@ class SimpleCloudSimulation:
         )
 
         # Configuration - Calendar
-        self.calendar = Calendar()
+        # Notice that the calendar internally manages:
+        # (i) event sorting, by occurrence time.
+        # (ii) scheduling of only possible events, that are:
+        #   (ii.i) possible arrivals, i.e. arrivals with occurrence time lower than stop time.
+        #   (ii.ii) departures of possible arrivals.
+        # (iii) unscheduling of events to ignore, e.g. completion in Cloudlet of interrupted tasks of type 2.
+        self.calendar = Calendar(0.0, self.t_stop, [EventType.ARRIVAL_TASK_1, EventType.ARRIVAL_TASK_2])
+
+        self._closed_door = False
 
     def run(self):
         """
@@ -63,12 +71,13 @@ class SimpleCloudSimulation:
                                      self.calendar.get_clock() + self.taskgen.get_inter_arrival_task_1())
         event_arrival_task_2 = Event(EventType.ARRIVAL_TASK_2,
                                      self.calendar.get_clock() + self.taskgen.get_inter_arrival_task_2())
-        self.calendar.schedule(event_arrival_task_1, event_arrival_task_2)
+        self.calendar.schedule(event_arrival_task_1)
+        self.calendar.schedule(event_arrival_task_2)
 
-        # Run the simulation while:
-        # (i) the calendar is not empty, and
-        # (ii) the stop condition is not satisfied.
-        # Notice that the stop condition is processed within the loop.
+        # Run the simulation while the calendar is not empty.
+        # Notice that the calendar contains only possible events, that are:
+        # (i) possible arrivals, i.e. arrivals with occurrence time lower than stop time.
+        # (ii) departures of possible arrivals.
         while not self.calendar.is_empty():
 
             logger.debug("### SYSTEM REPORT ### {}".format(self.system))
@@ -78,10 +87,10 @@ class SimpleCloudSimulation:
             event = self.calendar.get_next_event()
             logger.debug("Next: %s", event)
 
-            # If the stop condition holds, stop the simulation.
-            if self._stop_condition():
-                logger.debug("Stopping simulation")
-                break
+            # If the close door condition holds, close the door to arrivals
+            if self._close_door_condition():
+                logger.debug("Closing door to arrivals")
+                self._closed_door = True
 
             if event.type is EventType.ARRIVAL_TASK_1:
                 # Submit to the System the arrival of a task of type 1.
@@ -93,8 +102,10 @@ class SimpleCloudSimulation:
                     self.calendar.unschedule(completion_to_ignore)
                     self.calendar.schedule(completion_restart)
 
-                # Schedule a new random arrival of a task of type 1.
-                self.calendar.schedule(self.taskgen.generate_new_arrival_1(self.calendar.get_clock()))
+                # If the closed_door condition is False, schedule a new random arrival of a task of type 1.
+                # Notice that this s only an optimization, as the calendar internally schedules only possible events.
+                if not self._closed_door:
+                    self.calendar.schedule(self.taskgen.generate_new_arrival_1(self.calendar.get_clock()))
 
             elif event.type is EventType.ARRIVAL_TASK_2:
                 # Submit to the System the arrival of a task of type 2.
@@ -103,8 +114,10 @@ class SimpleCloudSimulation:
                 # Schedule completion event.
                 self.calendar.schedule(completion)
 
-                # Schedule a new random arrival of a task of type 2.
-                self.calendar.schedule(self.taskgen.generate_new_arrival_2(self.calendar.get_clock()))
+                # If the closed_door condition is False, schedule a new random arrival of a task of type 2.
+                # Notice that this s only an optimization, as the calendar internally schedules only possible events.
+                if not self._closed_door:
+                    self.calendar.schedule(self.taskgen.generate_new_arrival_2(self.calendar.get_clock()))
 
             elif event.type is EventType.COMPLETION_CLOUDLET_TASK_1:
                 # Submit to the System the completion of task of type 1 from within the Cloudlet.
@@ -132,9 +145,9 @@ class SimpleCloudSimulation:
         # Simulation End.
         logger.info("Simulation stopped")
 
-    def _stop_condition(self):
+    def _close_door_condition(self):
         """
-        Check if the stop condition is satsfied for the simulation.
+        Check if the stop condition is satisfied for the simulation.
         :return: True, if the simulation should stop; False, otherwise.
         """
         return self.calendar.get_clock() >= self.t_stop
@@ -156,8 +169,9 @@ class SimpleCloudSimulation:
 
 
 if __name__ == "__main__":
-    from core.simulations.cloud.config.configuration import default_configuration
+    from core.simulations.cloud.config.configuration import get_default_configuration
 
-    simulation_1 = SimpleCloudSimulation(default_configuration)
+    config = get_default_configuration()
+    simulation_1 = SimpleCloudSimulation(config)
 
     print("Simulation 1", simulation_1)

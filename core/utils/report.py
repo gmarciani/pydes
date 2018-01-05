@@ -12,7 +12,6 @@ class SimpleReport(object):
     The simplest report for an experiment.
     """
 
-
     def __init__(self, title):
         """
         Creates a new report.
@@ -32,6 +31,18 @@ class SimpleReport(object):
         if section_title not in self.params:
             self.params[section_title] = []
         self.params[section_title].append((param_title, param_value))
+
+    def get(self, section_title, param_title):
+        """
+        Retrieve the value of the given parameter.
+        :param section_title: the title of the section.
+        :param param_title: the name of the arameter.
+        :return: the value of the parameter, if present; None, otherwise.
+        """
+        for elem in self.params[section_title]:
+            if elem[0] == param_title:
+                return elem[1]
+        return None
 
     def save(self, filename):
         """

@@ -30,5 +30,6 @@ class ReportTest(unittest.TestCase):
 
         self.assertEqual(str(r), s, 'String representation of report is not correct.')
 
+
 if __name__ == '__main__':
     unittest.main()

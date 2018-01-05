@@ -3,7 +3,7 @@ The Test of Extremes for uniformity.
 """
 
 import math
-from core.utils import rvms
+from _ignore.leemis import rvms
 from core.utils import errutils
 from core.utils import mathutils
 from core.plots.chisquare import scatter

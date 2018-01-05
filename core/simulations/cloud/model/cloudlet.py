@@ -3,7 +3,7 @@ from core.simulations.cloud.model.server import ServerState
 from core.simulations.cloud.model.event import SimpleEvent as Event
 from core.simulations.cloud.model.event import EventType
 from core.simulations.cloud.model.task import TaskType
-from core.rnd.rndvar import exponential
+from core.random.rndvar import exponential
 import logging
 
 # Configure logger
@@ -31,16 +31,16 @@ class SimpleCloudLet:
         self.threshold = threshold
 
         # state
-        self.n_tasks_1 = 0  # number of tasks of type 1 serving in the Cloudlet
-        self.n_tasks_2 = 0  # number of tasks of type 2 serving in the Cloudlet
+        self.n_1 = 0  # number of tasks of type 1 serving in the Cloudlet
+        self.n_2 = 0  # number of tasks of type 2 serving in the Cloudlet
         self._servers = [Server(rndgen, service_rate_1, service_rate_2) for i in range(n_servers)]
 
         # statistics
-        self.n_arrival_task_1 = 0  # number of tasks of type 1 arrived to the Cloudlet
-        self.n_arrival_task_2 = 0  # number of tasks of type 2 arrived to the Cloudlet
-        self.n_served_tasks_1 = 0  # number of tasks of type 1 served in the Cloudlet
-        self.n_served_tasks_2 = 0  # number of tasks of type 2 served in the Cloudlet
-        self.n_removed_tasks_2 = 0  # number of tasks of type 2 removed from the Cloudlet
+        self.n_arrival_1 = 0  # number of tasks of type 1 arrived to the Cloudlet
+        self.n_arrival_2 = 0  # number of tasks of type 2 arrived to the Cloudlet
+        self.n_served_1 = 0  # number of tasks of type 1 served in the Cloudlet
+        self.n_served_2 = 0  # number of tasks of type 2 served in the Cloudlet
+        self.n_removed_2 = 0  # number of tasks of type 2 removed from the Cloudlet
 
     def submit_arrival_task_1(self, event_time):
         """
@@ -48,10 +48,10 @@ class SimpleCloudLet:
         :param event_time: (float) the occurrence time of the event.
         :return: (SimpleEvent) the completion event of the submitted task of type 1.
         """
-        assert self.n_tasks_1 + self.n_tasks_2 < self.n_servers
+        assert self.n_1 + self.n_2 < self.n_servers
 
         # record statistics
-        self.n_arrival_task_1 += 1
+        self.n_arrival_1 += 1
 
         # state change
         server_idx = self.select_idle_server_idx()
@@ -59,7 +59,7 @@ class SimpleCloudLet:
             raise RuntimeError("Cannot find idle server for arrival of task of type 1 \n {}".format(self))
         t_completion = self._servers[server_idx].submit_task_1(event_time)
 
-        self.n_tasks_1 += 1
+        self.n_1 += 1
 
         # completion event
         completion_event = Event(EventType.COMPLETION_CLOUDLET_TASK_1, t_completion)
@@ -72,10 +72,10 @@ class SimpleCloudLet:
         :param event_time: (float) the occurrence time of the event.
         :return: (SimpleEvent) the completion event of the submitted task of type 2.
         """
-        assert self.n_tasks_1 + self.n_tasks_2 < self.n_servers
+        assert self.n_1 + self.n_2 < self.n_servers
 
         # record statistics
-        self.n_arrival_task_2 += 1
+        self.n_arrival_2 += 1
 
         # state change
         server_idx = self.select_idle_server_idx()
@@ -83,7 +83,7 @@ class SimpleCloudLet:
             raise RuntimeError("Cannot find free server for arrival of task of type 2 \n {}".format(self))
         t_completion = self._servers[server_idx].submit_task_2(event_time)
 
-        self.n_tasks_2 += 1
+        self.n_2 += 1
 
         # completion event
         completion_event = Event(EventType.COMPLETION_CLOUDLET_TASK_2, t_completion)
@@ -96,17 +96,17 @@ class SimpleCloudLet:
         :param event_time: (float) the occurrence time of the event.
         :return: (SimpleEvent) the completion event to ignore of the submitted task of type 2.
         """
-        assert self.n_tasks_2 > 0
+        assert self.n_2 > 0
 
         # record statistics
-        self.n_removed_tasks_2 += 1
+        self.n_removed_2 += 1
 
         # state change
         server_idx = self.select_interruption_server_idx()
         if server_idx is None:
             raise RuntimeError("Cannot find interruption server at time ", event_time)
         t_completion_to_ignore = self._servers[server_idx].interrupt_task_2(event_time)
-        self.n_tasks_2 -= 1
+        self.n_2 -= 1
 
         # completion event to ignore
         completion_event_to_ignore = Event(EventType.COMPLETION_CLOUDLET_TASK_2, t_completion_to_ignore)
@@ -119,10 +119,10 @@ class SimpleCloudLet:
         :param event_time: (float) the occurrence time of the event.
         :return: (void)
         """
-        assert self.n_tasks_1 > 0
+        assert self.n_1 > 0
 
         # record statistics
-        self.n_served_tasks_1 += 1
+        self.n_served_1 += 1
 
         # state change
         server_idx = self.find_completion_server_idx(TaskType.TASK_1, event_time)
@@ -130,7 +130,7 @@ class SimpleCloudLet:
             raise RuntimeError("Cannot find completion server for task of type 1 and completion time ", event_time)
         self._servers[server_idx].submit_completion()
 
-        self.n_tasks_1 -= 1
+        self.n_1 -= 1
 
     def submit_completion_task_2(self, event_time):
         """
@@ -138,10 +138,10 @@ class SimpleCloudLet:
         :param event_time: (float) the occurrence time of the event.
         :return: (void)
         """
-        assert self.n_tasks_2 > 0
+        assert self.n_2 > 0
 
         # record statistics
-        self.n_served_tasks_2 += 1
+        self.n_served_2 += 1
 
         # state change
         server_idx = self.find_completion_server_idx(TaskType.TASK_2, event_time)
@@ -149,7 +149,7 @@ class SimpleCloudLet:
             raise RuntimeError("Cannot find completion server for task of type 2 and completion time ", event_time)
         self._servers[server_idx].submit_completion()
 
-        self.n_tasks_2 -= 1
+        self.n_2 -= 1
 
     def select_idle_server_idx(self):
         """
@@ -225,7 +225,7 @@ class SimpleCloudLet:
 
 
 if __name__ == "__main__":
-    from core.rnd.rndgen import MarcianiMultiStream as RandomGenerator
+    from core.random.rndgen import MarcianiMultiStream as RandomGenerator
 
     rndgen = RandomGenerator(123456789)
 

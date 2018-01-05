@@ -9,18 +9,27 @@ logger = logging.getLogger(__name__)
 class NextEventCalendar:
     """
     Implementation of a simple Next-Event calendar.
+    Notice that the calendar internally manages:
+        (i) event sorting, by occurrence time.
+        (ii) scheduling of only possible events, that are:
+            (ii.i) possible arrivals, i.e. arrivals with occurrence time lower than stop time.
+            (ii.ii) departures of possible arrivals.
+        (iii) unscheduling of events to ignore.
     """
 
-    def __init__(self, t_clock=0.0):
+    def __init__(self, t_clock=0.0, t_stop=float("inf"), arrival_types=set()):
         """
         Create a new *NextEventCalendar*.
-        :param event_types: ([object]) list of event classes that the calendar
-        will operate on; typically it a list of integers, or a list of strings.
-        :param t_clock: (float) optional, initialization time for the clock.
+        :param t_clock: (float) optional, initialization time for the simulation clock.
+        :param t_stop: (float) optional, initialization time for the simulation clock. Default is infinite.
+        :param arrival_types: ([EventType]) optional, arrival event types. Default is the empty set.
         """
-        self._clock = t_clock
-        self._events = PriorityQueue()
-        self._ignore = set()
+        self._clock = t_clock  # the simulation clock
+        self._stop = t_stop  # the stop time
+        self._arrival_types = arrival_types  # the set of arrival event types
+
+        self._events = PriorityQueue()  # the event list, implemented as a priority queue
+        self._ignore = set()  # the set of events to ignore (unscheduled events), processed lazily
 
     def get_clock(self):
         """
@@ -29,21 +38,26 @@ class NextEventCalendar:
         """
         return self._clock
 
-    def set_clock(self, t):
+    def set_clock(self, time):
         """
         Set the calendar clock.
-        :param t: (float) time to set the calendar clock to.
+        :param time: (float) time to set the calendar clock to.
         """
-        self._clock = t
+        self._clock = time
 
-    def schedule(self, *events):
+    def schedule(self, ev):
         """
-        Schedule events.
-        :param events: (SimpleEvent) the events to schedule.
+        Schedule an event.
+        :param ev: (SimpleEvent) the event to schedule.
+        :return: (boolean) True, if the event has been scheduled; False, otherwise.
         """
-        for ev in events:
+        if ev.type in self._arrival_types and ev.time >= self._stop:
+            logger.debug("Not scheduled (impossibile): {}".format(ev))
+            return False
+        else:
             self._events.put((ev.time, ev))
             logger.debug("Scheduled: {}".format(ev))
+            return True
 
     def unschedule(self, *events):
         """
@@ -94,7 +108,7 @@ class NextEventCalendar:
 
 if __name__ == "__main__":
     from core.simulations.cloud.model.event import EventType
-    from core.rnd.rndgen import MarcianiMultiStream
+    from core.random.rndgen import MarcianiMultiStream
 
     rndgen = MarcianiMultiStream(123456789)
 
