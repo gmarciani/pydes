@@ -1,42 +1,44 @@
+% %
+% KOLMOGOROV-SMIRNOV ANALYSIS
+% %
+
+% VARIABLES
 modulus = 2147483647;
-%multiplier = 16807;
+multiplier = 50812;
 %multiplier = 48271;
-%multiplier = 50812;
-multiplier = 1234;
-
-streams = 5;
-
+%multiplier = 16807;
+streams = 256;
 samsize = 10000;
 d = 5;
+bins = 1000;
+testName = 'extremes';
 
-filenameData = sprintf('out/mod%d_mul%d_str%d/extremes_sms%d_d%d.csv', modulus, multiplier, streams, samsize, d);
-
+% DATASET
+filenameData = sprintf('out/mod%d_mul%d_str%d/ks_%s_chi.csv', modulus, multiplier, streams, testName);
 data = readtable(filenameData);
 
-x = data{:,1:1};
-y = data{:,2:2};
+dataEmpirical = sort(data{:,2:2});
+dataTheoretical = chi2cdf(dataEmpirical, bins - 1);
 
-filenameReport = sprintf('out/mod%d_mul%d_str%d/extremes_sms%d_d%d_report.csv', modulus, multiplier, streams, samsize, d);
+% REPORT
+filenameReport = sprintf('out/mod%d_mul%d_str%d/ks_%s_report.csv', modulus, multiplier, streams, testName);
 
 report = readtable(filenameReport);
 
-%mn = report{:,{"critical_bounds.lower_bound"}};
-%mx = report{:,{"critical_bounds.upper_bound"}};
-mn = 10.0;
-mx = 20.0;
+criticalPoint = report{:,13};
 
-% PLOT: THROUGHPUT
+% PLOT
 figure(1);
-scatter(x, y);
+cdfplot(dataEmpirical)
 hold on
-plot([0 streams-1], [1 1] * mn, '--r')
-plot([0 streams-1], [1 1] * mx, '--r')
+plot(dataEmpirical, dataTheoretical)
+plot([1 1] * criticalPoint, [0.0 1.0], '--r')
 hold off
-title({'Extremes Test';sprintf('Modulus: %d | Multiplier: %d', modulus, multiplier)});
-xlabel('Stream Number');
-ylabel('Chi-Square Statistic');
-xlim([0 streams-1])
-ylim([0 30])
-set(gca,'xtick',0:10)
-set(gca,'ytick',[mn mx])
-yticklabels({'min', 'max'})
+
+title({'Kolmogorov-Smirnov Test (Extremes)';sprintf('Modulus: %d | Multiplier: %d', modulus, multiplier)});
+xlabel('x');
+ylabel('CDF');
+
+set(gca,'ytick',[0.0 1.0])
+
+legend('Empirical','Theoretical','Location','NW')

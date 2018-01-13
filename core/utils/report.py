@@ -31,7 +31,7 @@ class SimpleReport(object):
         """
         if section_title not in self.params:
             self.params[section_title] = []
-        self.params[section_title].append((param_title, param_value))
+        self.params[section_title].append((param_title, str(param_value)))
 
     def add_all(self, section_title, obj):
         """
@@ -47,7 +47,7 @@ class SimpleReport(object):
                 if isinstance(value, float):
                     self.add(section_title, attr, round(value, 3))
                 else:
-                    self.add(section_title, attr, value)
+                    self.add(section_title, attr, str(value))
 
     def add_all_attrs(self, section_title, obj, *attrs):
         """
@@ -80,10 +80,11 @@ class SimpleReport(object):
 
     def save(self, filename):
         """
-        Saves the report onto a file.
+        Save the report onto a file.
         :param filename: (string) the absolute file path.
+        :return: (void)
         """
-        #os.makedirs(os.path.dirname(filename), exist_ok=True)
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, 'w+') as resfile:
             resfile.write(str(self))
 
@@ -91,26 +92,33 @@ class SimpleReport(object):
         """
         Saves the report onto a CSV file.
         :param filename: (string) the absolute file path.
+        :return: (void)
         """
-        #os.makedirs(os.path.dirname(filename), exist_ok=True)
+        self.save_header_csv(filename)
+        self.append_csv(filename)
+
+    def save_header_csv(self, filename):
+        """
+        Save report headers onto a CSV file.
+        :param filename: (string) the absolute file path.
+        :return: (void)
+        """
         with open(filename, "w+") as resfile:
             resfile.write("report_name,")
             for section in self.params:
-                headers = ["{}.{}".format(section, p[0]) for p in self.params[section]]
+                headers = ["{}.{}".format(self.str_csv_format(section), self.str_csv_format(p[0])) for p in self.params[section]]
                 resfile.write(",".join(headers))
                 resfile.write(",")
             resfile.write("\n")
-            resfile.write("{},".format(self.title))
-            for section in self.params:
-                values = [str(p[1]) for p in self.params[section]]
-                resfile.write(",".join(values))
-                resfile.write(",")
-            resfile.write("\n")
+
+    def str_csv_format(self, s):
+        return s.lower().replace(" ", "_")
 
     def append_csv(self, filename):
         """
         Append the report onto a CSV file.
         :param filename: (string) the absolute file path.
+        :return: (void)
         """
         with open(filename, "a+") as resfile:
             resfile.write("{},".format(self.title))
@@ -134,6 +142,8 @@ class SimpleReport(object):
 
 
 if __name__ == "__main__":
+
+    # Save, Save headers
     for i in range(3):
         report_title = "SIMULATION-{}".format(i)
         report = SimpleReport(report_title)
@@ -144,6 +154,17 @@ if __name__ == "__main__":
         report.add("sec_3", "param_1", 50 * i)
         report.add("sec_3", "param_2", 60 * i)
         report.save(report_title)
+        report.save_header_csv("{}_headers.csv".format(report_title))
+
+    for i in range(3):
+        report_title = "SIMULATION-{}".format(i)
+        report = SimpleReport(report_title)
+        report.add("sec_1", "param_1", 10 * i)
+        report.add("sec_1", "param_2", 20 * i)
+        report.add("sec_2", "param_1", 30 * i)
+        report.add("sec_2", "param_2", 40 * i)
+        report.add("sec_3", "param_1", 50 * i)
+        report.add("sec_3", "param_2", 60 * i)
         report.save_csv("{}.csv".format(report_title))
 
     filename = "simulation_overall.csv"

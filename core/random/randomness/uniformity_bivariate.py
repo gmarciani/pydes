@@ -6,7 +6,7 @@ import math
 from _ignore.leemis import rvms
 from core.utils import errutils
 from core.utils import mathutils
-from core.plots.chisquare import scatter
+from _ignore.plots.chisquare import scatter
 
 
 SAMSIZE = 10000     # SAMSIZE >= 10*(BINS^2)

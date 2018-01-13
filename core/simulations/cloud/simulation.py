@@ -66,33 +66,29 @@ class SimpleCloudSimulation:
         # Simulation Start.
         logger.info("Simulation started")
 
-        # Schedule the first events, i.e. task of type 1 and 2.
-        # Notice that the event order by arrival time is managed internally by the Calendar.
-        event_arrival_task_1 = Event(EventType.ARRIVAL_TASK_1,
-                                     self.calendar.get_clock() + self.taskgen.get_inter_arrival_task_1())
-        event_arrival_task_2 = Event(EventType.ARRIVAL_TASK_2,
-                                     self.calendar.get_clock() + self.taskgen.get_inter_arrival_task_2())
-        self.calendar.schedule(event_arrival_task_1)
-        self.calendar.schedule(event_arrival_task_2)
+        # Initialize first arrivals
+        self._init_arrivals()
 
         # Run the simulation while the calendar is not empty.
         # Notice that the calendar contains only possible events, that are:
         # (i) possible arrivals, i.e. arrivals with occurrence time lower than stop time.
         # (ii) departures of possible arrivals.
-        while not self.calendar.is_empty():
+        while not self.calendar.empty() or not self.system.empty():
 
             logger.debug("### SYSTEM REPORT ### {}".format(self.system))
 
             # Get the next event and update the calendar clock.
             # Notice that the Calendar clock is automatically updated.
+            # Notice that the next event is always a possible event.
             event = self.calendar.get_next_event()
             logger.debug("Next: %s", event)
 
             # If the close door condition holds, close the door to arrivals
-            if self._close_door_condition():
+            if not self._closed_door and self._close_door_condition():
                 logger.debug("Closing door to arrivals")
                 self._closed_door = True
 
+            # Process according to event types.
             if event.type is EventType.ARRIVAL_TASK_1:
                 # Submit to the System the arrival of a task of type 1.
                 completion, completion_restart, completion_to_ignore = self.system.submit_arrival_task_1(event.time)
@@ -138,13 +134,26 @@ class SimpleCloudSimulation:
 
             else:
                 raise ValueError("Unrecognized event: {}".format(event))
-                pass
 
             # Simulation progess
             print_progress(self.calendar.get_clock(), self.t_stop)
 
         # Simulation End.
         logger.info("Simulation stopped")
+
+    def _init_arrivals(self):
+        """
+        Initialize event queue with first arrivals.
+        :return: (void)
+        """
+        # Schedule the first events, i.e. task of type 1 and 2.
+        # Notice that the event order by arrival time is managed internally by the Calendar.
+        event_arrival_task_1 = Event(EventType.ARRIVAL_TASK_1,
+                                     self.calendar.get_clock() + self.taskgen.get_inter_arrival_task_1())
+        event_arrival_task_2 = Event(EventType.ARRIVAL_TASK_2,
+                                     self.calendar.get_clock() + self.taskgen.get_inter_arrival_task_2())
+        self.calendar.schedule(event_arrival_task_1)
+        self.calendar.schedule(event_arrival_task_2)
 
     def _close_door_condition(self):
         """

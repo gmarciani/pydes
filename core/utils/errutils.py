@@ -14,12 +14,11 @@ def error_two_tails(data, mn, mx, confidence):
     :param confidence: (Float) confidence in [0,1].
     :return: (Dict)
     """
-
-    streams = len(data)
+    samsize = len(data)
 
     # Theoretical Error
-    err_thr = round((1 - confidence) * streams)
-    err_thr_perc = err_thr / streams
+    err_thr = round((1 - confidence) * samsize)
+    err_thr_perc = err_thr / samsize
 
     # Empirical Error
     err_mn = 0
@@ -30,9 +29,9 @@ def error_two_tails(data, mn, mx, confidence):
         elif value[1] > mx:
             err_mx += 1
     err_emp = err_mn + err_mx
-    err_mn_perc = err_mn / streams
-    err_mx_perc = err_mx / streams
-    err_emp_perc = err_emp / streams
+    err_mn_perc = err_mn / samsize
+    err_mx_perc = err_mx / samsize
+    err_emp_perc = err_emp / samsize
     err_emp_thr_perc = (err_emp - err_thr) / err_thr
 
     error = dict(
@@ -49,6 +48,7 @@ def error_two_tails(data, mn, mx, confidence):
 
     return error
 
+
 def error_one_tail(data, mx, confidence):
     """
     Computes error statistics for data w.r.t. upper bound at the level of
@@ -58,11 +58,11 @@ def error_one_tail(data, mx, confidence):
     :param confidence: (Float) confidence in [0,1].
     :return: (Dict)
     """
-    streams = len(data)
+    samsize = len(data)
 
     # Theoretical Error
-    err_thr = round((1 - confidence) * streams)
-    err_thr_perc = err_thr / streams
+    err_thr = round((1 - confidence) * samsize)
+    err_thr_perc = err_thr / samsize
 
     # Empirical Error
     err_mx = 0
@@ -70,8 +70,8 @@ def error_one_tail(data, mx, confidence):
         if value[1] > mx:
             err_mx += 1
     err_emp = err_mx
-    err_mx_perc = err_mx / streams
-    err_emp_perc = err_emp / streams
+    err_mx_perc = err_mx / samsize
+    err_emp_perc = err_emp / samsize
     err_emp_thr_perc = (err_emp - err_thr) / err_thr
 
     error = dict(

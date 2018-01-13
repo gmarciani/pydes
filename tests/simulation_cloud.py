@@ -20,6 +20,8 @@ class SimulationCloudTest(unittest.TestCase):
 
         report = generate_report(simulation)
 
+        print(report)
+
         self.assertTrue(report.get("system", "n_1") == report.get("system/cloudlet", "n_1") == report.get("system/cloud", "n_1") == 0)
         self.assertTrue(report.get("system", "n_2") == report.get("system/cloudlet", "n_2") == report.get("system/cloud", "n_2") == 0)
 
@@ -33,6 +35,8 @@ class SimulationCloudTest(unittest.TestCase):
         self.assertTrue(report.get("system/cloud", "n_arrival_2") == report.get("system/cloud", "n_served_2"))
 
         self.assertTrue(report.get("system/cloud", "n_restarted_2") == report.get("system/cloudlet", "n_removed_2"))
+
+        self.assertTrue(0.0 <= report.get("system", "utilization") <= 1.0)
 
     def test_verification_2(self):
         """

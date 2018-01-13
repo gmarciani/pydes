@@ -1,60 +1,72 @@
 """
 Kolmogorov-Smirnov test of randomness.
 """
-
 import math
 from _ignore.leemis import rvms
-from core.utils import errutils
-from core.plots.kolmogorov_smirnov import histogram as kshistogram
-from core.plots.kolmogorov_smirnov import histogram2 as kshistogram2
 
 
-CONFIDENCE = 0.95
-
-
-def ksdistances(chisquares, bins):
-    chisquares.sort(key=lambda v: v[1])
-    streams = len(chisquares)
-    distances = []
-    for i in range(streams):
-        chi = chisquares[i][1]
-        distance = max(abs(rvms.cdfChisquare(bins - 1, chi) - (i / streams)), abs(
-            rvms.cdfChisquare(bins - 1, chi) - ((i - 1) / streams)))
-        distances.append((chi, distance))
-    return distances
-
-
-def kspoint(distances):
-    return max(distances, key=lambda value: value[1])
-
-
-def ksstatistic(distances):
-    return max(value[1] for value in distances)
-
-
-def critical_ksdistance(streams, confidence):
-    c = c_factor(confidence)
-    return c / (math.sqrt(streams) + 0.12 + 0.11 / math.sqrt(streams))
-
-
+# Approximation table for one-tailed critical values by Stephens.
 C_FACTOR_TABLE = {
-    '0.900': 1.224,
-    '0.950': 1.358,
-    '0.975': 1.480,
-    '0.990': 1.628
+    "0.900": 1.224,
+    "0.950": 1.358,
+    "0.975": 1.480,
+    "0.990": 1.628
 }
 
 
-def c_factor(confidence):
-    return C_FACTOR_TABLE[format(confidence, '.3f')]
+def compute_ks_distances(chisquares, bins):
+    """
+    Compute the Kolmogorov-Smirnov distances for all Chi-Square statistics.
+    :param chisquares: the Chi-Sqaure statistics for all streams.
+    :param bins: the number of bins.
+    :return: the Kolmogorov-Smirnov distances for all Chi-Square statistics.
+    """
+    chisquares.sort(key=lambda v: v[1])
+    streams = len(chisquares)
+    ks_distances = []
+    for i in range(streams):
+        chi = chisquares[i][1]
+        ks_distance = _compute_ks_distance(chi, i, streams, bins)
+        ks_distances.append((chi, ks_distance))
+    return ks_distances
 
-def error(data, mx, confidence):
-    return errutils.error_one_tail(data, mx, confidence)
+
+def _compute_ks_distance(chi, i, streams, bins):
+    """
+    Compute the Kolmogorov-Smirnov distance for a stream.
+    :param chi: the Chi-Square statistic.
+    :param i: the stream number.
+    :param streams: the total number of streams.
+    :param bins: the number of bins.
+    :return: the Kolmogorov-Smirnov distance for a stream.
+    """
+    theoreticalCdf = rvms.cdfChisquare(bins - 1, chi)
+    return max(abs(theoreticalCdf - (i / streams)), abs(theoreticalCdf - ((i - 1) / streams)))
 
 
-def plot(ksdistances, kspoint, kscritical, title=None, filename=None):
-    kshistogram(ksdistances, kspoint, kscritical, title, filename)
+def compute_ks_statistic(ks_distances):
+    """
+    Compute the Kolmogorov-Smirnov statistic for the given Kolmogorov-Smirnov distances.
+    :param ks_distances: the Kolmogorov-Smirnov distances.
+    :return: the Kolmogorov-Smirnov statistic for the given Kolmogorov-Smirnov distances.
+    """
+    return max(value[1] for value in ks_distances)
 
 
-def plot2(chisquares, bins, kspoint, title=None, filename=None):
-    kshistogram2(chisquares, bins, kspoint, title, filename)
+def compute_ks_point(ks_distances):
+    """
+    Compute the Kolmogorov-Smirnov point for the given Kolmogorov-Smirnov distances.
+    :param ks_distances: the Kolmogorov-Smirnov distances.
+    :return: the Kolmogorov-Smirnov point for the given Kolmogorov-Smirnov distances.
+    """
+    return max(ks_distances, key=lambda value: value[1])[0]
+
+
+def compute_ks_critical_distance(n, confidence):
+    """
+    Compute the one-tailed critical value of KS distance, leveraging the Stephens approximation.
+    :param n: the sample size (number of streams).
+    :param confidence: the confidence level, must be one of [0.90,0.95,0.975,0.99].
+    :return: the one-tailed critical value of KS distance.
+    """
+    return C_FACTOR_TABLE[format(confidence, ".3f")] / (math.sqrt(n) + 0.12 + 0.11 / math.sqrt(n))

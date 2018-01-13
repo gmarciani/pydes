@@ -20,6 +20,7 @@ Keep in mind the following table:
 import math
 from core.utils import mathutils
 from core.utils.guiutils import print_progress
+from core.utils.mathutils import _g
 
 
 def get_fp_multipliers(modulus):
@@ -132,23 +133,6 @@ def is_mc_multiplier(multiplier, modulus):
     :return: True if multiplier is a MC multiplier w.r.t. modulus.
     """
     return (modulus % multiplier) < math.floor(modulus / multiplier)
-
-
-def _g(x, multiplier, modulus):
-    """
-    An implementation of the G function that avoids overflows.
-    :param x: (int) the current state of the generator.
-    :param multiplier: (int) a valid multiplier w.r.t. modulus.
-    :param modulus: (int) a prime number.
-    :return: (int) the next state of the generator.
-    """
-    q = int(modulus / multiplier)
-    r = int(modulus % multiplier)
-    t = int(multiplier * (x % q) - r * int(x / q))
-    if t > 0:
-        return int(t)
-    else:
-        return int(t + modulus)
 
 
 def _test():

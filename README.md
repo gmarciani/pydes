@@ -47,6 +47,17 @@ cloud:
   t_setup: 95
 ```
 
+
+## Experiments
+
+In package 'experiments/random' you can find experiments about multi-stream Lehmer pseudo-random generator.
+In package 'experiments/simulation' you can find experiments about the simulated system.
+
+* random/modulus: 
+
+
+
+
 ## Authors
 Giacomo Marciani, [gmarciani@acm.org](mailto:gmarciani@acm.org)
 

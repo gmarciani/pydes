@@ -26,7 +26,7 @@ DEFAULT_OUTDIR = "out"
 
 def experiment(modulus, multiplier, outdir=DEFAULT_OUTDIR):
 
-    filename = path.join(outdir, "multiplier_check","fpmc_check_mod{}_mul{}".format(modulus, multiplier))
+    filename = path.join(outdir, "mulcheck_mod{}_mul{}".format(modulus, multiplier))
 
     print("MC Check for multiplier {} on modulus {}".format(multiplier, modulus))
     is_mcm = multiplier_check.is_mc_multiplier(multiplier, modulus)
@@ -45,15 +45,15 @@ def experiment(modulus, multiplier, outdir=DEFAULT_OUTDIR):
     r.add("Result", "MC", is_mcm)
     r.add("Result", "FP/MC", is_fpmcm)
 
-    r.save(filename + ".txt")
+    r.save(filename + "_report.txt")
 
     print(r)
 
 
 if __name__ == "__main__":
-    #modulus = 2147483647
-    #multipliers = [50812, 48271, 16807]
-    modulus = 401
-    multipliers = [23, 66]
+    modulus = 2147483647
+    multipliers = [50812, 48271, 16807]
+
     for multiplier in multipliers:
-        experiment(modulus=modulus, multiplier=multiplier)
+        outdir = path.join(DEFAULT_OUTDIR, "mulcheck", "mod{}_mul{}".format(modulus, multiplier))
+        experiment(modulus=modulus, multiplier=multiplier, outdir=outdir)

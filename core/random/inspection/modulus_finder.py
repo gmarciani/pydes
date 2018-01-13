@@ -2,7 +2,6 @@ import threading
 from core.utils import mathutils
 
 
-_THREADS = 32
 _MODULUS = 0
 
 
@@ -15,13 +14,15 @@ class ModulusFinder(threading.Thread):
     def run(self):
         global _MODULUS
         for modulus in self.rng:
-            if _MODULUS != 0: break
-            if mathutils.isprime(modulus):
+            if _MODULUS != 0:
+                break
+            if mathutils.is_prime(modulus):
                 _MODULUS = modulus
                 break
 
 
-def find_modulus(bits, threads=_THREADS):
+def find_modulus(bits):
+    threads = bits
     mx = 2**(bits - 1) - 1
     pool = []
     for t in range(threads):

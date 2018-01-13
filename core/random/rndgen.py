@@ -1,5 +1,5 @@
 """
-Implementation of the Lehmer pseudo-random generator.
+Implementation of a multi-stream Lehmer pseudo-random generator.
 
 Keep in mind the following table:
 
@@ -22,11 +22,11 @@ Keep in mind the following table:
 ╚════════════╩═════╩═══════╩════════════╩═════════════════════╝
 """
 
-_MODULUS = 2147483647
-_MULTIPLIER = 48271
-_STREAMS = 256
-_JUMPER = 22925
-_ISEED = 1
+DEFAULT_MODULUS = 2147483647
+DEFAULT_MULTIPLIER = 48271
+DEFAULT_STREAMS = 256
+DEFAULT_JUMPER = 22925
+DEFAULT_ISEED = 123456789
 
 
 class MarcianiMultiStream(object):
@@ -34,11 +34,11 @@ class MarcianiMultiStream(object):
     Implementation of a multi-stream Lehmer pseudo-random number generator.
     """
 
-    def __init__(self, iseed=_ISEED,
-                 modulus=_MODULUS,
-                 multiplier=_MULTIPLIER,
-                 streams=_STREAMS,
-                 jumper=_JUMPER):
+    def __init__(self, iseed=DEFAULT_ISEED,
+                 modulus=DEFAULT_MODULUS,
+                 multiplier=DEFAULT_MULTIPLIER,
+                 streams=DEFAULT_STREAMS,
+                 jumper=DEFAULT_JUMPER):
         """
         Creates a new random number generator.
         :param iseed: (int) the initial seed; must be positive.
@@ -109,7 +109,7 @@ class MarcianiMultiStream(object):
             x %= self._modulus
         else:
             raise ValueError(
-                'x must be a positive number in (0, modulus). Found {}'.format(
+                "x must be a positive number in (0, modulus). Found {}".format(
                     x))
         self._seeds[self._stream] = int(x)
 
@@ -145,16 +145,90 @@ class MarcianiMultiStream(object):
             self._seeds[self._stream] = int(t + self._modulus)
 
         return float(self._seeds[self._stream] / self._modulus)
+    
 
-    def rndn(self, n):
+class MarcianiSingleStream:
+    """
+    Implementation of a single-stream Lehmer pseudo-random number generator.
+    """
+
+    def __init__(self, iseed=DEFAULT_ISEED,
+                 modulus=DEFAULT_MODULUS,
+                 multiplier=DEFAULT_MULTIPLIER):
         """
-        Generates a list of pseudo-random numbers from uniform distribution in
-        [0,1)
-        :param n: (int) number of random numbers to generate
-        :return: (list(float)) a list of uniform pseudo-random numbers.
+        Creates a new random number generator.
+        :param iseed: (int) the initial seed; must be positive.
+        Default is 123456789.
+        :param modulus: (int) the modulus; must be positive and prime.
+        Default is 2147483647.
+        :param multiplier: (int) the multiplier; must be a FP/MC multiplier of
+        *modulus*.
+        Default is 48271.
         """
-        sample = []
-        for i in range(0, n):
-            u = self.rnd()
-            sample.append(u)
-        return sample
+        self._iseed = iseed
+        self._seed = iseed
+        self._modulus = modulus
+        self._multiplier = multiplier
+        
+    def get_initial_seed(self):
+        """
+        Retrieves the initial seed for the 1st stream.
+        :return: (int) the initial seed of 1st stream.
+        """
+        return self._iseed
+    
+    def get_seed(self):
+        """
+        Retrieves the seed..
+        :return: (int) the seed.
+        """
+        return self._seed
+    
+    def put_seed(self, x):
+        """
+        Initializes the generator with the specified seed.
+        :param x: (int) the seed.
+        """
+        if x > 0:
+            x %= self._modulus
+        else:
+            raise ValueError("x must be a positive number in (0, modulus). Found {}".format(x))
+        
+    def rnd(self):
+        """
+        Generates a pseudo-random number from uniform distribution in [0,1)
+        :return: a uniform pseudo-random float in [0,1)
+        """
+        Q = int(self._modulus / self._multiplier)
+        R = int(self._modulus % self._multiplier)
+    
+        t = int(self._multiplier * (self._seed % Q) - R * int(self._seed / Q))
+        
+        if t > 0:
+            self._seed = int(t)
+        else:
+            self._seed = int(t + self._modulus)
+    
+        return float(self._seed / self._modulus)
+
+
+if __name__ == "__main__":
+    CHECK = 399268537
+    MODULUS = 2147483647
+    MULTIPLIER = 48271
+    DEFAULT = 123456789
+    seed = int(DEFAULT)
+
+    generator = MarcianiSingleStream(iseed=1)
+    for _ in range(0, 10000):
+        generator.rnd()
+    if generator.get_seed() != CHECK:
+        raise RuntimeError("{} is not correct!".format(generator.__class__.__name__))
+
+    generator = MarcianiMultiStream(iseed=1)
+    for _ in range(0, 10000):
+        generator.rnd()
+    if generator.get_seed() != CHECK:
+        raise RuntimeError("{} is not correct!".format(generator.__class__.__name__))
+
+

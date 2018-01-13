@@ -4,7 +4,7 @@ Experiment: Bivariate correlation
 
 import unittest
 from core.random.rndgen import MarcianiMultiStream as RandomGenerator
-from core.plots import scatter
+from _ignore.plots import scatter
 from tests import RES_DIR, PLT_EXT
 
 

@@ -10,7 +10,7 @@ def gcd(a, b):
     """
     Computes the greatest common divisor of a and b.
     :param a: (int) first term.
-    :param b: (int) second term
+    :param b: (int) second term.
     :return: (int) the greatest common divisor of a and b.
     """
     while b:
@@ -18,7 +18,7 @@ def gcd(a, b):
     return a
 
 
-def isprime(n):
+def is_prime(n):
     """
     Checks if n is a prime number.
     :param n: (int) the number to check.
@@ -35,6 +35,16 @@ def isprime(n):
             return False
         i += 2
     return True
+
+
+def are_coprime(a, b):
+    """
+    Check if a and b are coprime numbers.
+    :param a: (int) first term.
+    :param b: (int) second term.
+    :return: (Boolean) True if a and b are coprime; False, otherwise.
+    """
+    return gcd(a, b) == 1
 
 
 def get_frequencies(sample, min, max, bins):
@@ -90,13 +100,12 @@ def get_frequencies_bivariate(sample, min, max, bins):
 
 def chisquare_univariate(observed, expected, start=0):
     """
-    Computes the chi-square statistics for chi-square tests.
+    Computes the chi-square statistic for chi-square tests.
     :param observed: (List) array of observations.
     :param expected: (List) array of expected values.
     :param start: (int) index of array from where to start
-    :return: (Float) the chi-square statistics.
+    :return: (Float) the chi-square statistic.
     """
-
     K = len(observed)
     value = 0
     for x in range(start, K):
@@ -229,3 +238,20 @@ class WelfordStatistics(object):
 
     def get_variance(self):
         return self._variance / self._i
+
+
+def _g(x, multiplier, modulus):
+    """
+    An implementation of the G function that avoids overflows.
+    :param x: (int) the current state of the generator.
+    :param multiplier: (int) a valid multiplier w.r.t. modulus.
+    :param modulus: (int) a prime number.
+    :return: (int) the next state of the generator.
+    """
+    q = int(modulus / multiplier)
+    r = int(modulus % multiplier)
+    t = int(multiplier * (x % q) - r * int(x / q))
+    if t > 0:
+        return int(t)
+    else:
+        return int(t + modulus)

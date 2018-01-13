@@ -2,12 +2,12 @@
 Experiment: All Chi-Square Tests of Randomness.
 """
 
-from experiments.randomness import extremes
-from experiments.randomness import gap
-from experiments.randomness import permutation
-from experiments.randomness import runsup
-from experiments.randomness import uniformity_bivariate
-from experiments.randomness import uniformity_univariate
+from experiments.random.randomness import extremes
+from experiments.random.randomness import gap
+from experiments.random.randomness import permutation
+from experiments.random.randomness import runsup
+from experiments.random.randomness import uniformity_bivariate
+from experiments.random.randomness import uniformity_univariate
 
 
 def experiment():

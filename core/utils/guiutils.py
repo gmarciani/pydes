@@ -18,8 +18,6 @@ def print_progress(iteration, total, prefix='Progress', suffix='Complete', decim
     if iteration == total:
         sys.stdout.write('\n')
 
-    #sys.stdout.flush()
-
 
 if __name__ == '__main__':
     from time import sleep

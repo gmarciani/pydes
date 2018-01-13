@@ -18,29 +18,38 @@ from core.utils.file_utils import save_list_of_numbers
 from os import path
 
 
+# Default parameters
 DEFAULT_MODULUS = 2147483647
+DEFAULT_MULTIPLIER = 50812
+
+# Directory for results
+DEFAULT_OUTDIR = "out"
 
 
-def experiment(modulus):
-    print("Computing MC Multipliers")
+def experiment(modulus, outdir=DEFAULT_OUTDIR):
+
+    filename = path.join(outdir, "mulfind_mod{}".format(modulus))
+
+    print("Computing MC Multipliers for modulus {}".format(modulus))
     mc_multipliers = multiplier_check.get_mc_multipliers(modulus)
 
-    print("Computing FP Multipliers")
+    print("Computing FP Multipliers for modulus {}".format(modulus))
     fp_multipliers = multiplier_check.get_fp_multipliers(modulus)
 
-    print("Computing FP/MC Multipliers")
+    print("Computing FP/MC Multipliers for modulus {}".format(modulus))
     fpmc_multipliers = []
     for candidate in fp_multipliers:
         if candidate in mc_multipliers:
             fpmc_multipliers.append(candidate)
 
-    print("Computing largest FP/MC Multiplier")
+    print("Computing largest/smallest FP/MC Multipliers for modulus {}".format(modulus))
     largest_fpmc_multiplier = max(fpmc_multipliers, default=None)
+    smallest_fpmc_multiplier = min(fpmc_multipliers, default=None)
 
     # Save raw data
-    save_list_of_numbers(path.join("out", "multiplier_fp_{}.txt".format(modulus)), mc_multipliers)
-    save_list_of_numbers(path.join("out", "multiplier_mc_{}.txt".format(modulus)), fp_multipliers)
-    save_list_of_numbers(path.join("out", "multiplier_fpmc_{}.txt".format(modulus)), fpmc_multipliers)
+    save_list_of_numbers(filename + "_mc.txt", mc_multipliers)
+    save_list_of_numbers(filename + "_fp.txt", fp_multipliers)
+    save_list_of_numbers(filename + "_fpmc.txt", fpmc_multipliers)
 
     # Report
     r = SimpleReport("MULTIPLIERS")
@@ -51,12 +60,17 @@ def experiment(modulus):
     r.add("Multipliers (%)", "FP", round(100 * len(fp_multipliers) / (modulus - 1), 3))
     r.add("Multipliers (%)", "MC", round(100 * len(mc_multipliers) / (modulus - 1), 3))
     r.add("Multipliers (%)", "FP/MC", round(100 * len(fpmc_multipliers) / (modulus - 1), 3))
+    r.add("Result", "Smallest FP/MC Multiplier", smallest_fpmc_multiplier)
     r.add("Result", "Largest FP/MC Multiplier", largest_fpmc_multiplier)
 
-    r.save(path.join("out", "multiplier_{}.txt".format(modulus)))
+    r.save(filename + "_report.txt")
 
     print(r)
 
 
 if __name__ == "__main__":
-    experiment(401)
+    moduli = [401, 2147483647]
+
+    for modulus in moduli:
+        outdir = path.join(DEFAULT_OUTDIR, "mulfind", "mod{}".format(modulus))
+        experiment(modulus=modulus, outdir=outdir)

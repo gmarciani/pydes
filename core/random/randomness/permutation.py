@@ -5,7 +5,7 @@ The Test of Permutation for independence.
 from _ignore.leemis import rvms
 from core.utils import errutils
 from core.utils import mathutils
-from core.plots.chisquare import scatter
+from _ignore.plots.chisquare import scatter
 
 
 SAMSIZE = 7200      # SAMSIZE >= 10*BINS

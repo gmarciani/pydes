@@ -1,4 +1,5 @@
 from core.simulations.cloud.model.server import SimpleServer as Server
+from core.simulations.cloud.model.server_selector import SelectionRule,ServerSelectorOrder,ServerSelectorCyclic, ServerSelectorEquity, ServerSelectorRandom
 from core.simulations.cloud.model.server import ServerState
 from core.simulations.cloud.model.event import SimpleEvent as Event
 from core.simulations.cloud.model.event import EventType
@@ -15,7 +16,7 @@ class SimpleCloudLet:
     A simple Cloudlet, defined by its state.
     """
 
-    def __init__(self, rndgen, n_servers, service_rate_1, service_rate_2, threshold):
+    def __init__(self, rndgen, n_servers, service_rate_1, service_rate_2, threshold, server_selection_rule=SelectionRule.ORDER):
         """
         Create a new Cloudlet.
         :param rndgen: (object) the multi-stream random number generator.
@@ -23,17 +24,31 @@ class SimpleCloudLet:
         :param service_rate_1: (float) the service rate for job of type 1 (tasks/s).
         :param service_rate_2: (float) the service rate for job of type 2 (tasks/s).
         :param threshold: (int) the occupancy threshold.
+        :param server_selection_rule: (SelectionRule) the adopted server selection rule.
         """
         self._rndgen = rndgen
         self.n_servers = n_servers
         self.service_rate_1 = service_rate_1
         self.service_rate_2 = service_rate_2
         self.threshold = threshold
+        self.server_selection_rule = server_selection_rule
+
+        # servers initialization
+        self._servers = [Server(rndgen, service_rate_1, service_rate_2) for i in range(n_servers)]
+        if self.server_selection_rule is SelectionRule.ORDER:
+            self._server_selector = ServerSelectorOrder(self._servers)
+        elif self.server_selection_rule is SelectionRule.CYCLIC:
+            self._server_selector = ServerSelectorCyclic(self._servers)
+        elif self.server_selection_rule is SelectionRule.EQUITY:
+            self._server_selector = ServerSelectorEquity(self._servers)
+        elif self.server_selection_rule is SelectionRule.RANDOM:
+            self._server_selector = ServerSelectorRandom(self._servers)
+        else:
+            raise ValueError("Unrecognized server-selection rule: {}".format(self.server_selection_rule))
 
         # state
         self.n_1 = 0  # number of tasks of type 1 serving in the Cloudlet
         self.n_2 = 0  # number of tasks of type 2 serving in the Cloudlet
-        self._servers = [Server(rndgen, service_rate_1, service_rate_2) for i in range(n_servers)]
 
         # statistics
         self.n_arrival_1 = 0  # number of tasks of type 1 arrived to the Cloudlet
@@ -46,6 +61,8 @@ class SimpleCloudLet:
         self.t_service_2 = 0.0  # the total service time for tasks of type 2
         self.t_wasted_2 = 0.0  # the total service time for tasks of type 2, wasted due to removal
 
+        assert 1 <= self.threshold <= self.n_servers
+
     def submit_arrival_task_1(self, event_time):
         """
         Submit to the Cloudlet the arrival of a task of type 1.
@@ -55,7 +72,7 @@ class SimpleCloudLet:
         assert self.n_1 + self.n_2 < self.n_servers
 
         # state change
-        server_idx = self.select_idle_server_idx()
+        server_idx = self._server_selector.select_idle()
         if server_idx is None:
             raise RuntimeError("Cannot find idle server for arrival of task of type 1 \n {}".format(self))
         t_completion = self._servers[server_idx].submit_task_1(event_time)
@@ -79,7 +96,7 @@ class SimpleCloudLet:
         assert self.n_1 + self.n_2 < self.n_servers
 
         # state change
-        server_idx = self.select_idle_server_idx()
+        server_idx = self._server_selector.select_idle()
         if server_idx is None:
             raise RuntimeError("Cannot find free server for arrival of task of type 2 \n {}".format(self))
         t_completion = self._servers[server_idx].submit_task_2(event_time)
@@ -103,7 +120,7 @@ class SimpleCloudLet:
         assert self.n_2 > 0
 
         # state change
-        server_idx = self.select_interruption_server_idx()
+        server_idx = self._server_selector.select_interruption()
         if server_idx is None:
             raise RuntimeError("Cannot find interruption server at time ", event_time)
         t_arrival, t_completion_to_ignore = self._servers[server_idx].interrupt_task_2(event_time)
@@ -114,6 +131,7 @@ class SimpleCloudLet:
 
         # record statistics
         self.n_removed_2 += 1
+        self.t_service_2 -= (t_completion_to_ignore - t_arrival)
         self.t_wasted_2 += (event_time - t_arrival)
 
         return completion_event_to_ignore
@@ -153,26 +171,6 @@ class SimpleCloudLet:
 
         # record statistics
         self.n_served_2 += 1
-
-    def select_idle_server_idx(self):
-        """
-        Select an idle server, according to the adopted selection rule.
-        :return: (int) the index of the selected idle server, if present; None, otherwise.
-        """
-        for idx, server in enumerate(self._servers):
-            if server.state is ServerState.IDLE:
-                return idx
-        return None
-
-    def select_interruption_server_idx(self):
-        """
-        Select an interruption server, according to the adopted selection rule.
-        :return: (int) the index of the selected interruption server, if present; None, otherwise.
-        """
-        for idx, server in enumerate(self._servers):
-            if server.task_type is TaskType.TASK_2:
-                return idx
-        return None
 
     def find_completion_server_idx(self, task_type, t_completion):
         """
@@ -233,9 +231,9 @@ if __name__ == "__main__":
     rndgen = RandomGenerator(123456789)
 
     # Creation
-    cloudlet_1 = SimpleCloudLet(rndgen, 10, 0.45, 0.30, 10)
+    cloudlet_1 = SimpleCloudLet(rndgen, 10, 0.45, 0.30, 10, SelectionRule.ORDER)
     print("Cloudlet 1:", cloudlet_1)
-    cloudlet_2 = SimpleCloudLet(rndgen, 20, 0.90, 0.60, 20)
+    cloudlet_2 = SimpleCloudLet(rndgen, 20, 0.90, 0.60, 20, SelectionRule.CYCLIC)
     print("Cloudlet 2:", cloudlet_2)
 
     # Equality check

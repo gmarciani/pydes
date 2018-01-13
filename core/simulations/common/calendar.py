@@ -74,16 +74,18 @@ class NextEventCalendar:
         :return: (SimpleEvent) the next event, if present; None, otherwise.
         """
         if self._events.empty():
+            logger.debug("Event queue is empty, next event is None")
             return None
         else:
             candidate = self._events.get()[1]
             while candidate in self._ignore:
                 self._ignore.discard(candidate)
                 candidate = self._events.get()[1]
+                logger.debug("Ignoring next event (unscheduled): {}".format(candidate))
             self.set_clock(candidate.time)
             return candidate
 
-    def is_empty(self):
+    def empty(self):
         """
         Check if the calendar is empty.
         :return: True, if the calendar is empty; False, otherwise.
@@ -132,7 +134,7 @@ if __name__ == "__main__":
     # step 3: test
     _events.sort()
     _idx = 0
-    while not calendar.is_empty():
+    while not calendar.empty():
         event = calendar.get_next_event()
         assert event == _events[_idx]
         print("Event: {} | clock: {}".format(event, calendar.get_clock()))
@@ -160,7 +162,7 @@ if __name__ == "__main__":
     # step 3: test
     _events.sort()
     _idx = 0
-    while not calendar.is_empty():
+    while not calendar.empty():
         event = calendar.get_next_event()
         assert event == _events[_idx]
         print("Event: {} | clock: {}".format(event, calendar.get_clock()))

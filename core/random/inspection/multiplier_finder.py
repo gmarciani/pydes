@@ -1,6 +1,6 @@
 import threading
 from math import sqrt
-from core.random.inspection.multiplier import is_fp_multiplier, is_mc_multiplier
+from core.random.inspection.multiplier_check import is_fp_multiplier, is_mc_multiplier
 
 
 _THREADS = 32

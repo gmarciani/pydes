@@ -1,5 +1,6 @@
 from core.simulations.cloud.model.cloudlet import SimpleCloudLet as Cloudlet
 from core.simulations.cloud.model.cloud import SimpleCloud as Cloud
+from core.simulations.cloud.model.server_selector import SelectionRule
 from core.statistics.sample_statistics import SimpleSampleStatistics as SampleStatistic
 import logging
 
@@ -24,7 +25,8 @@ class SimpleCloudletCloudSystem:
             config_cloudlet["n_servers"],
             config_cloudlet["service_rate_1"],
             config_cloudlet["service_rate_2"],
-            config_cloudlet["threshold"]
+            config_cloudlet["threshold"],
+            SelectionRule[config_cloudlet["server_selection"]]
         )
 
         self.cloud = Cloud(
@@ -43,7 +45,19 @@ class SimpleCloudletCloudSystem:
         self.n_arrival_2 = 0  # total number of arrived tasks of type 2
         self.n_served_1 = 0  # total number of served tasks of type 1
         self.n_served_2 = 0  # total number of served tasks of type 2
-        self.response_time = SampleStatistic()  # the response time statistics
+        self.response_time = SampleStatistic()  # the response time
+
+        # meta
+        self.t_last_event = 0.0  # the last event time (used for utilization)
+        self.t_last_completion = 0.0  # the last completion time (used for throughput)
+        self.area_service = 0.0  # the service area, used to compute utilization
+
+    def empty(self):
+        """
+        Check weather the system is empty or not.
+        :return: True, if the system is empty; False, otherwise.
+        """
+        return self.n_1 + self.n_2 == 0
 
     def submit_arrival_task_1(self, event_time):
         """
@@ -55,19 +69,25 @@ class SimpleCloudletCloudSystem:
         *c3* is the completion time of the interrupted task of type 2 in the Cloudlet, if present; if it is not
         present, *c3* is None.
         """
-        # state change
+        # Update State
         self.n_1 += 1
 
-        # record statistics
+        # Update Statistics
         self.n_arrival_1 += 1
 
-        # processing
+        # Update meta
+        if self.n_1 + self.n_2 > 0:
+            self.area_service += (event_time - self.t_last_event)
+        self.t_last_event = event_time
+
+        # Processing
         if self.cloudlet.n_1 == self.cloudlet.n_servers:
             logger.debug("ARRIVAL_TASK_1 submitted to CLOUD at time {}".format(event_time))
             completion_event = self.cloud.submit_arrival_task_1(event_time)
 
-            # Update response time
-            self.response_time.add_value(completion_event.time - event_time)
+            # Update statistics
+            t_service = completion_event.time - event_time
+            self.response_time.add_value(t_service)
 
             return completion_event, None, None
 
@@ -75,8 +95,9 @@ class SimpleCloudletCloudSystem:
             logger.debug("ARRIVAL_TASK_1 submitted to CLOUDLET at time {}".format(event_time))
             completion_event = self.cloudlet.submit_arrival_task_1(event_time)
 
-            # Update response time
-            self.response_time.add_value(completion_event.time - event_time)
+            # Update statistics
+            t_service = completion_event.time - event_time
+            self.response_time.add_value(t_service)
 
             return completion_event, None, None
 
@@ -88,8 +109,9 @@ class SimpleCloudletCloudSystem:
             logger.debug("ARRIVAL_TASK_1 submitted to CLOUDLET at time {}".format(event_time))
             completion_event = self.cloudlet.submit_arrival_task_1(event_time)
 
-            # Update response time
-            self.response_time.add_value(completion_event.time - event_time)
+            # Update statistics
+            t_service = completion_event.time - event_time
+            self.response_time.add_value(t_service)
 
             return completion_event, completion_restart_event, completion_to_ignore
 
@@ -97,8 +119,9 @@ class SimpleCloudletCloudSystem:
             logger.debug("ARRIVAL_TASK_1 submitted to CLOUDLET at time {}".format(event_time))
             completion_event = self.cloudlet.submit_arrival_task_1(event_time)
 
-            # Update response time
-            self.response_time.add_value(completion_event.time - event_time)
+            # Update statistics
+            t_service = completion_event.time - event_time
+            self.response_time.add_value(t_service)
 
             return completion_event, None, None
 
@@ -108,27 +131,34 @@ class SimpleCloudletCloudSystem:
         :param event_time: (float) the occurrence time of the event.
         :return: (SimpleEvent) completion event of the submitted task of type 2.
         """
-        # state change
+        # Update State
         self.n_2 += 1
 
-        # record statistics
+        # Update Statistics
         self.n_arrival_2 += 1
 
-        # processing
+        # Update meta
+        if self.n_1 + self.n_2 > 0:
+            self.area_service += (event_time - self.t_last_event)
+        self.t_last_event = event_time
+
+        # Processing
         if self.cloudlet.n_1 + self.cloudlet.n_2 >= self.cloudlet.threshold:
             logger.debug("ARRIVAL_TASK_2 submitted to CLOUD at time {}".format(event_time))
             completion_event = self.cloud.submit_arrival_task_2(event_time)
 
-            # Update response time
-            self.response_time.add_value(completion_event.time - event_time)
+            # Update statistics
+            t_service = completion_event.time - event_time
+            self.response_time.add_value(t_service)
 
             return completion_event
         else:
             logger.debug("ARRIVAL_TASK_2 submitted to CLOUDLET at time {}".format(event_time))
             completion_event = self.cloudlet.submit_arrival_task_2(event_time)
 
-            # Update response time
-            self.response_time.add_value(completion_event.time - event_time)
+            # Update statistics
+            t_service = completion_event.time - event_time
+            self.response_time.add_value(t_service)
 
             return completion_event
 
@@ -140,13 +170,19 @@ class SimpleCloudletCloudSystem:
         """
         logger.debug("COMPLETION_TASK_1 submitted to CLOUDLET at time {}".format(event_time))
 
-        # state change
+        # Update State
         self.n_1 -= 1
 
-        # record statistics
+        # Update Statistics
         self.n_served_1 += 1
 
-        # processing
+        # Update meta
+        if self.n_1 + self.n_2 > 0:
+            self.area_service += (event_time - self.t_last_event)
+        self.t_last_event = event_time
+        self.t_last_completion = event_time
+
+        # Processing
         self.cloudlet.submit_completion_task_1(event_time)
 
     def submit_completion_cloudlet_task_2(self, event_time):
@@ -157,13 +193,19 @@ class SimpleCloudletCloudSystem:
         """
         logger.debug("COMPLETION_TASK_2 submitted to CLOUDLET at time {}".format(event_time))
 
-        # state change
+        # Update State
         self.n_2 -= 1
 
-        # record statistics
+        # Update Statistics
         self.n_served_2 += 1
 
-        # processing
+        # Update meta
+        if self.n_1 + self.n_2 > 0:
+            self.area_service += (event_time - self.t_last_event)
+        self.t_last_event = event_time
+        self.t_last_completion = event_time
+
+        # Processing
         self.cloudlet.submit_completion_task_2(event_time)
 
     def submit_completion_cloud_task_1(self, event_time):
@@ -174,13 +216,19 @@ class SimpleCloudletCloudSystem:
         """
         logger.debug("COMPLETION_TASK_1 submitted to CLOUD at time {}".format(event_time))
 
-        # state change
+        # Update State
         self.n_1 -= 1
 
-        # record statistics
+        # Update Statistics
         self.n_served_1 += 1
 
-        # processing
+        # Update meta
+        if self.n_1 + self.n_2 > 0:
+            self.area_service += (event_time - self.t_last_event)
+        self.t_last_event = event_time
+        self.t_last_completion = event_time
+
+        # Processing
         self.cloud.submit_completion_task_1(event_time)
 
     def submit_completion_cloud_task_2(self, event_time):
@@ -191,14 +239,34 @@ class SimpleCloudletCloudSystem:
         """
         logger.debug("COMPLETION_TASK_2 submitted to CLOUD at time {}".format(event_time))
 
-        # state change
+        # Update State
         self.n_2 -= 1
 
-        # record statistics
+        # Update Statistics
         self.n_served_2 += 1
 
-        # processing
+        # Update meta
+        if self.n_1 + self.n_2 > 0:
+            self.area_service += (event_time - self.t_last_event)
+        self.t_last_event = event_time
+        self.t_last_completion = event_time
+
+        # Processing
         self.cloud.submit_completion_task_2(event_time)
+
+    def get_throughput(self):
+        """
+        Compute the overall system throughput.
+        :return: (float) the overall system throughput.
+        """
+        return (self.n_served_1 + self.n_served_2) / self.t_last_completion
+
+    def get_utilization(self):
+        """
+        Compute the overall system utilization.
+        :return: (float) the overall system utilization.
+        """
+        return self.area_service / self.t_last_event
 
     def __str__(self):
         """
