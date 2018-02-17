@@ -8,129 +8,98 @@
 % Institution: Department of Civil Engineering and Computer Science Engineering,
 % University of Rome Tor Vergata, Italy
 %
-% Style: ACM-UTV Large (based on ACM Large v1.7)
+% Style: ACM-UTV SIGCONFS (based on ACM Large v1.7)
 %*******************************************************************************
 
-\documentclass[prodmode,acmutv-cw-pmcsn]{acmlarge}
+\documentclass[sigconf]{acmart}
 
 %*******************************************************************************
 % Packages
 %*******************************************************************************
 \usepackage[utf8]{inputenc}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{color, soul}
 \usepackage{graphicx}
+\usepackage{pgfplots}
+\usepackage{pgf-pie}
+\usepackage{lipsum}
 \usepackage{epstopdf}
 \usepackage{subfig}
 \usepackage{bm}
 \usepackage{url}
-\usepackage{amsmath}
-\usepackage{lipsum}
-\usepackage{xr}
-\usepackage[hidelinks]{hyperref}
-\usepackage{cleveref}
+
+%*******************************************************************************
+% Packages setting
+%*******************************************************************************
+\graphicspath{{fig/}}
+
+%*******************************************************************************
+% Shared Affiliation format
+%*******************************************************************************
+\def\sharedaffiliation{%
+\end{tabular}
+\begin{tabular}{c}}
+
+%*******************************************************************************
+% Fonts
+%*******************************************************************************
+%\newfont{\eaddfntresz}{phvr8t at 11pt}
+
+%*******************************************************************************
+% Margins
+%*******************************************************************************
+%\clubpenalty=10000
+%\widowpenalty=10000
+
+%*******************************************************************************
+% hyphenation
+%*******************************************************************************
+\hyphenation{sched-uler par-a-digm adopt-ed evolv-ing th}
+
+%*******************************************************************************
+% pseudocode customisation
+%*******************************************************************************
+%\makeatletter
+%\def\BState{\State\hskip-\ALG@thistlm}
+%\makeatother
 
 %*******************************************************************************
 % Details
 %*******************************************************************************
-\acmVolume{1}
-\acmNumber{1}
-\acmArticle{1}
-\articleSeq{1}
-\acmMonth{1}
+\acmConference[PMCSN'18]{Performance Modeling of Computer Systems and Networks}{February 2018}{Rome, Italy}
 \acmYear{2018}
-
-\issn{1234-56789}
-\doi{0000001.0000001}
-
-%*******************************************************************************
-% Copyright
-%*******************************************************************************
+\copyrightyear{2018}
 \setcopyright{rightsretained}
-
-%*******************************************************************************
-% Algorithm
-%*******************************************************************************
-\usepackage[ruled]{algorithm2e}
-\SetAlFnt{\algofont}
-\SetAlCapFnt{\algofont}
-\SetAlCapNameFnt{\algofont}
-\SetAlCapHSkip{0pt}
-\IncMargin{-\parindent}
-\renewcommand{\algorithmcfname}{ALGORITHM}
-
-%*******************************************************************************
-% Notations
-%*******************************************************************************
-\newcommand{\probability}[1]{
-	\mathbf{P}[#1]
-}
-\newcommand{\expected}[1]{
-	\mathbf{E}[#1]
-}
-\newcommand{\variance}[1]{
-	\mathbf{Var}[#1]
-}
-
-%*******************************************************************************
-% Numbering
-%*******************************************************************************
-\numberwithin{equation}{section}
-
-%*******************************************************************************
-% References
-%*******************************************************************************
-\crefname{lem}{lemma}{lemmata}
-\Crefname{lem}{Lemma}{Lemmata}
-\crefname{cor}{corollary}{corollaries}
-\Crefname{cor}{Corollary}{Corollaries}
-\crefname{alg}{algorithm}{algorithms}
-\Crefname{alg}{Algorithm}{Algorithms}
-\externaldocument{sec/introduction}
-\externaldocument{sec/random-number-generation}
-\externaldocument{sec/randomness-analysis}
-\externaldocument{sec/web-services}
-\externaldocument{sec/goals-objectives}
-\externaldocument{sec/conceptual-model}
-\externaldocument{sec/specification-model}
-\externaldocument{sec/computational-model}
-\externaldocument{sec/verification}
-\externaldocument{sec/validation}
-\externaldocument{sec/experimental-analysis}
-\externaldocument{sec/app/conclusions}
-\externaldocument{sec/app/src-random-number-generator}
-\externaldocument{sec/app/src-randomness-tests}
-\externaldocument{sec/app/src-computational-model}
-\externaldocument{sec/app/latex-formats}
-
-%*******************************************************************************
-% Title and Authors
-%*******************************************************************************
-\markboth{G. Marciani}{A performance modeling showcase for multi-tiered web services}
-\title{A performance modeling showcase for multi-tiered web services}
-\author{GIACOMO MARCIANI \affil{University of Rome Tor Vergata}}
-
-%*******************************************************************************
-% Front Content
-%*******************************************************************************
-\input{sec/abstract}
-\input{sec/ccs-keywords}
-\acmformat{Giacomo Marciani. 2017. A performance modeling showcase for multi-tiered web services.}
+\acmISBN{123-4567-24-567/08/06}
+\acmDOI{10.475/123_4}
+\acmPrice{15.00}
 
 \begin{document}
+%*******************************************************************************
+% Title
+%*******************************************************************************
+\title{A performance modeling showcase}
 
 %*******************************************************************************
-% Bottom Content
+% Authors
 %*******************************************************************************
-\begin{bottomstuff}
-This work is supported by the Department of Civil Engineering and Computer Science
-Engineering, University of Rome Tor Vergata, Italy.\\
-Author's address: G. Marciani, Via del Politecnico 1, Rome, RM 00133, Italy;
-email: gmarciani@acm.org.
-\end{bottomstuff}
+\author{Giacomo Marciani}
+\orcid{0000-0002-3675-8804}
+\affiliation{%
+  \institution{University of Rome Tor Vergata}
+  \streetaddress{Via del Politecnico 1}
+  \city{Rome}
+  \state{Italy}
+  \postcode{00133}
+}
+\email{gmarciani@acm.org}
 
-\maketitle
+% The default list of authors is too long for headers}
+\renewcommand{\shortauthors}{G. Marciani et G. Santi}
 
 %*******************************************************************************
-% Core Content
+% Contents
 %*******************************************************************************
 \input{sec/introduction}
 \input{sec/random-number-generation}
@@ -148,17 +117,7 @@ email: gmarciani@acm.org.
 %*******************************************************************************
 % Bibliography
 %*******************************************************************************
-\bibliographystyle{acmreferences}
+\bibliographystyle{biblio}
 \bibliography{./ref/biblio}
-
-%*******************************************************************************
-% Online Appendix
-%*******************************************************************************
-
-\elecappendix
-\input{sec/app/src-random-number-generator}
-\input{sec/app/src-randomness-tests}
-\input{sec/app/src-computational-model}
-\input{sec/app/latex-formats}
 
 \end{document}
