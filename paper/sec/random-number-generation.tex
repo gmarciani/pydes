@@ -1,6 +1,15 @@
 \section{Random number generation}
 \label{sec:random-number-generation}
 
+There exist many other techniques for pseudo-random number generation.
+The most notable are \textit{multiple recursive generators}, \textit{composite generators}, and \textit{shift-register generators}. All of these produce periods wider than the one produced by a Lehmer generator, with the cost of computational complexity.
+However, we adopt Lehmer generator because it is effective, efficient and widely adopted, thus being perfect for our showcase.
+
+Il progetto presentato si propone di testare il noto generatore pseudo-casuale di numeri random di Lehmer utilizzando, a tale scopo, uno dei sei test di casualità illustrati nella sezione 10.11.
+Per una migliore comprensione sull’importanza dell’’uso di tale test, si è preferito implementare una propria versione del generatore lehmer; si è, quindi,scelto un moltiplicatore differente da quello proposta dal libro di testo che soddisfacesse dei requisiti particolari (spiegati nelle sezioni successive); una volta testato il generatore con tale moltiplicatore scelto effettuando i test preposti si sono confrontati i risultati riscontrati con quelli ottenuti dall’uso dei moltiplicatori e di altri parametri utilizzati dal libro di testo. Infatti da tale confronto si è compreso se le scelte effettuate a priori riguardo a una implementazione “nativa” possono considerarsi valide, e questo è possibile analizzando i grafici ottenuti in seguito alle simulazioni che forniscono indicazioni sul grado di casualità del generatore testato con i parametri di input scelti.
+Per tali test sono stati utilizzati le librerie offerte dal libro di testo, i quali forniscono una lista di funzioni API (scritti in linguaggio C) pronte per essere utilizzati in qualsiasi programma simulativo.
+Per sfruttare al maglio tali API, si è preferito implementare il progetto con lo stesso linguaggio di programmazione, mentre per la costruzione e visualizzazione dei grafici in seguito ai test simulativi è stato scelto di usare GNUPLOT per il linguaggio C.
+
 % %
 % MODULUS
 % %
@@ -9,9 +18,24 @@
 % %
 % MULTIPLIER
 % %
-\lipsum[1]
+Il primo passo necessario per una implementazione nativa del generatore Lehmer è stata la scelta di un moltiplicatore che godesse le proprietà di full-period e module-compatible rispetto al modulo m, dove m è il più grande numero intero primo rappresentabile in un calcolatore elettronico a 32 bit (m= 231 - 1). Si è dovuto, quindi, creare la lista di tutti i moltiplicatori che avessero simili proprietà e sceglierne uno tra questi per i nostri scopi. Il numero totale di moltiplicatori full-period e module-compatible calcolati in una architettura a 32 bit sono non più di 23093. Tra questi ci sono anche i moltiplicatori utilizzati dal libro di testo, ossia il moltiplicatore 16807, usato largamente in passato1 fino alla scoperta del moltiplicatore ad oggi più utilizzato e considerato migliore in termini di generazione di sequenze di numeri random, il cui valore intero è 48271. Di seguito verrà illustrato l’algoritmo utlizzato per il calcolo dei moltiplicatori full-period e module compatible rispetto ad m:
+
+Dato il modulo primo m ed un qualsiasi moltiplicatore full-period e module -compatible, l’algoritmo riportato sopra genera tutti i moltiplicatori full period e module compatible a m. Per ogni iterazione dentro il while, viene controllato se il moltiplicatore x calcolato nella iterazione precedente soddisfa tali proprietà, in tal caso viene inserito in un’array, altrimenti si procede nel calcolo successivo di un nuovo intero. Tale iterazione è esprimibile come: ai mod m.
+Per evitare condizioni di overflow dovuti al prodotto a*Xi vengono calcolate resto e il quoziente della funzione, e in base al segno dell’operazione di sottrazione tra questi è possibile determinare il valore intero del moltiplicatore senza produrre alcun valore intermedio o finale più grande di m-1.
+
+Dopo aver determinati tutti e 23093 moltiplicatori, questi vengono salvati in un file di testo per un facile recupero in un secondo momento. Per i nostri test abbiamo scelto infine il moltiplicatore di valore 50812 che gode delle proprietà di FULL-PERIOD e MODULE-COMPATIBLE rispetto al modulo m.
 
 % %
 % JUMP MULTIPLIER
 % %
-\lipsum[1]
+Finora i test spiegati in precedenza sia per determinare i moltiplicatori full-period e module-compatible con m che per i test spettrali si è generato un unico stream di valori pseudo-casuali. Tuttavia nei programmi di simulazione discrete-event in cui si vuole simulare un sistema composto da varie componenti stocastiche, è conveniente utilizzare un generatore multi-stream e, a tale scopo, viene fornita la libreria rngs.c.
+Tale libreria implementa la funzione di lehmer estesa al multi-stream, introducendo il moltiplicatore di salto: aj mod m che viene computata solo una volta; grazie a questo, infatti la funzione di salto gj (x) = (aj mod m)*x mod m fornisce un modo per separare diverse sequenze di numeri random, e se il parametro di salto j viene scelto in modo appropriato, viene garantita anche la disgiunzione degli stream creati, ognuno con un proprio seme iniziale determinato dal primo seme iniziale impostato.
+in questo progetto si è scelto di mantenere 256 streams di numeri random previsti dalla libreria rngs.c. Tuttavia, si deve considerare il nuovo moltiplicatore scelto, a = 50812, per cui è necessario determinare nuovamente la variabile di salto j tale che il moltiplicatore di salto
+aj mod m sia modulo compatibile con m1.
+La variabile di salto j, che determina la partizione della sequenza in 256 streams disgiunti di uguale lunghezza, dovrà quindi essere il più grande intero minore di 231 / 28 =8388608 per garantire tale proprietà. L’implementazione per determinare il nuovo moltiplicatore di salto è riportato di seguito:
+
+La funzione prende in input il moltiplicatore di base a e imposta le variabili locali a zero. Per ogni iterazione viene computato il valore del moltiplicatore di salto utilizzando il confronto con il resto e il quoziente rispetto ad m in modo simile alla computazione dei moltiplicatori full-period e module-compatible visto nella sezione precedente (per evitare l’overflow del prodotto). Viene quindi controllato se il moltiplicatore di salto è module compatible con m tramite la chiamata alla funzione check():
+
+una volta determinato il moltiplicatore di salto, è stato quindi reso necessario modificare la libreria rngs.c in modo da essere adatta ai scopi del progetto. Con i nuovi valori del moltiplicatore a = 50812 e il moltiplicatore di salto aj mod m = 29872 integrati nella libreria è possibile utilizzare il generatore multi-stream di Lehmer per i randomness test riportati nel capitolo 10 del libro di testo.
+
+La prima parte di questo progetto dimostra come la scelta di implementare un proprio generatore random comporta tutta una serie di considerazioni (e riflessioni) necessarie se si vuole avere un grado di bontà accettabile riguardo alla generazione di sequenze pseudocasuali. Infatti pur scegliendo un proprio moltiplicatore  che  soddisfa le proprietà discusse nei capitoli precedenti e il proprio generatore riesca a passare i test statistici introdotti, tale generatore random potrebbe risultare persino peggiore tra quelli conosciuti (basti vedere il confronto fatto dal libro con i moltiplicatori a=16807 con a=48271). Per questo motivo esiste la differenza tra generatori ideali e quelli reali

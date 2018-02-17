@@ -8,21 +8,16 @@
 % Institution: Department of Civil Engineering and Computer Science Engineering,
 % University of Rome Tor Vergata, Italy
 %
-% Style: ACM-UTV SIGCONFS (based on ACM Large v1.7)
+% Style: ACM ART SIGCONFS (based on ACM Large v1.7)
 %*******************************************************************************
 
 \documentclass[sigconf]{acmart}
 
-%*******************************************************************************
-% Packages
-%*******************************************************************************
 \usepackage[utf8]{inputenc}
 \usepackage{booktabs}
 \usepackage{listings}
 \usepackage{color, soul}
 \usepackage{graphicx}
-\usepackage{pgfplots}
-\usepackage{pgf-pie}
 \usepackage{lipsum}
 \usepackage{epstopdf}
 \usepackage{subfig}
@@ -67,7 +62,7 @@
 %*******************************************************************************
 % Details
 %*******************************************************************************
-\acmConference[PMCSN'18]{Performance Modeling of Computer Systems and Networks}{February 2018}{Rome, Italy}
+\acmConference[PMCSN'18]{A Performance Modeling Showcase}{January 2018}{Rome, Italy}
 \acmYear{2018}
 \copyrightyear{2018}
 \setcopyright{rightsretained}
@@ -79,7 +74,7 @@
 %*******************************************************************************
 % Title
 %*******************************************************************************
-\title{A performance modeling showcase}
+\title{A Performance Modeling Showcase}
 
 %*******************************************************************************
 % Authors
@@ -96,22 +91,19 @@
 \email{gmarciani@acm.org}
 
 % The default list of authors is too long for headers}
-\renewcommand{\shortauthors}{G. Marciani et G. Santi}
+\renewcommand{\shortauthors}{G. Marciani}
 
 %*******************************************************************************
 % Contents
 %*******************************************************************************
+\input{sec/abstract}
+\input{sec/ccs-keywords}
+\maketitle
 \input{sec/introduction}
 \input{sec/random-number-generation}
-\input{sec/randomness-analysis}
-\input{sec/web-services}
-\input{sec/goals-objectives}
-\input{sec/conceptual-model}
-\input{sec/specification-model}
-\input{sec/computational-model}
-\input{sec/verification}
-\input{sec/validation}
-\input{sec/experimental-analysis}
+\input{sec/modeling}
+\input{sec/evaluation}
+\input{sec/usage}
 \input{sec/conclusions}
 
 %*******************************************************************************

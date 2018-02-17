@@ -1,0 +1,89 @@
+\section{Evaluation}
+\label{sec:evaluation}
+
+% %
+% EXPERIMENTAL ENVIRONMENT
+% %
+The experiments have been conducted on an Amazon EC2 c3.8xlarge instance, which is really indicated for high performance science and engineering applications\footnote{https://aws.amazon.com/ec2/instance-types/}.
+The instance is equipped with 32 vCPU based on an Intel Xeon E5-2680 v2 (Ivy Bridge) processor, 30 GB of RAM and SSD with 900 IOPS.
+It runs Debian 8.3 (Jessie), Python 3.5.2, and the Python-ported version of the official Leemis library for discrete-event simulation, indicated in \cite{leemis2006discrete}.
+
+Our solution has been developed in Python, following the de-facto standard best-practices, stated in \cite{reitz2016,GooglePythonStyleguide}. For the production of plots Matplotlib 1.5.3 has been used.
+
+The simulations are replicated several times to clear out the weight of unrepresentative subsequences.
+Statisticians discard outliers as being unrepresentative, but it is not appropriate to do it in simulation.
+
+% %
+% EXPERIMENTS: RANDOMNESS, SPECTRAL TEST
+% %
+\lipsum[1]
+
+\begin{figure}
+  \label{fig:experimental-analysis-randomness-spectral}
+  \includegraphics{fig/fly}
+  \caption{The Spectral Test to evaluate randomness of the pseudo-random numbers generator.}
+\end{figure}
+
+
+% %
+% EXPERIMENTS: RANDOMNESS, TEST OF EXTREMES
+% %
+L’ultima parte di questo progetto riguarda l’applicazione dei test di casualità per il generatore di numeri random. Il generatore Lehmer usato è preimpostato con (a,m) = (50812, 231 -1) nella libreria rngs.c spiegato nella sezione precedente, mentre il test utilizzato è stato il test degli estremi (extremes test).
+Per la simulazione di tale test si può riassumere il processo in tre passi:
+Generazione di un campione di valori con chiamate ripetute al generatore.
+Computazione di un test statistico la cui distribuzione (pdf o funzione di densità di probabilità) è nota su variabili random uniformi in (0,1) indipendenti e identicamente distribuiti (iid).
+Valutare la verosimiglianza del valore computato del test statistico con la relativa distribuzione teorica da cui è stato assunto adottando una metrica basato sulla distanza lineare.
+
+Il test degli estremi si basa sulla considerazione che se si ha una sequenza iid di variabili random uniformi in (0,1) e se una variabile R = max{U0, U1,..., Ud-1} allora la variabile random U = Rd è anch’essa uniforme in (0,1)1.
+
+l’algoritmo del test degli estremi effettua un raggruppamento (batching) dei valori estratti dal generatore in gruppi di uguale lunghezza (determinato dal parametro d), trovando il massimo di ogni batch, elevandolo tale massimo all d-esima potenza e conteggiando tutti i massimi generati in un array come illustrato di seguito:
+
+I valori critici v*1 e v*2 vengono calcolate utiizzando la funzione inversa idfChisquare(long n, double u)  fornita dalla libreria rvms.c del libro di testo. Bisogna precisare che per il calcolo di tali variabili statistiche è stato scelto un livello di confidenza con parametro alpha = 0.05, mentre i parametri N e K sono rispettivamente N = 10000 e K = N/10 = 1000.
+Successivamente si confronta la statistica chi quadro v, determinata al passo precedente,  con i valori critici  v*1 e v*2 , per ogni stream(in totale sono 256 variabili chi-quadro v ).
+Se v < v*1 o v > v*2 il test fallisce (per quello stream) con probabilità 1 - alpha.
+Il grafico risultante di questo test empirico è illustrato di seguito:
+
+I valori critici sono visualizzati come linee rosse orizzontali: quella inferiore rappresenta
+v*1 = 913.3 mentre quella superiore è v*2 = 1088.5
+
+Dalla simulazione effettuata si è notato che il numero di test statistici v > v*2 sono stati 6 mentre il numero di test v < v*1 sono stati 10. Di seguito è riportato l’output del programma:
+
+Considerando il numero totale di test falliti (upper e lower bound)1 pari a 16, si nota che non ci si discosta molto rispetto al valore atteso approssimato; infatti in 256 test con un livello di confidenza del 95\% il valore aspettato è circa 256 * 0.05 = 13 fallimenti. Questo valore può essere una indicazione della bontà del generatore di Lehmer implementato.
+dai risultati visti in precedenza si è notato che il numero totale di test falliti è pari a 16 non lontano dal valore di riferimento pari a 13.
+
+\begin{figure}
+  \label{fig:experimental-analysis-randomness-extremes}
+  \includegraphics{fig/fly}
+  \caption{The Test of Extremes to evaluate randomness of the pseudo-random numbers generator.}
+\end{figure}
+
+
+% %
+% EXPERIMENTS: RANDOMNESS, TEST OF KOLMOGOROV-SMIRNOV
+% %
+Il test statistico di Kolmogorov-Smirnov misura la più grande distanza verticale tra la funzione di distribuzione cumulativa calcolato da un dataset e una funzione di distribuzione cumulativa teorica1. tale statistica è indicata con d.
+Il primo passo per effettuare questo tipo di test è di ordinare la sequenza dalle variabili  del dataset in senso crescente applicando un algoritmo di ordinamento
+Se n=256 e alpha=0.05 si ha quindi d*=0.084. Perciò la probabilità che una singola variabile KS d256 sia minore di 0.084 è di 0.95. Il test KS può considerarsi fallito se la statistica computata  d256 supera il valore critico d*=0.084.
+La simulazione di questo test è stato effettuato con il generatore Lehmer settato con i parametri (a,m) = (50812, 231 -1)  n=256 ed alpha=0.05.
+Dal risultato della simulazione il valore  d256 computato ha il valore pari a d256 = 0.043433 minore del valore critico d*=0.084. pertanto si può considerare il test KS superato con successo.
+Il grafico ottenuto viene riportato di seguito:
+
+la linea verticale tratteggiata indica il valore della statistica chi-quadro a cui è stato determinato la distanza massima.
+
+\begin{figure}
+  \label{fig:experimental-analysis-randomness-kolmogorov-smirnov}
+  \includegraphics{fig/fly}
+  \caption{The Kolmogorov-Smirnov Analysis to evaluate randomness of the pseudo-random numbers generator.}
+\end{figure}
+
+
+% %
+% EXPERIMENTS: RESPONSE-TIME
+% %
+\lipsum[1]
+
+\begin{figure}
+  \label{fig:experimental-analysis-response-time}
+  \includegraphics{fig/fly}
+  \caption{Response Time Analysis.}
+\end{figure}
