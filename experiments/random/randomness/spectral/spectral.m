@@ -1,12 +1,12 @@
 % %
-% SPECTRAL ANALYSIS
+% SPECTRAL TEST
 % %
 
 % VARIABLES
 modulus = 2147483647;
-%multiplier = 16807;
+multiplier = 16807;
 %multiplier = 48271;
-multiplier = 50812;
+%multiplier = 50812;
 samsize = modulus-1;
 a = 0.0;
 b = 0.001;
@@ -24,6 +24,6 @@ figure(1);
 scatter(x, y);
 xlim([a b])
 ylim([a b])
-title({"Spectral Analisys";sprintf("Modulus: %d | Multiplier: %d | Sample Size: %d", modulus, multiplier, samsize)});
+title({"Spectral Test";sprintf("Modulus: %d | Multiplier: %d", modulus, multiplier)});
 xlabel("Random Number");
 ylabel("Random Number");

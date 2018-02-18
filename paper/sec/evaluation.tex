@@ -1,86 +1,85 @@
 \section{Evaluation}
 \label{sec:evaluation}
 
+In this Section, we present our experimental results.
+First, we show the results about the randomness of the adopted random number generator.
+Then, we show the results about the performance recorded by the simulation of the Cloud system.
+
 % %
 % EXPERIMENTAL ENVIRONMENT
 % %
 The experiments have been conducted on an Amazon EC2 c3.8xlarge instance, which is really indicated for high performance science and engineering applications\footnote{https://aws.amazon.com/ec2/instance-types/}.
 The instance is equipped with 32 vCPU based on an Intel Xeon E5-2680 v2 (Ivy Bridge) processor, 30 GB of RAM and SSD with 900 IOPS.
 It runs Debian 8.3 (Jessie), Python 3.5.2, and the Python-ported version of the official Leemis library for discrete-event simulation, indicated in \cite{leemis2006discrete}.
-
-Our solution has been developed in Python, following the de-facto standard best-practices, stated in \cite{reitz2016,GooglePythonStyleguide}. For the production of plots Matplotlib 1.5.3 has been used.
-
-The simulations are replicated several times to clear out the weight of unrepresentative subsequences.
-Statisticians discard outliers as being unrepresentative, but it is not appropriate to do it in simulation.
+Our solution has been developed in Python, following the de-facto standard best-practices, stated in \cite{reitz2016,GooglePythonStyleguide}.
 
 % %
-% EXPERIMENTS: RANDOMNESS, SPECTRAL TEST
+% EXPERIMENTS: RANDOMNESS
 % %
-\lipsum[1]
+Let us now consider the results about the randomness of the adopted generator.
+The randomness has been assessed by the following tests:
+
+\begin{itemize}
+	\item \textbf{Spectral Test:} this test is considered one of the most powerful tests to assess the quality of linear congruential generators \cite{knuth1981art}. It relies on the fact that the output of such generators form lines or hyperplanes when plotted on 2 or more dimensions. The less the distance between these lines or planes, the better the generator is. In fact, a smaller distance between lines or planes highlights a better uniform distribution.
+	
+	In Figure \ref{fig:experimental-analysis-randomness-spectral-16807,fig:experimental-analysis-randomness-spectral-48271,fig:experimental-analysis-randomness-spectral-58012} we show the test results for generators $(16807,2^{31}-1)$, $(48271,2^{31}-1)$ and $(58012,2^{31}-1)$, respectively.
+	
+	The results show that our generator $(58012,2^{31}-1)$ is much better than $(16807, 2^{31}-1)$, which was a past de-facto standard, and really similar to $(48271,2^{31}-1)$, which is the current de-facto standard, according to \cite{leemis2006discrete}.
+	
+	\item \textbf{Test of Extremes:} this test relies on the fact that if $U=U_{0},...,U_{d-1}$ is an iid sequence of Uniform(0,1) random variables, then $\max(U)^{d}$ is also a Uniform(0,1). The test leverages this property to measures, for every stream, how much the generated random values differ from the theoretical uniform distribution.
+	
+	The more the total number of fails is close to the expected value, i.e. $streams \cdot confidence$, the better the generator is.
+	
+	In Figure \ref{fig:experimental-analysis-randomness-extremes} we show the test results for the proposed generator $(508012,2^{31}-1, 256)$ with sample size $n=10000$, $k=1000$ bins, sequence size $d=5$ and $95\%$ level of confidence.
+	%	
+	The proposed generator shows critical values $v_{min}=913$ and $v_{max}=1088$ and 14 total fails (7 lower fails and 7 upper fails), that is not far from the theoretical accepted number of fails, i.e. $256*0.05=13$.
+	The proposed generator successfully passed the test with a $94.531\%$ level of confidence.
+	
+	\item \textbf{Kolmogorov-Smirnov Analysis:} the test measures, at a certain confidence level, the biggest vertical distance between the theoretical cumulative distribution function and the empirical cumulative distribution function.
+	The more the recorded distance $d$ is less than the critical value $d*$ for the considered level of confidence, the better the generator is.
+	As the Kolmogorov-Smirnov analysis relies on pre-calculated randomness statistics, we have chosen to take into account the statistics obtained by the previous text of extremes.
+	
+	In Figure \ref{fig:experimental-analysis-randomness-kolmogorov-smirnov} we show the test results for the proposed generator $(508012,2^{31}-1, 256)$ with a $95\%$ level of confidence.
+	%
+	The proposed generator successfully passed the test, as $d=0.041<0.081=d*$.
+	
+\end{itemize}
 
 \begin{figure}
-  \label{fig:experimental-analysis-randomness-spectral}
-  \includegraphics{fig/fly}
-  \caption{The Spectral Test to evaluate randomness of the pseudo-random numbers generator.}
+  \label{fig:evaluation-randomness-spectral-16807}
+  \includegraphics[width=\columnwidth]{fig/evaluation-randomness-spectral-16807}
+  \caption{The Spectral Test to evaluate the randomness of the random number generator $(16807,2^{31}-1, 1)$ in the interval $(0, 10^{-3})$.}
 \end{figure}
 
-
-% %
-% EXPERIMENTS: RANDOMNESS, TEST OF EXTREMES
-% %
-L’ultima parte di questo progetto riguarda l’applicazione dei test di casualità per il generatore di numeri random. Il generatore Lehmer usato è preimpostato con (a,m) = (50812, 231 -1) nella libreria rngs.c spiegato nella sezione precedente, mentre il test utilizzato è stato il test degli estremi (extremes test).
-Per la simulazione di tale test si può riassumere il processo in tre passi:
-Generazione di un campione di valori con chiamate ripetute al generatore.
-Computazione di un test statistico la cui distribuzione (pdf o funzione di densità di probabilità) è nota su variabili random uniformi in (0,1) indipendenti e identicamente distribuiti (iid).
-Valutare la verosimiglianza del valore computato del test statistico con la relativa distribuzione teorica da cui è stato assunto adottando una metrica basato sulla distanza lineare.
-
-Il test degli estremi si basa sulla considerazione che se si ha una sequenza iid di variabili random uniformi in (0,1) e se una variabile R = max{U0, U1,..., Ud-1} allora la variabile random U = Rd è anch’essa uniforme in (0,1)1.
-
-l’algoritmo del test degli estremi effettua un raggruppamento (batching) dei valori estratti dal generatore in gruppi di uguale lunghezza (determinato dal parametro d), trovando il massimo di ogni batch, elevandolo tale massimo all d-esima potenza e conteggiando tutti i massimi generati in un array come illustrato di seguito:
-
-I valori critici v*1 e v*2 vengono calcolate utiizzando la funzione inversa idfChisquare(long n, double u)  fornita dalla libreria rvms.c del libro di testo. Bisogna precisare che per il calcolo di tali variabili statistiche è stato scelto un livello di confidenza con parametro alpha = 0.05, mentre i parametri N e K sono rispettivamente N = 10000 e K = N/10 = 1000.
-Successivamente si confronta la statistica chi quadro v, determinata al passo precedente,  con i valori critici  v*1 e v*2 , per ogni stream(in totale sono 256 variabili chi-quadro v ).
-Se v < v*1 o v > v*2 il test fallisce (per quello stream) con probabilità 1 - alpha.
-Il grafico risultante di questo test empirico è illustrato di seguito:
-
-I valori critici sono visualizzati come linee rosse orizzontali: quella inferiore rappresenta
-v*1 = 913.3 mentre quella superiore è v*2 = 1088.5
-
-Dalla simulazione effettuata si è notato che il numero di test statistici v > v*2 sono stati 6 mentre il numero di test v < v*1 sono stati 10. Di seguito è riportato l’output del programma:
-
-Considerando il numero totale di test falliti (upper e lower bound)1 pari a 16, si nota che non ci si discosta molto rispetto al valore atteso approssimato; infatti in 256 test con un livello di confidenza del 95\% il valore aspettato è circa 256 * 0.05 = 13 fallimenti. Questo valore può essere una indicazione della bontà del generatore di Lehmer implementato.
-dai risultati visti in precedenza si è notato che il numero totale di test falliti è pari a 16 non lontano dal valore di riferimento pari a 13.
-
 \begin{figure}
-  \label{fig:experimental-analysis-randomness-extremes}
-  \includegraphics{fig/fly}
-  \caption{The Test of Extremes to evaluate randomness of the pseudo-random numbers generator.}
+	\label{fig:evaluation-randomness-spectral-48271}
+	\includegraphics[width=\columnwidth]{fig/evaluation-randomness-spectral-48271}
+	\caption{The Spectral Test to evaluate the randomness of the random number generator $(48271,2^{31}-1, 1)$ in the interval $(0, 10^{-3})$.}
 \end{figure}
 
-
-% %
-% EXPERIMENTS: RANDOMNESS, TEST OF KOLMOGOROV-SMIRNOV
-% %
-Il test statistico di Kolmogorov-Smirnov misura la più grande distanza verticale tra la funzione di distribuzione cumulativa calcolato da un dataset e una funzione di distribuzione cumulativa teorica1. tale statistica è indicata con d.
-Il primo passo per effettuare questo tipo di test è di ordinare la sequenza dalle variabili  del dataset in senso crescente applicando un algoritmo di ordinamento
-Se n=256 e alpha=0.05 si ha quindi d*=0.084. Perciò la probabilità che una singola variabile KS d256 sia minore di 0.084 è di 0.95. Il test KS può considerarsi fallito se la statistica computata  d256 supera il valore critico d*=0.084.
-La simulazione di questo test è stato effettuato con il generatore Lehmer settato con i parametri (a,m) = (50812, 231 -1)  n=256 ed alpha=0.05.
-Dal risultato della simulazione il valore  d256 computato ha il valore pari a d256 = 0.043433 minore del valore critico d*=0.084. pertanto si può considerare il test KS superato con successo.
-Il grafico ottenuto viene riportato di seguito:
-
-la linea verticale tratteggiata indica il valore della statistica chi-quadro a cui è stato determinato la distanza massima.
+\begin{figure}
+	\label{fig:evaluation-randomness-spectral-50812}
+	\includegraphics[width=\columnwidth]{fig/evaluation-randomness-spectral-50812}
+	\caption{The Spectral Test to evaluate the randomness of the random number generator $(50812,2^{31}-1, 1)$ in the interval $(0, 10^{-3})$.}
+\end{figure}
 
 \begin{figure}
-  \label{fig:experimental-analysis-randomness-kolmogorov-smirnov}
-  \includegraphics{fig/fly}
-  \caption{The Kolmogorov-Smirnov Analysis to evaluate randomness of the pseudo-random numbers generator.}
+	\label{fig:evaluation-randomness-extremes-50812}
+	\includegraphics[width=\columnwidth]{fig/evaluation-randomness-extremes-50812}
+	\caption{The Test of Extremes with $d=5$ to evaluate the randomness of the random number generator $(50812,2^{31}-1, 256)$.}
+\end{figure}
+
+\begin{figure}
+	\label{fig:evaluation-randomness-kolmogorov-smirnov-50812}
+	\includegraphics[width=\columnwidth]{fig/evaluation-randomness-kolmogorov-smirnov-50812}
+	\caption{The Kolmogorov-Smirnov Analysis (leveraging the Test of Extremes with $d=5$) to evaluate the randomness of the random number generator $(50812,2^{31}-1, 256)$ with $0.95$ confidence level.}
 \end{figure}
 
 
 % %
 % EXPERIMENTS: RESPONSE-TIME
 % %
-\lipsum[1]
+Let us now consider the results about the performance recorded by the simulation of the Cloud system.
 
 \begin{figure}
   \label{fig:experimental-analysis-response-time}

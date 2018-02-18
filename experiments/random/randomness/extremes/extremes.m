@@ -37,11 +37,11 @@ hold on
 plot([-offset streams-1+offset], [1 1] * criticalLower, '--r')
 plot([-offset streams-1+offset], [1 1] * criticalUpper, '--r')
 hold off
-title({'Extremes Test';sprintf('Modulus: %d | Multiplier: %d', modulus, multiplier)});
+title({'Test of Extremes';sprintf('Modulus: %d | Multiplier: %d | Streams: %d', modulus, multiplier, streams)});
 xlabel('Stream Number');
 ylabel('Chi-Square Statistic');
 xlim(xLim)
 %ylim([0 30])
 set(gca,'xtick',[0 streams-1])
 set(gca,'ytick',[criticalLower criticalUpper])
-yticklabels({'min', 'max'})
+yticklabels({'v_{min}', 'v_{max}'})

@@ -4,27 +4,13 @@
 %%
 % SUMMARY
 %%
-In this work we propose implementations of parallel algorithms for deep learning and prefix-sum, leveraging OpenMP and CUDA.
-
-%\hl{Gabriele}: \textbf{per quanto riguarda OpenMP parlare dello speed up ottenuto sia sulla versione originale che sulla seriale ottimizzata}
-
-%With respect to deep learning, we first propose an optimized serial version that achieves a consistent speed-up with respect to the first serial version provided.
-
-The OpenMP-based deep-learning solution exploits the amends made to the serial code to avoid inefficiencies from the
-point of view of memory. It then leverages parallel for loops, task-based parallelism and parallel
-reductions to achieve a reasonable speedup. We show a satisfying speedup scaling using increasing number of threads on a desktop computer and a powerful cluster node.
-
-The CUDA-based deep learning solution mainly leverages memory linearization, data transfer overlapping and streams.
-We demonstrate that the response-time of the CUDA-based solution converges to a speed-up of~$\sim \! 1380\%$ from block sizes bigger than 128 threads and it is not much sensible to compiler optimizations.
-
-With respect to prefix-sum, we implemented a $O(nlogn)$ solution leveraging shuffle operations within warps. We demonstrate that, when considering a maximum array size of 65536 elements, the response time of such a solution is pretty insensible to block size variations.
+In this work we propose a next-event simulation model for a two-layer Cloud system, leveraging a custom multi-stream Lehmer pseudo-random number generator.
 
 %%
 % IMPROVEMENTS
 %%
 Although experimental results are pretty satisfactory, the proposed solutions could certainly be improved and be subjected to a more in-depth analysis.
 %
-With respect to the deep learning CUDA algorithm, the most important improvements that should be addressed concern the (i) avoidance/reduction of atomic operations by the use of shuffle operations and shared memory and
-(ii) the use of streams synchronization leveraging events.
+From an implementation point of view, the proposed solution should be ported from Python to C and leverage multi-threading to achieve better performances, e.g. to speed-up the algorithms to find suitable multipliers for modulus in 64-bit architectures and make the simulation faster.
 %
-With respect to the prefix-sum CUDA algorithm, the most important aspects to address are the implementation of solution with less computational complexity, e.g. solutions with $O(n)$ exist, and the study of response time when considering bigger input sizes.
+From an analysis point of view, the proposed random number generator should be tested more extensively, e.g. taking into account more tests of randomness, and a generator for 64-bit architectures and a reduced number of streams should be developed. Finally, the simulation model should be extended to take into account more performance metrics.

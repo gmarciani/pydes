@@ -1,37 +1,32 @@
 \begin{abstract}
 
-  % %
-  % MOTIVATION
-  % %
-  Modern software applications process massive amounts of data under stringent timing constraints.
-  %
-  The advances in HPC make technologies such as OpenMP and CUDA really attractive to boost performance of complex algorithms.
-  %
-  % %
-  % PROBLEM STATEMENT
-  % %
-  In this context, deep learning and prefix-sum operations provide a great benchmark to exploit HPC.
+% %
+% MOTIVATION
+% %
+As computing is getting more ubiquitous in our lives, modern software applications and computer infrastructures are getting increasingly complex and require huge financial investments.
+%
+% %
+% PROBLEM STATEMENT
+% %
+In this context, knowing how to design, redesign and optimize computer systems and networks is one of the most important skills for software engineers because it can guarantee companies a competitive advantage, both in terms of technology and investment.
 
-  % %
-  % APPROACH
-  % %
-  In this technical report we propose massively parallel implementations of two serial-born pieces of software, written in C.
-  %
-  First, we propose an OpenMP and CUDA implementation of a deep learning algorithm for hand-written digits recognition leveraging the back-propagation.
-  %
-  Then, we propose a CUDA implementation of the prefix-sum operation over a vector of integers.
+% %
+% APPROACH
+% %
+In this technical report we propose a next-event simulation model to analyze the performance of a two-layer Cloud system that leverages an off-loading policy to minimize response-time.
+%
+First, we describe how we have implemented the multi-stream pseudo-random number generator, that is a fundamental building block of any next-event simulation.
+%
+Then, we describe the performance model in terms of goals, conceptual, specification, computational model and verification.
 
-  % %
-  % RESULTS
-  % %
-  The experimental results show that about neural networks show a speed-up of~$\sim \! 1300\%$ for the OpenMP and~$\sim \! 1380\%$ for CUDA implementation, with respect to the serial counterpart.
-  %
-  On the other hand, the experimental results about prefix-sum show a good scaling with respect to the increasing
-  input size; they show, nonetheless, an efficient use of the GPU resources.
-  %
-  % %
-  % CONCLUSIONS
-  % %
-  Although the promising results, we conclude our work delineating possible improvements for our model.
+% %
+% RESULTS
+% %
+The experimental results show (i) the satisfactory randomness degree of the adopted pseudo-random number generator and (ii) the effectiveness of our model to tune the system as to achieve better performance.
+%
+% %
+% CONCLUSIONS
+% %
+Although the promising results, we conclude our work delineating possible improvements for our model.
 
 \end{abstract}

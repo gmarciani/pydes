@@ -35,7 +35,7 @@ plot(dataEmpirical, dataTheoretical)
 plot([1 1] * criticalPoint, [0.0 1.0], '--r')
 hold off
 
-title({'Kolmogorov-Smirnov Test (Extremes)';sprintf('Modulus: %d | Multiplier: %d', modulus, multiplier)});
+title({'Kolmogorov-Smirnov Test (Extremes)';sprintf('Modulus: %d | Multiplier: %d | Streams: %d', modulus, multiplier, streams)});
 xlabel('x');
 ylabel('CDF');
 
