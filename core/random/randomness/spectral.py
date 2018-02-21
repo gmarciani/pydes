@@ -4,7 +4,6 @@ Spectral Test
 # Zoom interval
 DEFAULT_INTERVAL = (0.0, 1.0)
 """
-
 from core.utils.file_utils import save_list_of_pairs, append_list_of_pairs
 
 # Number of observations in memory before flushing into file

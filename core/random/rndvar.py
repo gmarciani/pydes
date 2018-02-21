@@ -1,5 +1,5 @@
 """
-Generators of random variates.
+Random variates.
 """
 
 from math import log

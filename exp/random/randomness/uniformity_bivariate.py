@@ -3,7 +3,7 @@ Experiment: Bivariate Test of Uniformity
 """
 
 from core.random.rndgen import MarcianiMultiStream as RandomGenerator
-from core.random.randomness import uniformity_bivariate as test
+from _ignore.randomness import uniformity_bivariate as test
 from core.utils.report import SimpleReport
 from exp import EXP_DIR, PLT_EXT, RES_EXT
 

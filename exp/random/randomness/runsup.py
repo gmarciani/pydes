@@ -3,7 +3,7 @@ Experiment: Runs-Up Test of Independence.
 """
 
 from core.random.rndgen import MarcianiMultiStream as RandomGenerator
-from core.random.randomness import runsup as test
+from _ignore.randomness import runsup as test
 from core.utils.report import SimpleReport
 from exp import EXP_DIR, PLT_EXT, RES_EXT
 

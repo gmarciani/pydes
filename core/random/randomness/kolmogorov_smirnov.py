@@ -2,7 +2,7 @@
 Kolmogorov-Smirnov test of randomness.
 """
 import math
-from _ignore.leemis import rvms
+from core.random.rndf import cdfChisquare
 
 
 # Approximation table for one-tailed critical values by Stephens.
@@ -40,7 +40,7 @@ def _compute_ks_distance(chi, i, streams, bins):
     :param bins: the number of bins.
     :return: the Kolmogorov-Smirnov distance for a stream.
     """
-    theoreticalCdf = rvms.cdfChisquare(bins - 1, chi)
+    theoreticalCdf = cdfChisquare(bins - 1, chi)
     return max(abs(theoreticalCdf - (i / streams)), abs(theoreticalCdf - ((i - 1) / streams)))
 
 

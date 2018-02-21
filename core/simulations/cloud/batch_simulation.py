@@ -29,6 +29,8 @@ class Simulation:
         # Configuration - General
         config_general = config["general"]
         self.t_stop = config_general["t_stop"]
+        self.n_batches = config_general["n_batches"]
+        self.confidence = config_general["confidence"]
         self.rndgen = getattr(rndgen, config_general["random"]["generator"])(config_general["random"]["seed"])
 
         # Configuration - Tasks
@@ -58,6 +60,10 @@ class Simulation:
         self.calendar = Calendar(0.0, self.t_stop, [EventType.ARRIVAL_TASK_1, EventType.ARRIVAL_TASK_2])
 
         self.closed_door = False
+
+        # Statistics
+        self.b_response_time = []  # the response tme for each batch
+        self.b_throughput = []  # the throughput for each batch
 
     # ==================================================================================================================
     # SIMULATION PROCESS

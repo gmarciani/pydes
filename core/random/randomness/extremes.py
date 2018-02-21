@@ -7,7 +7,7 @@ D = 5               # D >= 2
 CONFIDENCE = 0.95   # CONFIDENCE >= 0.95
 """
 import math
-from _ignore.leemis import rvms
+from core.random.rndf import idfChisquare
 from core.utils import errutils
 from core.utils import mathutils
 from core.utils.guiutils import print_progress
@@ -54,7 +54,7 @@ def critical_min(bins, confidence):
     :param confidence: the confidence level.
     :return: the two-tailed critical min value.
     """
-    return rvms.idfChisquare(bins - 1, (1 - confidence) / 2)
+    return idfChisquare(bins - 1, (1 - confidence) / 2)
 
 
 def critical_max(bins, confidence):
@@ -64,7 +64,7 @@ def critical_max(bins, confidence):
     :param confidence: the confidence level.
     :return: the two-tailed critical max value.
     """
-    return rvms.idfChisquare(bins - 1, 1 - (1 - confidence) / 2)
+    return idfChisquare(bins - 1, 1 - (1 - confidence) / 2)
 
 
 def error(data, mn, mx, confidence):
