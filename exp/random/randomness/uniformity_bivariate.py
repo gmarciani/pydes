@@ -1,23 +1,22 @@
 """
-Experiment: Runs-Up Test of Independence.
+Experiment: Bivariate Test of Uniformity
 """
 
 from core.random.rndgen import MarcianiMultiStream as RandomGenerator
-from core.random.randomness import runsup as test
+from core.random.randomness import uniformity_bivariate as test
 from core.utils.report import SimpleReport
-from experiments import EXP_DIR, PLT_EXT, RES_EXT
-
+from exp import EXP_DIR, PLT_EXT, RES_EXT
 
 # Generator
 GENERATOR = RandomGenerator()
 
 # Test Parameters
-SAMSIZE = 14400
-BINS = 6
+SAMSIZE = 100000
+BINS = 100
 CONFIDENCE = 0.95
 
 # Result File
-FILENAME = '{}/{}'.format(EXP_DIR, 'test-runsup')
+FILENAME = '{}/{}'.format(EXP_DIR, 'test-uniformity-univariate')
 
 
 def experiment(generator=GENERATOR,
@@ -42,7 +41,7 @@ def experiment(generator=GENERATOR,
     sugg_confidence = 1 - err['err_emp_perc']
 
     # Report
-    r = SimpleReport('TEST OF RUNS-UP')
+    r = SimpleReport('TEST OF BIVARIATE UNIFORMITY')
     r.add('Generator', 'Class', generator.__class__.__name__)
     r.add('Generator', 'Streams', generator.get_streams_number())
     r.add('Generator', 'Seed', generator.get_initial_seed())

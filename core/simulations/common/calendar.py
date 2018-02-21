@@ -1,5 +1,4 @@
 from queue import PriorityQueue
-from core.simulations.cloud.model.event import SimpleEvent as Event
 import logging
 
 # Configure logger
@@ -99,71 +98,3 @@ class NextEventCalendar:
         """
         sb = ["{attr}='{value}'".format(attr=attr, value=self.__dict__[attr]) for attr in self.__dict__ if not attr.startswith("__") and not callable(getattr(self, attr))]
         return "Calendar({}:{})".format(id(self), ", ".join(sb))
-
-    def __repr__(self):
-        """
-        String representation.
-        :return: the string representation.
-        """
-        return self.__str__()
-
-
-if __name__ == "__main__":
-    from core.simulations.cloud.model.event import EventType
-    from core.random.rndgen import MarcianiMultiStream
-
-    rndgen = MarcianiMultiStream(123456789)
-
-    # Creation
-    print("--- CREATION ---")
-    calendar = NextEventCalendar()
-    print(calendar)
-
-    # Calendar loop without unscheduling
-    print("--- CALENDAR LOOP WITHOUT UNSCHEDULING ---")
-
-    # step 1: schedule
-    _events = []
-    for event_type in EventType:
-        for i in range(10):
-            u = rndgen.rnd()
-            event = Event(event_type, u)
-            calendar.schedule(event)
-            _events.append(event)
-
-    # step 3: test
-    _events.sort()
-    _idx = 0
-    while not calendar.empty():
-        event = calendar.get_next_event()
-        assert event == _events[_idx]
-        print("Event: {} | clock: {}".format(event, calendar.get_clock()))
-        _idx += 1
-
-    # Calendar loop with unscheduling
-    print("--- CALENDAR LOOP WITH UNSCHEDULING ---")
-
-    # step 1: schedule
-    _events = []
-    for event_type in EventType:
-        for i in range(10):
-            u = rndgen.rnd()
-            event = Event(event_type, u)
-            calendar.schedule(event)
-            _events.append(event)
-
-    # step 2: unschedule
-    for _ev in _events:
-        if _ev.type is EventType.ARRIVAL_TASK_2:
-            calendar.unschedule(_ev)
-            print("Unscheduled: ", _ev)
-    _events[:] = [x for x in _events if not x.type == EventType.ARRIVAL_TASK_2]
-
-    # step 3: test
-    _events.sort()
-    _idx = 0
-    while not calendar.empty():
-        event = calendar.get_next_event()
-        assert event == _events[_idx]
-        print("Event: {} | clock: {}".format(event, calendar.get_clock()))
-        _idx += 1

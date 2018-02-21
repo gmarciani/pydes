@@ -5,7 +5,7 @@ Experiment: Gap Test of Independence.
 from core.random.rndgen import MarcianiMultiStream as RandomGenerator
 from core.random.randomness import gap as test
 from core.utils.report import SimpleReport
-from experiments import EXP_DIR, PLT_EXT, RES_EXT
+from exp import EXP_DIR, PLT_EXT, RES_EXT
 
 
 # Generator

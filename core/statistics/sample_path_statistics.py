@@ -24,7 +24,7 @@ class SimpleSamplePathStatistics:
     def reset(self):
         """
         Reset statistics.
-        :return: (void)
+        :return: None
         """
         self._n = 0
         self._time = 0.0
@@ -37,7 +37,7 @@ class SimpleSamplePathStatistics:
         Add value to the statistics calculator.
         :param value: the value to add.
         :param t_now: the occurrence time.
-        :return: (void)
+        :return: None
         """
         self._n += 1
         t_prev = self._time
@@ -77,7 +77,7 @@ class SimpleSamplePathStatistics:
         """
         return self._variance / self._time
 
-    def get_stddev(self):
+    def get_sdev(self):
         """
         Return the sample-path standard deviation.
         :return: (float) the sample-path standard deviation.
@@ -89,77 +89,6 @@ class SimpleSamplePathStatistics:
         String representation.
         :return: the string representation.
         """
-        sb = ["{attr}='{value}'".format(attr=attr, value=self.__dict__[attr]) for attr in self.__dict__ if not attr.startswith("__") and not callable(getattr(self, attr))]
-        return "Statistics({}:{})".format(id(self), ", ".join(sb))
-
-    def __repr__(self):
-        """
-        String representation.
-        :return: the string representation.
-        """
-        return self.__str__()
-
-
-if __name__ == "__main__":
-    from core.random.rndgen import MarcianiMultiStream as RandomGenerator
-    from core.random.rndvar import uniform, equilikely, exponential, geometric
-
-    rndgen = RandomGenerator(123456789)
-
-    n = 10000
-
-    # Creation
-    stats = SimpleSamplePathStatistics()
-    print("Statistics 1:", stats)
-
-    # Uniform
-    print("Uniform")
-    a = 0
-    b = 10
-    for i in range(1, n):
-        stats.add_value(uniform(a, b, rndgen.rnd()), i)
-
-    theoretical_mean = (a + b) / 2
-    theoretical_stddev = (b-a) / sqrt(12)
-    print("Mean: {} (theoretical: {})".format(stats.get_mean(), theoretical_mean))
-    print("StdDev: {} (theoretical: {})".format(stats.get_stddev(), theoretical_stddev))
-
-    stats.reset()
-
-    # Equilikely
-    print("Equilikely")
-    a = 0
-    b = 10
-    for i in range(1, n):
-        stats.add_value(equilikely(a, b, rndgen.rnd()), i)
-
-    theoretical_mean = (a + b) / 2
-    theoretical_stddev = sqrt((pow(b - a + 1, 2) - 1) / 12)
-    print("Mean: {} (theoretical: {})".format(stats.get_mean(), theoretical_mean))
-    print("StdDev: {} (theoretical: {})".format(stats.get_stddev(), theoretical_stddev))
-
-    stats.reset()
-
-    # Exponential
-    print("Exponential")
-    m = 1 / 0.35
-    for i in range(1, n):
-        stats.add_value(exponential(m, rndgen.rnd()), i)
-
-    theoretical_mean = m
-    theoretical_stddev = m
-    print("Mean: {} (theoretical: {})".format(stats.get_mean(), theoretical_mean))
-    print("StdDev: {} (theoretical: {})".format(stats.get_stddev(), theoretical_stddev))
-
-    stats.reset()
-
-    # Geometric
-    print("Geometric")
-    p = 0.75
-    for i in range(1, n):
-        stats.add_value(geometric(p, rndgen.rnd()), i)
-
-    theoretical_mean = p / (1 - p)
-    theoretical_stddev = sqrt(p) / (1 - p)
-    print("Mean: {} (theoretical: {})".format(stats.get_mean(), theoretical_mean))
-    print("StdDev: {} (theoretical: {})".format(stats.get_stddev(), theoretical_stddev))
+        sb = ["{attr}={value}".format(attr=attr, value=self.__dict__[attr]) for attr in self.__dict__ if
+              not attr.startswith("__") and not callable(getattr(self, attr))]
+        return "SamplePathStatistics({}:{})".format(id(self), ", ".join(sb))

@@ -1,21 +1,20 @@
 """
-Experiment: Permutation Test of Independence.
+Experiment: Runs-Up Test of Independence.
 """
 
 from core.random.rndgen import MarcianiMultiStream as RandomGenerator
-from core.random.randomness import permutation as test
+from core.random.randomness import runsup as test
 from core.utils.report import SimpleReport
-from experiments import EXP_DIR, PLT_EXT, RES_EXT
+from exp import EXP_DIR, PLT_EXT, RES_EXT
 
 
 # Generator
 GENERATOR = RandomGenerator()
 
 # Test Parameters
-SAMSIZE = 7200
-BINS = 720
+SAMSIZE = 14400
+BINS = 6
 CONFIDENCE = 0.95
-T = 6
 
 # Result File
 FILENAME = '{}/{}'.format(EXP_DIR, 'test-runsup')
@@ -25,12 +24,11 @@ def experiment(generator=GENERATOR,
                samsize=SAMSIZE,
                bins=BINS,
                confidence=CONFIDENCE,
-               t=T,
                filename=FILENAME
                ):
 
     # Test
-    data = test.statistics(generator, generator.get_streams_number(), samsize, bins, t)
+    data = test.statistics(generator, generator.get_streams_number(), samsize, bins)
 
     # Critical Bounds
     mn = test.critical_min(bins, confidence)
@@ -44,14 +42,13 @@ def experiment(generator=GENERATOR,
     sugg_confidence = 1 - err['err_emp_perc']
 
     # Report
-    r = SimpleReport('TEST OF PERMUTATION')
+    r = SimpleReport('TEST OF RUNS-UP')
     r.add('Generator', 'Class', generator.__class__.__name__)
     r.add('Generator', 'Streams', generator.get_streams_number())
     r.add('Generator', 'Seed', generator.get_initial_seed())
     r.add('Test Parameters', 'Sample Size', samsize)
     r.add('Test Parameters', 'Bins', bins)
     r.add('Test Parameters', 'Confidence', '%.3F' % (confidence * 100))
-    r.add('Test Parameters', 'T', T)
     r.add('Critical Bounds', 'Lower Bound', mn)
     r.add('Critical Bounds', 'Upper Bound', mx)
     r.add('Error', 'Theoretical',

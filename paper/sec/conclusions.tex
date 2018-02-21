@@ -13,4 +13,6 @@ Although experimental results are pretty satisfactory, the proposed solutions co
 %
 From an implementation point of view, the proposed solution should be ported from Python to C and leverage multi-threading to achieve better performances, e.g. to speed-up the algorithms to find suitable multipliers for modulus in 64-bit architectures and make the simulation faster.
 %
-From an analysis point of view, the proposed random number generator should be tested more extensively, e.g. taking into account more tests of randomness, and a generator for 64-bit architectures and a reduced number of streams should be developed. Finally, the simulation model should be extended to take into account more performance metrics.
+From an analysis point of view, the proposed random number generator should be tested more extensively, e.g. taking into account more tests of randomness, and a generator with a 64-bit modulus and less number of streams streams should be developed. 
+%
+Finally, the simulation model should be extended to take into account more performance metrics, such as utilization, to study the influence of different server selection policies, e.g. equity-selection, and to achieve more performance evaluation goals, such as forecasting.

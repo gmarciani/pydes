@@ -11,7 +11,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class SimpleCloudLet:
+class SimpleCloudlet:
     """
     A simple Cloudlet, defined by its state.
     """
@@ -46,6 +46,11 @@ class SimpleCloudLet:
         else:
             raise ValueError("Unrecognized server-selection rule: {}".format(self.server_selection_rule))
 
+        if not (1 <= self.threshold <= self.n_servers):
+            raise ValueError(
+                "Invalid threhsold: should be >= 1 and <= n_servers, but threshold is {} and n_servers is {}".format(
+                    self.threshold, self.n_servers))
+
         # state
         self.n_1 = 0  # number of tasks of type 1 serving in the Cloudlet
         self.n_2 = 0  # number of tasks of type 2 serving in the Cloudlet
@@ -55,122 +60,159 @@ class SimpleCloudLet:
         self.n_arrival_2 = 0  # number of tasks of type 2 arrived to the Cloudlet
         self.n_served_1 = 0  # number of tasks of type 1 served in the Cloudlet
         self.n_served_2 = 0  # number of tasks of type 2 served in the Cloudlet
-        self.n_removed_2 = 0  # number of tasks of type 2 removed from the Cloudlet
+        self.n_interrupted_2 = 0  # number of tasks of type 2 interrupted from the Cloudlet
 
-        self.t_service_1 = 0.0  # the total service time for tasks of type 1
-        self.t_service_2 = 0.0  # the total service time for tasks of type 2
-        self.t_wasted_2 = 0.0  # the total service time for tasks of type 2, wasted due to removal
+        self.t_service_1 = 0.0  # the total service time for tasks of tye 1
+        self.t_service_2 = 0.0  # the total service time for tasks of tye 2
+        self.t_wasted_2 = 0.0  # the total service time wasted for interrupted tasks of type 2
 
-        assert 1 <= self.threshold <= self.n_servers
+    # ==================================================================================================================
+    # EVENT SUBMISSION
+    #   * ARRIVAL_TASK_1
+    #   * ARRIVAL_TASK_2
+    #   * COMPLETION_CLOUDLET_TASK_1
+    #   * COMPLETION_CLOUDLET_TASK_2
+    # ==================================================================================================================
 
-    def submit_arrival_task_1(self, event_time):
+    def submit_arrival_task_1(self, t_arrival):
         """
         Submit to the Cloudlet the arrival of a task of type 1.
-        :param event_time: (float) the occurrence time of the event.
+        :param t_arrival: (float) the arrival time.
         :return: (SimpleEvent) the completion event of the submitted task of type 1.
         """
+        # Check correctness
         assert self.n_1 + self.n_2 < self.n_servers
 
-        # state change
+        # Update state
         server_idx = self._server_selector.select_idle()
         if server_idx is None:
-            raise RuntimeError("Cannot find idle server for arrival of task of type 1 \n {}".format(self))
-        t_completion = self._servers[server_idx].submit_task_1(event_time)
+            raise RuntimeError("Cannot find idle server for arrival of task of type 1")
+        t_completion, t_service = self._servers[server_idx].submit_task_1(t_arrival)
         self.n_1 += 1
 
-        # completion event
-        completion_event = Event(EventType.COMPLETION_CLOUDLET_TASK_1, t_completion)
-
-        # record statistics
+        # Update statistics
         self.n_arrival_1 += 1
-        self.t_service_1 += (t_completion - event_time)
+
+        # Generate completion
+        completion_event = Event(EventType.COMPLETION_CLOUDLET_TASK_1, t_completion, t_service=t_service)
 
         return completion_event
 
-    def submit_arrival_task_2(self, event_time):
+    def submit_arrival_task_2(self, t_arrival):
         """
         Submit to the Cloudlet the arrival of a task of type 2.
-        :param event_time: (float) the occurrence time of the event.
+        :param t_arrival: (float) the occurrence time of the event.
         :return: (SimpleEvent) the completion event of the submitted task of type 2.
         """
+        # Check correctness
         assert self.n_1 + self.n_2 < self.n_servers
 
-        # state change
+        # Update state
         server_idx = self._server_selector.select_idle()
         if server_idx is None:
-            raise RuntimeError("Cannot find free server for arrival of task of type 2 \n {}".format(self))
-        t_completion = self._servers[server_idx].submit_task_2(event_time)
+            raise RuntimeError("Cannot find free server for arrival of task of type 2")
+        t_completion, t_service = self._servers[server_idx].submit_task_2(t_arrival)
         self.n_2 += 1
 
-        # completion event
-        completion_event = Event(EventType.COMPLETION_CLOUDLET_TASK_2, t_completion)
-
-        # record statistics
+        # Update statistics
         self.n_arrival_2 += 1
-        self.t_service_2 += (t_completion - event_time)
+
+        # Generate completion
+        completion_event = Event(EventType.COMPLETION_CLOUDLET_TASK_2, t_completion, t_service=t_service)
 
         return completion_event
 
-    def submit_removal_task_2(self, event_time):
+    def submit_interruption_task_2(self, t_removal):
         """
-        Submit to the Cloudlet the removal of a task of type 2.
-        :param event_time: (float) the occurrence time of the event.
-        :return: (SimpleEvent) the completion event to ignore of the submitted task of type 2.
+        Submit to the Cloudlet the interruption of a task of type 2.
+        :param t_removal: (float) the time of removal.
+        :return: (e,w) where *e* is the completion event to ignore of the submitted task of type 2;
+        *w* is the wasted time.
         """
+        # Check correctness
         assert self.n_2 > 0
 
-        # state change
+        # Update state
         server_idx = self._server_selector.select_interruption()
         if server_idx is None:
-            raise RuntimeError("Cannot find interruption server at time ", event_time)
-        t_arrival, t_completion_to_ignore = self._servers[server_idx].interrupt_task_2(event_time)
+            raise RuntimeError("Cannot find interruption server at time {}".format((t_removal)))
+        t_completion_to_ignore, t_arrival, t_wasted = self._servers[server_idx].interrupt_task_2(t_removal)
         self.n_2 -= 1
 
-        # completion event to ignore
+        # Update statistics
+        self.n_interrupted_2 += 1
+        self.t_wasted_2 += t_wasted
+
+        # Generate completion event to ignore
         completion_event_to_ignore = Event(EventType.COMPLETION_CLOUDLET_TASK_2, t_completion_to_ignore)
 
-        # record statistics
-        self.n_removed_2 += 1
-        self.t_service_2 -= (t_completion_to_ignore - t_arrival)
-        self.t_wasted_2 += (event_time - t_arrival)
+        return completion_event_to_ignore, t_wasted
 
-        return completion_event_to_ignore
-
-    def submit_completion_task_1(self, event_time):
+    def submit_completion_task_1(self, t_completion):
         """
         Submit to the Cloudlet the completion of a task of type 1.
-        :param event_time: (float) the occurrence time of the event.
-        :return: (void)
+        :param t_completion: (float) the completion time.
+        :return: None
         """
+        # Check correctness
         assert self.n_1 > 0
 
-        # state change
-        server_idx = self.find_completion_server_idx(TaskType.TASK_1, event_time)
+        # Update state
+        server_idx = self.find_completion_server_idx(TaskType.TASK_1, t_completion)
         if server_idx is None:
-            raise RuntimeError("Cannot find completion server for task of type 1 and completion time ", event_time)
-        self._servers[server_idx].submit_completion()
+            raise RuntimeError("Cannot find server for task of type 1 and t_completion={}".format(t_completion))
+        t_service = self._servers[server_idx].submit_completion()
         self.n_1 -= 1
 
-        # record statistics
+        # Update statistics
         self.n_served_1 += 1
+        self.t_service_1 += t_service
 
-    def submit_completion_task_2(self, event_time):
+    def submit_completion_task_2(self, t_completion):
         """
         Submit to the Cloudlet the completion of a task of type 2.
-        :param event_time: (float) the occurrence time of the event.
-        :return: (void)
+        :param t_completion: (float) the completion time.
+        :return: None
         """
+        # Check correctness
         assert self.n_2 > 0
 
-        # state change
-        server_idx = self.find_completion_server_idx(TaskType.TASK_2, event_time)
+        # Update state
+        server_idx = self.find_completion_server_idx(TaskType.TASK_2, t_completion)
         if server_idx is None:
-            raise RuntimeError("Cannot find completion server for task of type 2 and completion time ", event_time)
-        self._servers[server_idx].submit_completion()
+            raise RuntimeError("Cannot find completion server for task of type 2 and t_completion={}\n{}".format(t_completion, str(self._servers)))
+        t_service = self._servers[server_idx].submit_completion()
         self.n_2 -= 1
 
-        # record statistics
+        # Update statistics
         self.n_served_2 += 1
+        self.t_service_2 += t_service
+
+    # ==================================================================================================================
+    # RANDOM TIME GENERATION
+    #   * service time task 1
+    #   * service time task 2
+    # ==================================================================================================================
+
+    def get_service_time_task_1(self):
+        """
+        Generate the service time for a task of type 1, exponentially distributed with rate *service_rate_1*.
+        :return: (float) the completion time for a task of type 1 (s).
+        """
+        self._rndgen.stream(EventType.COMPLETION_CLOUDLET_TASK_1.value)
+        return exponential(1.0 / self.service_rate_1, self._rndgen.rnd())
+
+    def get_service_time_task_2(self):
+        """
+        Generate the service time for a task of type 2, exponentially distributed with rate *service_rate_2*.
+        :return: (float) the completion time for a task of type 2 (s).
+        """
+        self._rndgen.stream(EventType.COMPLETION_CLOUDLET_TASK_2.value)
+        return exponential(1.0 / self.service_rate_2, self._rndgen.rnd())
+
+    # ==================================================================================================================
+    # OTHER
+    # ==================================================================================================================
 
     def find_completion_server_idx(self, task_type, t_completion):
         """
@@ -184,67 +226,11 @@ class SimpleCloudLet:
                 return idx
         return None
 
-    def get_completion_task_1(self):
-        """
-        Generate a completion time for a task of type 1, exponentially distributed with rate *service_rate_1*.
-        :return: (float) the completion time for a task of type 1 (s).
-        """
-        self._rndgen.stream(EventType.COMPLETION_CLOUDLET_TASK_1.value)
-        u = self._rndgen.rnd()
-        m = 1.0 / self.service_rate_1
-        return exponential(m, u)
-
-    def get_completion_task_2(self):
-        """
-        Generate a completion time for a task of type 2, exponentially distributed with rate *service_rate_2*.
-        :return: (float) the completion time for a task of type 2 (s).
-        """
-        self._rndgen.stream(EventType.COMPLETION_CLOUDLET_TASK_2.value)
-        u = self._rndgen.rnd()
-        m = 1.0 / self.service_rate_2
-        return exponential(m, u)
-
     def __str__(self):
         """
         String representation.
         :return: the string representation.
         """
-        sb = ["{attr}='{value}'".format(attr=attr, value=self.__dict__[attr]) for attr in self.__dict__ if not attr.startswith("__") and not callable(getattr(self, attr))]
+        sb = ["{attr}={value}".format(attr=attr, value=self.__dict__[attr]) for attr in self.__dict__ if
+              not attr.startswith("__") and not callable(getattr(self, attr))]
         return "Cloudlet({}:{})".format(id(self), ", ".join(sb))
-
-    def __repr__(self):
-        """
-        String representation.
-        :return: the string representation.
-        """
-        return self.__str__()
-
-    def __eq__(self, other):
-        if not isinstance(other, SimpleCloudLet):
-            return False
-        return id(self) == id(other)
-
-
-if __name__ == "__main__":
-    from core.random.rndgen import MarcianiMultiStream as RandomGenerator
-
-    rndgen = RandomGenerator(123456789)
-
-    # Creation
-    cloudlet_1 = SimpleCloudLet(rndgen, 10, 0.45, 0.30, 10, SelectionRule.ORDER)
-    print("Cloudlet 1:", cloudlet_1)
-    cloudlet_2 = SimpleCloudLet(rndgen, 20, 0.90, 0.60, 20, SelectionRule.CYCLIC)
-    print("Cloudlet 2:", cloudlet_2)
-
-    # Equality check
-    print("Cloudlet 1 equals Cloudlet 2:", cloudlet_1 == cloudlet_2)
-
-    # Service time of tasks of type 1
-    for i in range(10):
-        t_service_1 = cloudlet_1.get_completion_task_1()
-        print("service time task 1: ", t_service_1)
-
-    # Service time of tasks of type 2
-    for i in range(10):
-        t_service_2 = cloudlet_1.get_completion_task_2()
-        print("sevice time task 2: ", t_service_2)

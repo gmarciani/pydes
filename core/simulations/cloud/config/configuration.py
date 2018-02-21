@@ -6,6 +6,8 @@ default_configuration = {
 
     "general": {
         "t_stop": 1000,  # the stop time (s)
+        "replications": 1,  # the number of replications within the ensemble
+        "confidence": 0.95,  # he confidence level for the statistics
         "random": {
             "generator": "MarcianiMultiStream",  # the class name of the random generator
             "seed": 123456789  # the initial seed for the random generator

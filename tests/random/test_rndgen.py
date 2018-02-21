@@ -5,6 +5,10 @@ from core.random.rndgen import MarcianiMultiStream
 class RndgenTest(unittest.TestCase):
 
     def test_rnd_32bit(self):
+        """
+        Verify the correctness of the Lehmer random nunber generator.
+        :return: None
+        """
         CHECK_VALUE = 399268537
         CHECK_ITERS = 10000
         JUMPER = 22925
@@ -25,9 +29,8 @@ class RndgenTest(unittest.TestCase):
         x = generator.get_seed()
         ok = (ok is True) and (x == JUMPER)
 
-        self.assertTrue(ok,
-                        'The implementation of rndgen (32bit) is not correct.')
+        self.assertTrue(ok, "The implementation of rndgen (32bit) is not correct.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

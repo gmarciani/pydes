@@ -15,8 +15,6 @@ logger = logging.getLogger(__name__)
 
 
 if __name__ == "__main__":
-    from core.simulations.cloud.statistics.report import generate_report
-
     ##
     # CONFIGURATION
     ##
@@ -56,7 +54,7 @@ if __name__ == "__main__":
             simulation = Simulation(config, "SIMULATION-THRESHOLD-{}_{}".format(threshold, replication+1))
             simulation.run()
             logger.info("Generating report")
-            report = generate_report(simulation)
+            report = simulation.generate_report()
             logger.info("Report: %s", report)
             if must_save_csv_headers:
                 report.save_header_csv(result_path)

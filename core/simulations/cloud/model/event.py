@@ -12,38 +12,34 @@ class EventType(Enum):
     COMPLETION_CLOUDLET_TASK_2 = 3
     COMPLETION_CLOUD_TASK_1 = 4
     COMPLETION_CLOUD_TASK_2 = 5
+    RESTART_TASK_2 = 6
 
 
 class SimpleEvent:
     """
-    A simple event, defined by its type and occurrence time.
+    A simple event, defined by its type, occurrence time and metadata.
     """
 
-    def __init__(self, type, time, meta=None):
+    def __init__(self, type, time, **kwargs):
         """
         Create a new event.
         :param type: (EventType) the type of the event.
         :param time: (float) the occurrence time of the event (s).
-        :param meta: (dict) event metadata.
+        :param kwargs: (dict) optional metadata.
         """
         self.type = type
         self.time = time
-        self.meta = meta
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
     def __str__(self):
         """
         String representation.
         :return: the string representation.
         """
-        sb = ["{attr}='{value}'".format(attr=attr, value=self.__dict__[attr]) for attr in self.__dict__ if not attr.startswith("__") and not callable(getattr(self, attr))]
+        sb = ["{attr}={value}".format(attr=attr, value=self.__dict__[attr]) for attr in self.__dict__ if
+              not attr.startswith("__") and not callable(getattr(self, attr))]
         return "Event({})".format(", ".join(sb))
-
-    def __repr__(self):
-        """
-        String representation.
-        :return: the string representation.
-        """
-        return self.__str__()
 
     def __eq__(self, other):
         if not isinstance(other, SimpleEvent):
@@ -61,11 +57,5 @@ class SimpleEvent:
 
 
 if __name__ == "__main__":
-    # Creation
-    event_1 = SimpleEvent(EventType.ARRIVAL_TASK_1, 10)
-    print("Event 1:", event_1)
-    event_2 = SimpleEvent(EventType.COMPLETION_CLOUDLET_TASK_1, 20)
-    print("Event 2:", event_2)
-
-    # Equality check
-    print("Event 1 equals Event 2:", event_1 == event_2)
+    e = SimpleEvent(EventType.COMPLETION_CLOUDLET_TASK_1, 10, t_service=5)
+    print(e)
