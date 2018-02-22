@@ -1,6 +1,6 @@
 import unittest
-from core.simulations.cloud.config.configuration import get_default_configuration
-from core.simulations.cloud.simulation import Simulation as Simulation
+from core.simulation.config.configuration import get_default_configuration
+from core.simulation.simulation import Simulation as Simulation
 
 
 class SimulationCloudTest(unittest.TestCase):

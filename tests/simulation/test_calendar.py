@@ -1,7 +1,7 @@
 import unittest
-from core.simulations.common.calendar import NextEventCalendar
-from core.simulations.cloud.model.event import SimpleEvent as Event
-from core.simulations.cloud.model.event import EventType
+from core.simulation.model.calendar import NextEventCalendar
+from core.simulation.model.event import SimpleEvent as Event
+from core.simulation.model.event import EventType
 from core.random.rndgen import MarcianiMultiStream
 
 

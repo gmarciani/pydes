@@ -1,6 +1,6 @@
-from core.simulations.cloud.model.cloudlet import SimpleCloudlet as Cloudlet
-from core.simulations.cloud.model.cloud import SimpleCloud as Cloud
-from core.simulations.cloud.model.server_selector import SelectionRule
+from core.simulation.model.cloudlet import SimpleCloudlet as Cloudlet
+from core.simulation.model.cloud import SimpleCloud as Cloud
+from core.simulation.model.server_selector import SelectionRule
 from core.statistics.sample_statistics import SimpleSampleStatistics as SampleStatistic
 import logging
 

@@ -1,7 +1,7 @@
 from enum import Enum, unique
 from random import choice
-from core.simulations.cloud.model.server import ServerState
-from core.simulations.cloud.model.task import TaskType
+from core.simulation.model.server import ServerState
+from core.simulation.model.task import TaskType
 
 
 @unique

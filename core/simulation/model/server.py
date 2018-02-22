@@ -1,6 +1,6 @@
 from enum import Enum, unique
-from core.simulations.cloud.model.event import EventType
-from core.simulations.cloud.model.task import TaskType
+from core.simulation.model.event import EventType
+from core.simulation.model.task import TaskType
 from core.random.rndvar import exponential
 import logging
 

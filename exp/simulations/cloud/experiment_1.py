@@ -4,7 +4,7 @@ Results are stored in 'experiment_1.csv' and can be viewed as plots running the 
 """
 
 
-from core.simulations.cloud.simulation import Simulation as Simulation
+from core.simulation.simulation import Simulation as Simulation
 import yaml
 
 import os

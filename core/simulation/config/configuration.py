@@ -1,12 +1,10 @@
 import copy
 
-from core.simulations.cloud.model.server_selector import SelectionRule
-
 default_configuration = {
 
     "general": {
-        "t_stop": 1000,  # the stop time (s)
-        "n_batches": 1,  # the number of batches
+        "n_batch": 1,  # the number of batches
+        "t_batch": 1000,  # the stop time for a batch (s)
         "confidence": 0.95,  # he confidence level for the statistics
         "random": {
             "generator": "MarcianiMultiStream",  # the class name of the random generator
@@ -21,9 +19,9 @@ default_configuration = {
 
     "system": {
         "cloudlet": {
-            "n_servers": 20,  # the number of servers
             "service_rate_1": 0.45,  # the service rate for tasks of type 1 (tasks/s)
             "service_rate_2": 0.30,  # the service rate for tasks of type 2 (tasks/s)
+            "n_servers": 20,  # the number of servers
             "threshold": 20,  # the occupancy threshold
             "server_selection": "ORDER"  # the server-selection rule
         },

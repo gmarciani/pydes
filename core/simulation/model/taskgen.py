@@ -1,5 +1,5 @@
-from core.simulations.cloud.model.event import SimpleEvent as Event
-from core.simulations.cloud.model.event import EventType
+from core.simulation.model.event import SimpleEvent as Event
+from core.simulation.model.event import EventType
 from core.random.rndvar import exponential
 from sys import maxsize
 import logging

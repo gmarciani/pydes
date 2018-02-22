@@ -1,10 +1,9 @@
-from core.simulations.cloud.model.system import SimpleCloudletCloudSystem as System
+from core.simulation.model.system import SimpleCloudletCloudSystem as System
 from core.utils.report import SimpleReport as Report
 from core.random import rndgen
-from core.simulations.cloud.model.taskgen import SimpleTaskgen as Taskgen
-from core.simulations.common.calendar import NextEventCalendar as Calendar
-from core.simulations.cloud.model.event import SimpleEvent as Event
-from core.simulations.cloud.model.event import EventType
+from core.simulation.model.taskgen import SimpleTaskgen as Taskgen
+from core.simulation.model.calendar import NextEventCalendar as Calendar
+from core.simulation.model.event import EventType
 from core.utils.guiutils import print_progress
 import logging
 
@@ -28,7 +27,9 @@ class Simulation:
 
         # Configuration - General
         config_general = config["general"]
-        self.t_stop = config_general["t_stop"]
+        self.n_batch = config_general["n_batch"]
+        self.t_batch = config_general["t_batch"]
+        self.t_stop = self.n_batch * self.t_batch
         self.rndgen = getattr(rndgen, config_general["random"]["generator"])(config_general["random"]["seed"])
 
         # Configuration - Tasks
@@ -57,6 +58,8 @@ class Simulation:
         # (iii) unscheduling of events to ignore, e.g. completion in Cloudlet of interrupted tasks of type 2.
         self.calendar = Calendar(0.0, self.t_stop, [EventType.ARRIVAL_TASK_1, EventType.ARRIVAL_TASK_2])
 
+
+        # The closed door status: if True, no more arrivals will be accepted.
         self.closed_door = False
 
     # ==================================================================================================================
@@ -206,7 +209,7 @@ class Simulation:
 
 
 if __name__ == "__main__":
-    from core.simulations.cloud.config.configuration import get_default_configuration
+    from core.simulation.config.configuration import get_default_configuration
 
     config = get_default_configuration()
     simulation = Simulation(config)

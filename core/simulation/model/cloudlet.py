@@ -1,9 +1,8 @@
-from core.simulations.cloud.model.server import SimpleServer as Server
-from core.simulations.cloud.model.server_selector import SelectionRule,ServerSelectorOrder,ServerSelectorCyclic, ServerSelectorEquity, ServerSelectorRandom
-from core.simulations.cloud.model.server import ServerState
-from core.simulations.cloud.model.event import SimpleEvent as Event
-from core.simulations.cloud.model.event import EventType
-from core.simulations.cloud.model.task import TaskType
+from core.simulation.model.server import SimpleServer as Server
+from core.simulation.model.server_selector import SelectionRule,ServerSelectorOrder,ServerSelectorCyclic, ServerSelectorEquity, ServerSelectorRandom
+from core.simulation.model.event import SimpleEvent as Event
+from core.simulation.model.event import EventType
+from core.simulation.model.task import TaskType
 from core.random.rndvar import exponential
 import logging
 
