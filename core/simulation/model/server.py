@@ -29,11 +29,20 @@ class SimpleServer:
         :param service_rate_1: (float) the service rate for job of type 1 (tasks/s).
         :param service_rate_2: (float) the service rate for job of type 2 (tasks/s).
         """
-        self._rndgen = rndgen
-        self.service_rate_1 = service_rate_1
-        self.service_rate_2 = service_rate_2
+        # Service rates
+        self.rates = {
+            TaskType.TASK_1: service_rate_1,
+            TaskType.TASK_2: service_rate_2
+        }
 
-        # state
+        # Randomization
+        self.rndgen = rndgen
+        self.streams = {
+            TaskType.TASK_1: EventType.COMPLETION_CLOUDLET_TASK_1.value + id(self),
+            TaskType.TASK_2: EventType.COMPLETION_CLOUDLET_TASK_2.value + id(self)
+        }
+
+        # State
         self.state = ServerState.IDLE  # the state of the server (ServerState)
         self.task_type = None  # the type of the task being served (TaskType)
         self.t_arrival = 0.0  # the last arrival time (float) (s)
@@ -41,17 +50,28 @@ class SimpleServer:
         self.t_completion = 0.0  # the last completion time (float) (s)
         self.t_interruption = 0.0  # the last interruption time (float) (s)
 
-        # statistics
-        self.n_served_1 = 0  # the total amount of served tasks of type 1
-        self.n_served_2 = 0  # the total amount of served tasks of type 2
-        self.n_interrupted_2 = 0  # the total amount of interrupted tasks of type 2
-        self.idle_time = 0.0  # the total idle time (float) (s)
-        self.busy_time = 0.0  # the total busy time (float) (s)
-        self.wasted_time = 0.0  # the total wasted time (float) (s)
+        # Statistics
+        self.arrived = {
+            TaskType.TASK_1: 0,  # the total amount of arrived tasks of type 1
+            TaskType.TASK_2: 0  # the total amount of arrived tasks of type 2
+        }
 
-        # meta
-        self.stream_service_task_1 = EventType.COMPLETION_CLOUDLET_TASK_1.value + int(id(self))
-        self.stream_service_task_2 = EventType.COMPLETION_CLOUDLET_TASK_2.value + int(id(self))
+        self.completed = {
+            TaskType.TASK_1: 0,  # the total amount of completed tasks of type 1
+            TaskType.TASK_2: 0  # the total amount of completed tasks of type 2
+        }
+
+        self.interrupted = {
+            TaskType.TASK_1: 0,  # the total amount of interrupted tasks of type 1
+            TaskType.TASK_2: 0  # the total amount of interrupted tasks of type 2
+        }
+
+        self.service = {
+            TaskType.TASK_1: 0.0,  # the total service time for tasks of type 1
+            TaskType.TASK_2: 0.0  # the total service time for tasks of tye 2
+        }
+
+        self.t_idle = 0.0  # the total idle time (float) (s)
 
     # ==================================================================================================================
     # EVENT SUBMISSION
@@ -62,58 +82,45 @@ class SimpleServer:
     #   * INTERRUPTION_TASK_2
     # ==================================================================================================================
 
-    def submit_task_1(self, t_clock):
+    def submit_arrival(self, task_type, t_clock):
         """
-        Submit a task of type 1.
-        :param t_clock: (float) the current time (s).
-        :return: (c,s) where *c* is the completion time and *s* is the service time.
-        """
-        assert self.state is ServerState.IDLE
-
-        # Update state
-        self.state = ServerState.BUSY
-        self.task_type = TaskType.TASK_1
-        self.t_arrival = t_clock
-        self.t_service = self.get_service_task_1()
-        self.t_completion = self.t_arrival + self.t_service
-
-        # Update statistics
-        self.idle_time += (t_clock - self.t_completion)
-
-        return self.t_completion, self.t_service
-
-    def submit_task_2(self, t_clock):
-        """
-        Submit a task of type 2.
-        :param t_clock: (float) the current time (s).
-        :return: (c,s) where *c* is the completion time and *s* is the service time.
+        Submit a task.
+        :param task_type: (TaskType) the type of the task.
+        :param t_clock: (float) the current time.
+        :return: (c,s) where
+        *c* is the completion time;
+        *s* is the service time.
         """
         assert self.state is ServerState.IDLE
 
         # Update state
         self.state = ServerState.BUSY
-        self.task_type = TaskType.TASK_2
+        self.task_type = task_type
         self.t_arrival = t_clock
-        self.t_service = self.get_service_task_2()
+        self.t_service = self.get_service_time(task_type)
         self.t_completion = self.t_arrival + self.t_service
 
         # Update statistics
-        self.idle_time += (t_clock - self.t_completion)
+        self.arrived[task_type] += 1
+        self.t_idle += (t_clock - self.t_completion)
 
         return self.t_completion, self.t_service
 
-    def interrupt_task_2(self, t_clock):
+    def submit_interruption(self, task_type, t_clock):
         """
-        Interrupt the running task of type 2.
-        :param t_clock: (float) the current time (s).
-        :return: (c,a,w) where *c* is the completion time of the interrupted task;
+        Interrupt a task.
+        :param task_type: (TaskType) the type of the task.
+        :param t_clock: (float) the current time.
+        :return: (c,a,s,r) where
+        *c* is the scheduled completion time of the interrupted task;
         *a* is the arrival time of the interrupted task;
-        *w* is the wasted time for the itnerrupted task.
+        *s* is the served time for the interrupted task;
+        *r* is the remaining ratio.
         """
-        assert self.state is ServerState.BUSY and self.task_type is TaskType.TASK_2
+        assert self.state is ServerState.BUSY and self.task_type is task_type
         assert self.t_completion >= t_clock
 
-        t_busy = t_clock - self.t_arrival
+        t_served = t_clock - self.t_arrival
 
         # Update state
         self.state = ServerState.IDLE
@@ -121,11 +128,12 @@ class SimpleServer:
         self.t_interruption = t_clock
 
         # Update statistics
-        self.n_interrupted_2 += 1
-        self.busy_time += t_busy
-        self.wasted_time += t_busy
+        self.interrupted[task_type] += 1
+        self.service[task_type] += t_served
 
-        return self.t_completion, self.t_arrival, t_busy
+        ratio_remaining = (self.t_completion - t_served) / (self.t_completion - self.t_arrival)
+
+        return self.t_completion, self.t_arrival, t_served, ratio_remaining
 
     def submit_completion(self):
         """
@@ -135,13 +143,8 @@ class SimpleServer:
         assert self.state is ServerState.BUSY
 
         # Update statistics
-        if self.task_type is TaskType.TASK_1:
-            self.n_served_1 += 1
-        elif self.task_type is TaskType.TASK_2:
-            self.n_served_2 += 1
-        else:
-            raise ValueError("Unknown task type: {}".format(self.task_type))
-        self.busy_time += (self.t_completion - self.t_arrival)
+        self.completed[self.task_type] += 1
+        self.service[self.task_type] += (self.t_completion - self.t_arrival)
 
         # Update state
         self.state = ServerState.IDLE
@@ -151,25 +154,16 @@ class SimpleServer:
 
     # ==================================================================================================================
     # RANDOM TIME GENERATION
-    #   * service time task 1
-    #   * service time task 2
     # ==================================================================================================================
 
-    def get_service_task_1(self):
+    def get_service_time(self, task_type):
         """
-        Generate a random service time for a task of type 1, exponentially distributed with rate *service_rate_1*.
-        :return: (float) a random service time for a task of type 1 (s).
+        Generate a random service time for the specified task type.
+        :param task_type: (TaskType) the task type.
+        :return: (float) a random service time for the specified task type.
         """
-        self._rndgen.stream(self.stream_service_task_1)
-        return exponential(1.0 / self.service_rate_1, self._rndgen.rnd())
-
-    def get_service_task_2(self):
-        """
-        Generate a random service time for a task of type 2, exponentially distributed with rate *service_rate_2*.
-        :return: (float) a random service time for a task of type 2 (s).
-        """
-        self._rndgen.stream(self.stream_service_task_2)
-        return exponential(1.0 / self.service_rate_2, self._rndgen.rnd())
+        self.rndgen.stream(self.streams[task_type])
+        return exponential(1.0 / self.rates[task_type], self.rndgen.rnd())
 
     # ==================================================================================================================
     # OTHER
@@ -195,48 +189,3 @@ class SimpleServer:
         if not isinstance(other, SimpleServer):
             return False
         return id(self) == id(other)
-
-
-if __name__ == "__main__":
-    from core.random.rndgen import MarcianiMultiStream as RandomGenerator
-
-    rndgen = RandomGenerator(123456789)
-
-    # Creation
-    server = SimpleServer(rndgen, 0.45, 0.30)
-
-    # Server loop
-    clock = 0.0
-    for i in range(5):
-
-        clock += rndgen.rnd()
-        server.submit_task_1(clock)
-        print("Server state (after submission task type 1 at time {}): {}".format(clock, server))
-
-        clock = server.t_completion
-        server.submit_completion()
-        print("Server state (after completion task type 1 at time {}): {}".format(clock, server))
-
-        clock += rndgen.rnd()
-        server.submit_task_2(clock)
-        print("Server state (after submission task type 2 at time {}): {}".format(clock, server))
-
-        clock = server.t_completion
-        server.submit_completion()
-        print("Server state (after completion task type 2 at time {}): {}".format(clock, server))
-
-        clock += rndgen.rnd()
-        server.submit_task_2(clock)
-        print("Server state (after submission task type 2 at time {}): {}".format(clock, server))
-
-        clock = (server.t_completion + clock) / 2
-        server.interrupt_task_2(clock)
-        print("Server state (after interruption task type 2 at time {}): {}".format(clock, server))
-
-        clock += rndgen.rnd()
-        server.submit_task_1(clock)
-        print("Server state (after submission task type 1 at time {}): {}".format(clock, server))
-
-        clock = server.t_completion
-        server.submit_completion()
-        print("Server state (after completion task type 1 at time {}): {}".format(clock, server))

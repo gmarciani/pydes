@@ -5,7 +5,7 @@ default_configuration = {
     "general": {
         "n_batch": 1,  # the number of batches
         "t_batch": 1000,  # the stop time for a batch (s)
-        "confidence": 0.95,  # he confidence level for the statistics
+        "confidence": 0.95,  # the confidence level for the statistics
         "random": {
             "generator": "MarcianiMultiStream",  # the class name of the random generator
             "seed": 123456789  # the initial seed for the random generator

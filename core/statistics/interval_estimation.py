@@ -2,12 +2,15 @@ from core.random.rndf import idfStudent
 from math import sqrt
 
 
-def get_interval_exstimation(samsize, sdev, alpha):
+def get_interval_estimation(samsize, sdev, alpha):
     """
-    Get the interval exstimation.
+    Get the interval estimation.
     :param samsize: (int) the sample size.
     :param sdev: (float) the sample standard deviation.
     :param alpha: (float) the significance.
     :return: (float) the interval gap.
     """
-    return idfStudent(samsize - 1, 1.0 - (alpha / 2)) * sdev / sqrt(samsize -1)
+    if samsize > 1:
+        return idfStudent(samsize - 1, 1.0 - (alpha / 2)) * sdev / sqrt(samsize -1)
+    else:
+        return 0.0

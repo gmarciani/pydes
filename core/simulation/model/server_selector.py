@@ -1,18 +1,6 @@
-from enum import Enum, unique
 from random import choice
 from core.simulation.model.server import ServerState
 from core.simulation.model.task import TaskType
-
-
-@unique
-class SelectionRule(Enum):
-    """
-    Enumerate server-selection rules.
-    """
-    ORDER = 0  # Order Selection
-    CYCLIC = 1  # Cyclic Selection
-    EQUITY = 2  # Equity Selection
-    RANDOM = 3  # Random Selection
 
 
 class BaseServerSelection:
@@ -31,9 +19,10 @@ class BaseServerSelection:
         """
         raise NotImplementedError
 
-    def select_interruption(self):
+    def select_interruption(self, task_type):
         """
         Select an interruption server, according to the adopted server selection rule.
+        :param task_type: (TaskType) the type of the task.
         :return: (int) the index of the selected server, if present; None, otherwise.
         """
         raise NotImplementedError
@@ -58,12 +47,13 @@ class ServerSelectorOrder(BaseServerSelection):
             return None
         return candidates[0][0]
 
-    def select_interruption(self):
+    def select_interruption(self, task_type):
         """
         Select an interruption server, according to the adopted server selection rule.
+        :param task_type: (TaskType) the type of the task.
         :return: (int) the index of the selected server, if present; None, otherwise.
         """
-        candidates = [(idx, server) for idx, server in enumerate(self._servers) if server.task_type is TaskType.TASK_2]
+        candidates = [(idx, server) for idx, server in enumerate(self._servers) if server.task_type is task_type]
         if len(candidates) == 0:
             return None
         return candidates[0][0]
@@ -89,12 +79,13 @@ class ServerSelectorCyclic(BaseServerSelection):
             return None
         self._last = selected_server = choice(candidates)[0]
 
-    def select_interruption(self):
+    def select_interruption(self, task_type):
         """
         Select an interruption server, according to the adopted server selection rule.
+        :param task_type: (TaskType) the type of the task.
         :return: (int) the index of the selected server, if present; None, otherwise.
         """
-        candidates = [(idx, server) for idx, server in enumerate(self._servers[self._last:]) if server.task_type is TaskType.TASK_2]
+        candidates = [(idx, server) for idx, server in enumerate(self._servers[self._last:]) if server.task_type is task_type]
         if len(candidates) == 0:
             return None
         self._last = selected_server = choice(candidates)[0]
@@ -119,12 +110,13 @@ class ServerSelectorEquity(BaseServerSelection):
             return None
         return max(candidates, key=lambda elem: elem.idle_time)[0]
 
-    def select_interruption(self):
+    def select_interruption(self, task_type):
         """
         Select an interruption server, according to the adopted server selection rule.
+        :param task_type: (TaskType) the type of the task.
         :return: (int) the index of the selected server, if present; None, otherwise.
         """
-        candidates = [(idx, server) for idx, server in enumerate(self._servers) if server.task_type is TaskType.TASK_2]
+        candidates = [(idx, server) for idx, server in enumerate(self._servers) if server.task_type is task_type]
         if len(candidates) == 0:
             return None
         return min(candidates, key=lambda elem: elem.wasted_time)[0]
@@ -149,12 +141,13 @@ class ServerSelectorRandom(BaseServerSelection):
             return None
         return choice(candidates)[0]
 
-    def select_interruption(self):
+    def select_interruption(self, task_type):
         """
         Select an interruption server, according to the adopted server selection rule.
+        :param task_type: (TaskType) the type of the task.
         :return: (int) the index of the selected server, if present; None, otherwise.
         """
-        candidates = [(idx, server) for idx, server in enumerate(self._servers) if server.task_type is TaskType.TASK_2]
+        candidates = [(idx, server) for idx, server in enumerate(self._servers) if server.task_type is task_type]
         if len(candidates) == 0:
             return None
         return choice(candidates)[0]

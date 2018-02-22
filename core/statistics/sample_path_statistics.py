@@ -1,7 +1,7 @@
 from math import sqrt
 
 
-class SimpleSamplePathStatistics:
+class SimpleSamplePathStatistic:
     """
     A simple sample-path statistics calculator.
     It calculates:
@@ -49,35 +49,35 @@ class SimpleSamplePathStatistics:
         self._variance += pow(delta_value, 2) * delta_time * t_prev / t_now
         self._mean += delta_value * delta_time / t_now
 
-    def get_dimension(self):
+    def samsize(self):
         """
         Return the sample dimension.
         :return: (int) the sample dimension.
         """
         return self._n
 
-    def get_time(self):
+    def time(self):
         """
         Return the sample last time.
         :return: (int) the sample last time.
         """
         return self._time
 
-    def get_mean(self):
+    def mean(self):
         """
         Return the sample-path mean.
         :return: (float) the sample-path mean.
         """
         return self._mean
 
-    def get_variance(self):
+    def var(self):
         """
         Return the sample-path variance.
         :return: (float) the sample-path variance.
         """
         return self._variance / self._time
 
-    def get_sdev(self):
+    def sdev(self):
         """
         Return the sample-path standard deviation.
         :return: (float) the sample-path standard deviation.

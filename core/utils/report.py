@@ -85,7 +85,7 @@ class SimpleReport(object):
         :return: (void)
         """
         os.makedirs(os.path.dirname(filename), exist_ok=True)
-        with open(filename, 'w+') as resfile:
+        with open(filename, "w+") as resfile:
             resfile.write(str(self))
 
     def save_csv(self, filename):
@@ -129,14 +129,14 @@ class SimpleReport(object):
             resfile.write("\n")
 
     def __str__(self):
-        title_separator = '=' * 60
+        title_separator = "=" * 50
 
-        s = '\n{}\n{:^60}\n{}\n'.format(title_separator, self.title, title_separator)
+        s = "\n{}\n{:^50}\n{}\n".format(title_separator, self.title, title_separator)
 
         for section in self.params.items():
-            s += '\n{:^60}\n'.format(section[0])
+            s += "\n{:^50}\n".format(section[0])
             for p in section[1]:
-                s += '{:.<30}{:.>30}\n'.format(str(p[0]), str(p[1]))
+                s += "{:.<25}{:.>25}\n".format(str(p[0]), str(p[1]))
 
         return s
 

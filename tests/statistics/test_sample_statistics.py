@@ -1,5 +1,5 @@
 import unittest
-from core.statistics.sample_statistics import SimpleSampleStatistics
+from core.statistics.sample_statistics import SimpleSampleStatistic
 from core.random.rndgen import MarcianiMultiStream as RandomGenerator
 from core.random.rndvar import uniform, equilikely, exponential, geometric
 from math import sqrt
@@ -19,7 +19,7 @@ class SampleStatistics(unittest.TestCase):
         err = 0.02
 
         # Creation
-        stats = SimpleSampleStatistics()
+        stats = SimpleSampleStatistic()
 
         # Uniform
         a = 0
@@ -29,8 +29,8 @@ class SampleStatistics(unittest.TestCase):
 
         th_mean = (a + b) / 2
         th_sdev = (b - a) / sqrt(12)
-        self.assertLessEqual(abs(th_mean - stats.get_mean()) / th_mean, err * th_mean)
-        self.assertLessEqual(abs(th_sdev - stats.get_sdev()) / th_sdev, err * th_sdev)
+        self.assertLessEqual(abs(th_mean - stats.mean()) / th_mean, err * th_mean)
+        self.assertLessEqual(abs(th_sdev - stats.sdev()) / th_sdev, err * th_sdev)
 
         stats.reset()
 
@@ -42,8 +42,8 @@ class SampleStatistics(unittest.TestCase):
 
         th_mean = (a + b) / 2
         th_sdev = sqrt((pow(b - a + 1, 2) - 1) / 12)
-        self.assertLessEqual(abs(th_mean - stats.get_mean()) / th_mean, err * th_mean)
-        self.assertLessEqual(abs(th_sdev - stats.get_sdev()) / th_sdev, err * th_sdev)
+        self.assertLessEqual(abs(th_mean - stats.mean()) / th_mean, err * th_mean)
+        self.assertLessEqual(abs(th_sdev - stats.sdev()) / th_sdev, err * th_sdev)
 
         stats.reset()
 
@@ -54,5 +54,5 @@ class SampleStatistics(unittest.TestCase):
 
         th_mean = m
         th_sdev = m
-        self.assertLessEqual(abs(th_mean - stats.get_mean()) / th_mean, err * th_mean)
-        self.assertLessEqual(abs(th_sdev - stats.get_sdev()) / th_sdev, err * th_sdev)
+        self.assertLessEqual(abs(th_mean - stats.mean()) / th_mean, err * th_mean)
+        self.assertLessEqual(abs(th_sdev - stats.sdev()) / th_sdev, err * th_sdev)

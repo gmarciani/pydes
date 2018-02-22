@@ -1,18 +1,33 @@
 from enum import Enum, unique
 
+from core.simulation.model.action import Action
+from core.simulation.model.scope import Scope
+from core.simulation.model.task import TaskType
+
 
 @unique
 class EventType(Enum):
     """
     The types of events.
     """
-    ARRIVAL_TASK_1 = 0
-    ARRIVAL_TASK_2 = 1
-    COMPLETION_CLOUDLET_TASK_1 = 2
-    COMPLETION_CLOUDLET_TASK_2 = 3
-    COMPLETION_CLOUD_TASK_1 = 4
-    COMPLETION_CLOUD_TASK_2 = 5
-    RESTART_TASK_2 = 6
+    def __new__(cls, *args, **kwds):
+        value = len(cls.__members__) + 1
+        obj = object.__new__(cls)
+        obj._value_ = value
+        return obj
+
+    def __init__(self, action, scope, task):
+        self.action = action
+        self.scope = scope
+        self.task = task
+
+    ARRIVAL_TASK_1 = Action.ARRIVAL, Scope.SYSTEM, TaskType.TASK_1  # 0
+    ARRIVAL_TASK_2 = Action.ARRIVAL, Scope.SYSTEM, TaskType.TASK_2  # 1
+    COMPLETION_CLOUDLET_TASK_1 = Action.COMPLETION, Scope.CLOUDLET, TaskType.TASK_1  # 2
+    COMPLETION_CLOUDLET_TASK_2 = Action.COMPLETION, Scope.CLOUDLET, TaskType.TASK_2  # 3
+    COMPLETION_CLOUD_TASK_1 = Action.COMPLETION, Scope.CLOUD, TaskType.TASK_1  # 4
+    COMPLETION_CLOUD_TASK_2 = Action.COMPLETION, Scope.CLOUD, TaskType.TASK_2  # 5
+    RESTART_TASK_2 = Action.RESTART, Scope.SYSTEM, TaskType.TASK_2  # 6
 
 
 class SimpleEvent:
@@ -59,3 +74,9 @@ class SimpleEvent:
 if __name__ == "__main__":
     e = SimpleEvent(EventType.COMPLETION_CLOUDLET_TASK_1, 10, t_service=5)
     print(e)
+    print(e.type)
+    print(e.type.name)
+    print(e.type.value)
+    print(e.type.action)
+    print(e.type.scope)
+    print(e.type.task)

@@ -2,7 +2,7 @@ from math import sqrt
 import numpy as np
 
 
-class SimpleSampleStatistics:
+class SimpleSampleStatistic:
     """
     A simple sample statistics calculator.
     It calculates:
@@ -43,28 +43,28 @@ class SimpleSampleStatistics:
         self._variance += pow(delta_value, 2) * (1.0 * (self._n - 1) / self._n)
         self._mean += delta_value / self._n
 
-    def get_dimension(self):
+    def samsize(self):
         """
         Return the sample dimension.
         :return: (int) the sample dimension.
         """
         return self._n
 
-    def get_mean(self):
+    def mean(self):
         """
         Return the sample mean.
         :return: (float) the sample mean.
         """
         return self._mean
 
-    def get_variance(self):
+    def var(self):
         """
         Return the sample variance.
         :return: (float) the sample variance.
         """
         return self._variance / self._n
 
-    def get_sdev(self):
+    def sdev(self):
         """
         Return the sample standard deviation.
         :return: (float) the sample standard deviation.

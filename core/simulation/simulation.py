@@ -1,10 +1,12 @@
 from core.simulation.model.system import SimpleCloudletCloudSystem as System
+from core.simulation.model.task import TaskType
 from core.utils.report import SimpleReport as Report
 from core.random import rndgen
 from core.simulation.model.taskgen import SimpleTaskgen as Taskgen
 from core.simulation.model.calendar import NextEventCalendar as Calendar
-from core.simulation.model.event import EventType
+from core.simulation.model.event import EventType, Action
 from core.utils.guiutils import print_progress
+from core.simulation.model.statistics import SimulationStatistics
 import logging
 
 # Configure logger
@@ -22,14 +24,17 @@ class Simulation:
         :param config: the configuration for the simulation.
         :param name: the name of the simulation.
         """
-        self.config = config
         self.name = name
+
+        # The statistics
+        self.statistics = SimulationStatistics()
 
         # Configuration - General
         config_general = config["general"]
         self.n_batch = config_general["n_batch"]
         self.t_batch = config_general["t_batch"]
         self.t_stop = self.n_batch * self.t_batch
+        self.confidence = config_general["confidence"]
         self.rndgen = getattr(rndgen, config_general["random"]["generator"])(config_general["random"]["seed"])
 
         # Configuration - Tasks
@@ -42,11 +47,12 @@ class Simulation:
         )
 
         # Configuration - System (Cloudlet and Cloud)
-        config_system = self.config["system"]
+        config_system = config["system"]
         self.system = System(
             self.rndgen,
             config_system["cloudlet"],
-            config_system["cloud"]
+            config_system["cloud"],
+            self.statistics
         )
 
         # Configuration - Calendar
@@ -58,9 +64,11 @@ class Simulation:
         # (iii) unscheduling of events to ignore, e.g. completion in Cloudlet of interrupted tasks of type 2.
         self.calendar = Calendar(0.0, self.t_stop, [EventType.ARRIVAL_TASK_1, EventType.ARRIVAL_TASK_2])
 
-
         # The closed door status: if True, no more arrivals will be accepted.
-        self.closed_door = False
+        #self.closed_door = False
+
+        # The index of the current batch
+        self.curr_batch = 0
 
     # ==================================================================================================================
     # SIMULATION PROCESS
@@ -78,121 +86,96 @@ class Simulation:
         # Initialize first arrivals
         # Schedule the first events, i.e. task of type 1 and 2.
         # Notice that the event order by arrival time is managed internally by the Calendar.
-        self.calendar.schedule(self.taskgen.generate_new_arrival_1(self.calendar.get_clock()))
-        self.calendar.schedule(self.taskgen.generate_new_arrival_2(self.calendar.get_clock()))
+        self.calendar.schedule(self.taskgen.generate(TaskType.TASK_1, self.calendar.get_clock()))
+        self.calendar.schedule(self.taskgen.generate(TaskType.TASK_2, self.calendar.get_clock()))
 
-        # Run the simulation while the calendar is not empty.
-        # Notice that the calendar contains only possible events, that are:
-        # (i) possible arrivals, i.e. arrivals with occurrence time lower than stop time.
-        # (ii) departures of possible arrivals.
-        while not self.calendar.empty() or not self.system.empty():
+        # Run the simulation while the calendar clock is less than the stop time.
+        while self.calendar.get_clock() < self.t_stop:
 
-            # Get the next event and update the calendar clock.
-            # Notice that the Calendar clock is automatically updated.
-            # Notice that the next event is always a possible event.
-            event = self.calendar.get_next_event()
-            logger.debug("Next: %s", event)
+            # Run the simulation for the current batch
+            while self.curr_batch < self.n_batch and self.calendar.get_clock() < self.t_batch * (self.curr_batch+1):
 
-            # If the close door condition holds, close the door to arrivals
-            if not self.closed_door and self.calendar.get_clock() >= self.t_stop:
-                logger.debug("Closing door to arrivals")
-                self.closed_door = True
+                # Get the next event and update the calendar clock.
+                # Notice that the Calendar clock is automatically updated.
+                # Notice that the next event is always a possible event.
+                event = self.calendar.get_next_event()
+                logger.debug("Next: %s", event)
 
-            # Process according to event types.
-            if event.type is EventType.ARRIVAL_TASK_1:
-                # Submit to the System the arrival of a task of type 1.
-                completion_event, interrupted_completion_event, completion_restart_event = self.system.submit_arrival_task_1(event.time)
+                # Process the event
+                events_to_schedule, events_to_unschedule = self.system.submit(event)
 
-                # Schedule completion events.
-                self.calendar.schedule(completion_event)
-                if completion_restart_event is not None:
-                    self.calendar.unschedule(interrupted_completion_event)
-                    self.calendar.schedule(completion_restart_event)
+                # Schedule response events
+                for event in events_to_schedule:
+                    self.calendar.schedule(event)
 
-                # If the closed_door condition is False, schedule a new random arrival of a task of type 1.
-                # Notice that this s only an optimization, as the calendar internally schedules only possible events.
-                if not self.closed_door:
-                    arrival_event = self.taskgen.generate_new_arrival_1(self.calendar.get_clock())
-                    self.calendar.schedule(arrival_event)
+                # Unschedule response events
+                for event in events_to_unschedule:
+                    self.calendar.unschedule(event)
 
-            elif event.type is EventType.ARRIVAL_TASK_2:
-                # Submit to the System the arrival of a task of type 2.
-                completion_event = self.system.submit_arrival_task_2(event.time)
+                # If the event is an arrival, schedule a new arrival of the same type
+                if event.type.action is Action.ARRIVAL:
+                    next_arrival = self.taskgen.generate(event.type.task, self.calendar.get_clock())
+                    self.calendar.schedule(next_arrival)
 
-                # Schedule completion event.
-                self.calendar.schedule(completion_event)
+                # Simulation progress
+                print_progress(self.calendar.get_clock(), self.t_stop)
 
-                # If the closed_door condition is False, schedule a new random arrival of a task of type 2.
-                # Notice that this s only an optimization, as the calendar internally schedules only possible events.
-                if not self.closed_door:
-                    arrival_event = self.taskgen.generate_new_arrival_2(self.calendar.get_clock())
-                    self.calendar.schedule(arrival_event)
+            # Go to the next batch
+            self.statistics.close_batch()
+            self.curr_batch += 1
 
-            elif event.type is EventType.COMPLETION_CLOUDLET_TASK_1:
-                # Submit to the System the completion of task of type 1 from within the Cloudlet.
-                self.system.submit_completion_cloudlet_task_1(event.time, event.t_service)
-
-            elif event.type is EventType.COMPLETION_CLOUDLET_TASK_2:
-                # Submit to the System the completion of task of type 2 from within the Cloudlet.
-                self.system.submit_completion_cloudlet_task_2(event.time, event.t_service)
-
-            elif event.type is EventType.COMPLETION_CLOUD_TASK_1:
-                # Submit to the System the completion of task of type 1 from within the Cloud.
-                self.system.submit_completion_cloud_task_1(event.time, event.t_service)
-
-            elif event.type is EventType.COMPLETION_CLOUD_TASK_2:
-                # Submit to the System the completion of task of type 2 from within the Cloud.
-                self.system.submit_completion_cloud_task_2(event.time, event.t_service)
-
-            else:
-                raise ValueError("Unrecognized event: {}".format(event))
-
-            # Simulation progess
-            print_progress(self.calendar.get_clock(), self.t_stop)
-
-        # Simulation End.
+            # Simulation End.
         logger.info("Simulation stopped")
 
     # ==================================================================================================================
     # REPORT
     # ==================================================================================================================
 
-    def generate_report(self, float_prec=3):
+    def generate_report(self, prec=3):
         """
         Generate a full report about the given simulation.
-        :param float_prec: (int) the number of decimals for float values.
+        :param prec: (int) the number of decimals for float values.
         :return: (SimpleReport) the report.
         """
-        report = Report(self.name)
+        r = Report(self.name)
+
+        alpha = 1.0 - self.confidence
 
         # Report - General
-        report.add("general", "simulation_class", self.__class__.__name__)
-        report.add("general", "t_stop", self.t_stop)
-        report.add("general", "random_generator", self.rndgen.__class__.__name__)
-        report.add("general", "random_seed", self.rndgen.get_initial_seed())
+        r.add("general", "simulation_class", self.__class__.__name__)
+        r.add("general", "t_stop", self.t_stop)
+        r.add("general", "n_batch", self.n_batch)
+        r.add("general", "t_batch", self.t_batch)
+        r.add("general", "random_generator", self.rndgen.__class__.__name__)
+        r.add("general", "random_seed", self.rndgen.get_initial_seed())
 
         # Report - Tasks
-        report.add_all("tasks", self.taskgen)
-
-        # Report - System
-        report.add("system", "n_1", self.system.n_1)
-        report.add("system", "n_2", self.system.n_2)
-        report.add("system", "n_arrival_1", self.system.n_arrival_1)
-        report.add("system", "n_arrival_2", self.system.n_arrival_2)
-        report.add("system", "n_served_1", self.system.n_served_1)
-        report.add("system", "n_served_2", self.system.n_served_2)
-        report.add("system", "response_time", round(self.system.get_response_time(), float_prec))
-        report.add("system", "throughput", round(self.system.get_throughput(), float_prec))
-        report.add("system", "utilization", round(self.system.get_utilization(), float_prec))
-        report.add("system", "wasted_time", round(self.system.get_wasted_time(), float_prec))
+        r.add("tasks", "arrival_rate_1", self.taskgen.rates[TaskType.TASK_1])
+        r.add("tasks", "arrival_rate_2", self.taskgen.rates[TaskType.TASK_2])
+        r.add("tasks", "n_generated_1", self.taskgen.generated[TaskType.TASK_1])
+        r.add("tasks", "n_generated_2", self.taskgen.generated[TaskType.TASK_2])
 
         # Report - System/Cloudlet
-        report.add_all("system/cloudlet", self.system.cloudlet)
+        r.add("system/cloudlet", "service_rate_1", self.system.cloudlet.rates[TaskType.TASK_1])
+        r.add("system/cloudlet", "service_rate_2", self.system.cloudlet.rates[TaskType.TASK_2])
+        r.add("system/cloudlet", "n_servers", self.system.cloudlet.n_servers)
+        r.add("system/cloudlet", "threshold", self.system.cloudlet.threshold)
 
         # Report - System/Cloud
-        report.add_all("system/cloud", self.system.cloud)
+        r.add("system/cloud", "service_rate_1", self.system.cloud.rates[TaskType.TASK_1])
+        r.add("system/cloud", "service_rate_2", self.system.cloud.rates[TaskType.TASK_2])
+        r.add("system/cloud", "setup_mean", self.system.cloud.setup_mean)
 
-        return report
+        # Report - System/Statistics
+        r.add("system/statistics", "t_response_mean", round(self.statistics.t_response.mean(), prec))
+        r.add("system/statistics", "t_response_sdev", round(self.statistics.t_response.sdev(), prec))
+        r.add("system/statistics", "t_response_cint", round(self.statistics.t_response.cint(alpha), prec))
+
+        r.add("system/statistics", "throughput_mean", round(self.statistics.throughput.mean(), prec))
+        r.add("system/statistics", "throughput_sdev", round(self.statistics.throughput.sdev(), prec))
+        r.add("system/statistics", "throughput_cint", round(self.statistics.throughput.cint(alpha), prec))
+
+        return r
 
     # ==================================================================================================================
     # OTHER

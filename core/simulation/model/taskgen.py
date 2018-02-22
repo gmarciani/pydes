@@ -5,6 +5,8 @@ from sys import maxsize
 import logging
 
 # Configure logger
+from core.simulation.model.task import TaskType
+
 logger = logging.getLogger(__name__)
 
 
@@ -23,45 +25,45 @@ class SimpleTaskgen:
         taskgen tate.
         """
         self._rndgen = rndgen
-        self.arrival_rate_1 = arrival_rate_1
-        self.arrival_rate_2 = arrival_rate_2
         self.t_stop = t_stop
 
+        self.rates = {
+            TaskType.TASK_1: arrival_rate_1,
+            TaskType.TASK_2: arrival_rate_2
+        }
+
+        self.streams = {
+            TaskType.TASK_1: EventType.ARRIVAL_TASK_1.value,
+            TaskType.TASK_2: EventType.ARRIVAL_TASK_2.value
+        }
+
+        self.event_types = {
+            TaskType.TASK_1: EventType.ARRIVAL_TASK_1,
+            TaskType.TASK_2: EventType.ARRIVAL_TASK_2
+        }
+
         # state
-        self.n_generated_1 = 0  # total number of generated tasks of type 1
-        self.n_generated_2 = 0  # total number of generated tasks of type 2
+        self.generated = {
+            TaskType.TASK_1: 0,  # total number of generated tasks of type 1
+            TaskType.TASK_2: 0  # total number of generated tasks of type 2
+        }
 
-    def generate_new_arrival_1(self, t_clock):
+    def generate(self, task_type, t_clock):
         """
-        Generate a new random arrival for a task of type 1.
+        Generate a new random task arrival of the specified type.
+        :param task_type: (TaskType) the type of the task.
         :param t_clock: (float) the current time.
-        :return: (SimpleEvent) a new random arrival for a task of type 1.
+        :return: (SimpleEvent) a new random arrival of the specified type.
         """
-        self._rndgen.stream(EventType.ARRIVAL_TASK_1.value)
-        inter_arrival_time = exponential(1.0 / self.arrival_rate_1, self._rndgen.rnd())
+        self._rndgen.stream(self.streams.get(task_type))
+        inter_arrival_time = exponential(1.0 / self.rates[task_type], self._rndgen.rnd())
         arrival_time = t_clock + inter_arrival_time
-        arrival = Event(EventType.ARRIVAL_TASK_1, arrival_time)
+        event_type = self.event_types[task_type]
+        arrival = Event(event_type, arrival_time)
 
         # state change
         if arrival_time < self.t_stop:
-            self.n_generated_1 += 1
-
-        return arrival
-
-    def generate_new_arrival_2(self, t_clock):
-        """
-        Generate a new random arrival for a task of type 2.
-        :param t_clock: (float) the current time.
-        :return: (SimpleEvent) a new random arrival for a task of type 2.
-        """
-        self._rndgen.stream(EventType.ARRIVAL_TASK_2.value)
-        inter_arrival_time = exponential(1.0 / self.arrival_rate_2, self._rndgen.rnd())
-        arrival_time = t_clock + inter_arrival_time
-        arrival = Event(EventType.ARRIVAL_TASK_2, arrival_time)
-
-        # state change
-        if arrival_time < self.t_stop:
-            self.n_generated_2 += 1
+            self.generated[task_type] += 1
 
         return arrival
 

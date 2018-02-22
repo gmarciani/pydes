@@ -4,6 +4,8 @@ from core.random.rndvar import exponential
 import logging
 
 # Configure logger
+from core.simulation.model.task import TaskType
+
 logger = logging.getLogger(__name__)
 
 
@@ -20,25 +22,49 @@ class SimpleCloud:
         :param service_rate_2: (float) the service rate for job of type 2 (tasks/s).
         :param setup_mean: (float) the mean setup time to restart a task of type 2 in the Cloud (s).
         """
-        self._rndgen = rndgen
-        self.service_rate_1 = service_rate_1
-        self.service_rate_2 = service_rate_2
+        # Service rates
+        self.rates = {
+            TaskType.TASK_1: service_rate_1,
+            TaskType.TASK_2: service_rate_2
+        }
+
+        # Setup
         self.setup_mean = setup_mean
 
-        # state
-        self.n_1 = 0  # number of tasks of type 1 serving in the Cloud
-        self.n_2 = 0  # number of tasks of type 2 serving in the Cloud
+        # Randomization
+        self.rndgen = rndgen
+        self.streams = {
+            TaskType.TASK_1: EventType.COMPLETION_CLOUD_TASK_1.value,
+            TaskType.TASK_2: EventType.COMPLETION_CLOUD_TASK_2.value,
+            EventType.RESTART_TASK_2: EventType.RESTART_TASK_2.value
+        }
 
-        # statistics
-        self.n_arrival_1 = 0  # number of tasks of type 1 arrived to the Cloud
-        self.n_arrival_2 = 0  # number of tasks of type 2 arrived to the Cloud
-        self.n_served_1 = 0  # number of tasks of type 1 served in the Cloud
-        self.n_served_2 = 0  # number of tasks of type 2 served in the Cloud
-        self.n_restarted_2 = 0  # number of tasks of type 2 restarted in the Cloudlet
+        # State
+        self.n = {
+            TaskType.TASK_1: 0,  # number of current tasks of type 1
+            TaskType.TASK_2: 0  # number of current tasks of type 2
+        }
 
-        self.t_service_1 = 0.0  # the total service time for tasks of tye 1
-        self.t_service_2 = 0.0  # the total service time for tasks of tye 2
-        self.t_restart_2 = 0.0  # the total restart time wasted for restarted tasks of type 2
+        # Statistics
+        self.arrived = {
+            TaskType.TASK_1: 0,  # number of arrived tasks of type 1
+            TaskType.TASK_2: 0  # number of arrived tasks of type 2
+        }
+
+        self.completed = {
+            TaskType.TASK_1: 0,  # number of completed tasks of type 1
+            TaskType.TASK_2: 0  # number of completed tasks of type 2
+        }
+
+        self.restarted = {
+            TaskType.TASK_1: 0,  # number of interrupted tasks of type 1
+            TaskType.TASK_2: 0  # number of interrupted tasks of type 2
+        }
+
+        self.service = {
+            TaskType.TASK_1: 0.0,  # the total service time for tasks of type 1
+            TaskType.TASK_2: 0.0  # the total service time for tasks of tye 2
+        }
 
     # ==================================================================================================================
     # EVENT SUBMISSION
@@ -49,130 +75,90 @@ class SimpleCloud:
     #   * COMPLETION_CLOUD_TASK_2
     # ==================================================================================================================
 
-    def submit_arrival_task_1(self, t_arrival):
+    def submit_arrival(self, task_type, t_arrival):
         """
-        Submit to the Cloud the arrival of a task of type 1.
+        Submit to the Cloud the arrival of a task.
+        :param task_type: (TaskType) the type of the task.
         :param t_arrival: (float) the arrival time.
-        :return: (SimpleEvent) the completion event of the submitted task of type 1.
+        :return: (c,s) where
+        *c* is the completion time;
+        *s* is the service time;
         """
         # Update state
-        self.n_1 += 1
+        self.n[task_type] += 1
 
         # Generate completion
-        t_service = self.get_service_time_task_1()
+        t_service = self.get_service_time(task_type)
         t_completion = t_arrival + t_service
-        completion_event = Event(EventType.COMPLETION_CLOUD_TASK_1, t_completion, t_service=t_service)
 
         # Update statistics
-        self.n_arrival_1 += 1
+        self.arrived[task_type] += 1
 
-        return completion_event
+        return t_completion, t_service
 
-    def submit_arrival_task_2(self, t_arrival):
+    def submit_restart(self, task_type, t_arrival, ratio_remaining):
         """
-        Submit to the Cloud the arrival of a task of type 2.
+        Submit to the Cloud the restart of a task.
+        :param task_type: (TaskType) the type of the task.
         :param t_arrival: (float) the arrival time.
-        :return: (SimpleEvent) the completion event of the submitted task of type 2.
+        :param ratio_remaining: (float) the remaining ratio.
+        :return: (c,s) where
+        *c* is the completion time;
+        *s* is the service time;
         """
         # Update state
-        self.n_2 += 1
+        self.n[task_type] += 1
 
         # Generate completion
-        t_service = self.get_service_time_task_2()
+        t_setup = self.get_setup_time()
+        t_service = ratio_remaining * self.get_service_time(task_type) + t_setup
         t_completion = t_arrival + t_service
-        completion_event = Event(EventType.COMPLETION_CLOUD_TASK_2, t_completion, t_service=t_service)
 
         # Update statistics
-        self.n_arrival_2 += 1
+        self.restarted[task_type] += 1
 
-        return completion_event
+        return t_completion, t_service
 
-    def submit_restart_task_2(self, t_arrival):
+    def submit_completion(self, task_type, t_completion, t_service):
         """
-        Submit to the Cloud the restart of a task of type 2.
-        :param t_arrival: (float) the arrival time.
-        :return: (SimpleEvent) the completion event of the submitted task of type 2.
-        """
-        # Update state
-        self.n_2 += 1
-
-        # Generate completion
-        t_setup = self.get_setup_time_task_2()
-        t_service = self.get_service_time_task_2()
-        t_completion = t_arrival + t_service
-        completion_event = Event(EventType.COMPLETION_CLOUD_TASK_2, t_completion, t_service=t_service, t_wait=t_setup)
-
-        # Update statistics
-        self.n_arrival_2 += 1
-        self.n_restarted_2 += 1
-        self.t_restart_2 += t_setup
-
-        return completion_event
-
-    def submit_completion_task_1(self, t_completion, t_service):
-        """
-        Submit to the Cloud the completion of a task of type 1.
+        Submit to the Cloud the completion of a task.
+        :param task_type: (TaskType) the type of the task.
         :param t_completion: (float) the completion time.
         :param t_service: (float) the service time.
         :return: None
         """
         # Check correctness
-        assert self.n_1 > 0
+        assert self.n[task_type] > 0
 
         # Update state
-        self.n_1 -= 1
+        self.n[task_type] -= 1
 
         # Update statistics
-        self.n_served_1 += 1
-        self.t_service_1 += t_service
-
-    def submit_completion_task_2(self, t_completion, t_service):
-        """
-        Submit to the Cloud the completion of a task of type 2.
-        :param t_completion: (float) the completion time.
-        :param t_service: (float) the service time.
-        :return: None
-        """
-        # Check correctness
-        assert self.n_2 > 0
-
-        # Update state
-        self.n_2 -= 1
-
-        # Update statistics
-        self.n_served_2 += 1
-        self.t_service_2 += t_service
+        self.completed[task_type] += 1
+        self.service[task_type] += t_service
 
     # ==================================================================================================================
     # RANDOM TIME GENERATION
-    #   * service time task 1
-    #   * service time task 2
-    #   * setup time task 2
+    #   * service time
+    #   * setup time
     # ==================================================================================================================
 
-    def get_service_time_task_1(self):
+    def get_service_time(self, task_type):
         """
-        Generate the service time for a task of type 1, exponentially distributed with rate *service_rate_1*.
+        Generate the service time for a task.
+        :param task_type: (TaskType) the type of the task.
         :return: (float) the service time for a task of type 1 (s).
         """
-        self._rndgen.stream(EventType.COMPLETION_CLOUD_TASK_1.value)
-        return exponential(1.0 / self.service_rate_1, self._rndgen.rnd())
+        self.rndgen.stream(self.streams[task_type])
+        return exponential(1.0 / self.rates[task_type], self.rndgen.rnd())
 
-    def get_service_time_task_2(self):
+    def get_setup_time(self):
         """
-        Generate the service time for a task of type 2, exponentially distributed with rate *service_rate_2*.
-        :return: (float) the service time for a task of type 2 (s).
+        Generate the setup time for a restarted task.
+        :return: (float) the setup time for a restarted task.
         """
-        self._rndgen.stream(EventType.COMPLETION_CLOUD_TASK_2.value)
-        return exponential(1.0 / self.service_rate_2, self._rndgen.rnd())
-
-    def get_setup_time_task_2(self):
-        """
-        Generate the setup time for a restarted task of type 2, exponentially distributed with mean *setup_mean*.
-        :return: (float) the setup time for a restarted task of type 2 (s).
-        """
-        self._rndgen.stream(EventType.RESTART_TASK_2.value)
-        return exponential(self.setup_mean, self._rndgen.rnd())
+        self.rndgen.stream(self.streams[EventType.RESTART_TASK_2])
+        return exponential(self.setup_mean, self.rndgen.rnd())
 
     # ==================================================================================================================
     # OTHER
@@ -186,4 +172,3 @@ class SimpleCloud:
         sb = ["{attr}={value}".format(attr=attr, value=self.__dict__[attr]) for attr in self.__dict__ if
               not attr.startswith("__") and not callable(getattr(self, attr))]
         return "Cloud({}:{})".format(id(self), ", ".join(sb))
-

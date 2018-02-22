@@ -1,9 +1,8 @@
 from core.simulation.model.server import SimpleServer as Server
-from core.simulation.model.server_selector import SelectionRule,ServerSelectorOrder,ServerSelectorCyclic, ServerSelectorEquity, ServerSelectorRandom
 from core.simulation.model.event import SimpleEvent as Event
 from core.simulation.model.event import EventType
+from core.simulation.model.server_selection_rule import SelectionRule
 from core.simulation.model.task import TaskType
-from core.random.rndvar import exponential
 import logging
 
 # Configure logger
@@ -25,45 +24,56 @@ class SimpleCloudlet:
         :param threshold: (int) the occupancy threshold.
         :param server_selection_rule: (SelectionRule) the adopted server selection rule.
         """
-        self._rndgen = rndgen
-        self.n_servers = n_servers
-        self.service_rate_1 = service_rate_1
-        self.service_rate_2 = service_rate_2
-        self.threshold = threshold
-        self.server_selection_rule = server_selection_rule
+        # Service rates
+        self.rates = {
+            TaskType.TASK_1: service_rate_1,
+            TaskType.TASK_2: service_rate_2
+        }
 
-        # servers initialization
-        self._servers = [Server(rndgen, service_rate_1, service_rate_2) for i in range(n_servers)]
-        if self.server_selection_rule is SelectionRule.ORDER:
-            self._server_selector = ServerSelectorOrder(self._servers)
-        elif self.server_selection_rule is SelectionRule.CYCLIC:
-            self._server_selector = ServerSelectorCyclic(self._servers)
-        elif self.server_selection_rule is SelectionRule.EQUITY:
-            self._server_selector = ServerSelectorEquity(self._servers)
-        elif self.server_selection_rule is SelectionRule.RANDOM:
-            self._server_selector = ServerSelectorRandom(self._servers)
-        else:
-            raise ValueError("Unrecognized server-selection rule: {}".format(self.server_selection_rule))
+        # Randomization
+        self.rndgen = rndgen
+        self.streams = {
+            TaskType.TASK_1: EventType.COMPLETION_CLOUDLET_TASK_1.value,
+            TaskType.TASK_2: EventType.COMPLETION_CLOUDLET_TASK_2.value
+        }
+
+        # Servers
+        self.n_servers = n_servers
+        self.threshold = threshold
+        self.servers = [Server(rndgen, service_rate_1, service_rate_2) for _ in range(n_servers)]
+        self.server_selector = server_selection_rule.selector(self.servers)
 
         if not (1 <= self.threshold <= self.n_servers):
             raise ValueError(
                 "Invalid threhsold: should be >= 1 and <= n_servers, but threshold is {} and n_servers is {}".format(
                     self.threshold, self.n_servers))
 
-        # state
-        self.n_1 = 0  # number of tasks of type 1 serving in the Cloudlet
-        self.n_2 = 0  # number of tasks of type 2 serving in the Cloudlet
+        # State
+        self.n = {
+            TaskType.TASK_1: 0,  # number of tasks of type 1 in Cloudlet
+            TaskType.TASK_2: 0  # number of tasks of type 2 in Cloudlet
+        }
 
-        # statistics
-        self.n_arrival_1 = 0  # number of tasks of type 1 arrived to the Cloudlet
-        self.n_arrival_2 = 0  # number of tasks of type 2 arrived to the Cloudlet
-        self.n_served_1 = 0  # number of tasks of type 1 served in the Cloudlet
-        self.n_served_2 = 0  # number of tasks of type 2 served in the Cloudlet
-        self.n_interrupted_2 = 0  # number of tasks of type 2 interrupted from the Cloudlet
+        # Statistics
+        self.arrived = {
+            TaskType.TASK_1: 0,  # number of tasks of type 1 arrived in Cloudlet
+            TaskType.TASK_2: 0  # number of tasks of type 2 arrived in Cloudlet
+        }
 
-        self.t_service_1 = 0.0  # the total service time for tasks of tye 1
-        self.t_service_2 = 0.0  # the total service time for tasks of tye 2
-        self.t_wasted_2 = 0.0  # the total service time wasted for interrupted tasks of type 2
+        self.completed = {
+            TaskType.TASK_1: 0,  # number of tasks of type 1 completed in Cloudlet
+            TaskType.TASK_2: 0  # number of tasks of type 2 completed in Cloudlet
+        }
+
+        self.interrupted = {
+            TaskType.TASK_1: 0,  # number of tasks of type 1 interrupted in Cloudlet
+            TaskType.TASK_2: 0  # number of tasks of type 2 interrupted in Cloudlet
+        }
+
+        self.service = {
+            TaskType.TASK_1: 0.0,  # the total service time for tasks of type 1
+            TaskType.TASK_2: 0.0  # the total service time for tasks of tye 2
+        }
 
     # ==================================================================================================================
     # EVENT SUBMISSION
@@ -73,141 +83,77 @@ class SimpleCloudlet:
     #   * COMPLETION_CLOUDLET_TASK_2
     # ==================================================================================================================
 
-    def submit_arrival_task_1(self, t_arrival):
+    def submit_arrival(self, task_type, t_arrival):
         """
-        Submit to the Cloudlet the arrival of a task of type 1.
+        Submit the arrival of a task.
+        :param task_type: (TaskType) the type of the task.
         :param t_arrival: (float) the arrival time.
-        :return: (SimpleEvent) the completion event of the submitted task of type 1.
+        :return: (c,s) where
+        *c* is the completion time;
+        *s* is the service time;
         """
         # Check correctness
-        assert self.n_1 + self.n_2 < self.n_servers
+        assert self.n[task_type] + self.n[task_type] < self.n_servers
 
         # Update state
-        server_idx = self._server_selector.select_idle()
+        server_idx = self.server_selector.select_idle()
         if server_idx is None:
-            raise RuntimeError("Cannot find idle server for arrival of task of type 1")
-        t_completion, t_service = self._servers[server_idx].submit_task_1(t_arrival)
-        self.n_1 += 1
+            raise RuntimeError("Cannot find server for arrival of task {} at time {}".format(task_type, t_arrival))
+        t_completion, t_service = self.servers[server_idx].submit_arrival(task_type, t_arrival)
+        self.n[task_type] += 1
 
         # Update statistics
-        self.n_arrival_1 += 1
+        self.arrived[task_type] += 1
 
-        # Generate completion
-        completion_event = Event(EventType.COMPLETION_CLOUDLET_TASK_1, t_completion, t_service=t_service)
+        return t_completion, t_service
 
-        return completion_event
-
-    def submit_arrival_task_2(self, t_arrival):
+    def submit_interruption(self, task_type, t_interruption):
         """
-        Submit to the Cloudlet the arrival of a task of type 2.
-        :param t_arrival: (float) the occurrence time of the event.
-        :return: (SimpleEvent) the completion event of the submitted task of type 2.
+        Submit the interruption of a task.
+        :param task_type: (TaskType) the type of the task.
+        :param t_interruption: (float) the interruption time.
+        :return: (c,w,s,r) where
+        *c* is the completion time to ignore;
+        *a* is the arrival time;
+        *s* is the served time;
+        *r* is the remaining ratio;
         """
         # Check correctness
-        assert self.n_1 + self.n_2 < self.n_servers
+        assert self.n[task_type] > 0
 
         # Update state
-        server_idx = self._server_selector.select_idle()
+        server_idx = self.server_selector.select_interruption(task_type)
         if server_idx is None:
-            raise RuntimeError("Cannot find free server for arrival of task of type 2")
-        t_completion, t_service = self._servers[server_idx].submit_task_2(t_arrival)
-        self.n_2 += 1
+            raise RuntimeError("Cannot find server for interruption of task {} at time {}".format(task_type, t_interruption))
+        t_completion_to_ignore, t_arrival, t_served, ratio_remaining = self.servers[server_idx].submit_interruption(task_type, t_interruption)
+        self.n[task_type] -= 1
 
         # Update statistics
-        self.n_arrival_2 += 1
+        self.interrupted[task_type] += 1
+        self.service[task_type] += t_served
 
-        # Generate completion
-        completion_event = Event(EventType.COMPLETION_CLOUDLET_TASK_2, t_completion, t_service=t_service)
+        return t_completion_to_ignore, t_arrival, t_served, ratio_remaining
 
-        return completion_event
-
-    def submit_interruption_task_2(self, t_removal):
+    def submit_completion(self, task_type, t_completion):
         """
-        Submit to the Cloudlet the interruption of a task of type 2.
-        :param t_removal: (float) the time of removal.
-        :return: (e,w) where *e* is the completion event to ignore of the submitted task of type 2;
-        *w* is the wasted time.
-        """
-        # Check correctness
-        assert self.n_2 > 0
-
-        # Update state
-        server_idx = self._server_selector.select_interruption()
-        if server_idx is None:
-            raise RuntimeError("Cannot find interruption server at time {}".format((t_removal)))
-        t_completion_to_ignore, t_arrival, t_wasted = self._servers[server_idx].interrupt_task_2(t_removal)
-        self.n_2 -= 1
-
-        # Update statistics
-        self.n_interrupted_2 += 1
-        self.t_wasted_2 += t_wasted
-
-        # Generate completion event to ignore
-        completion_event_to_ignore = Event(EventType.COMPLETION_CLOUDLET_TASK_2, t_completion_to_ignore)
-
-        return completion_event_to_ignore, t_wasted
-
-    def submit_completion_task_1(self, t_completion):
-        """
-        Submit to the Cloudlet the completion of a task of type 1.
+        Submit the completion of a task.
+        :param task_type: (TaskType) the type of the task.
         :param t_completion: (float) the completion time.
         :return: None
         """
         # Check correctness
-        assert self.n_1 > 0
+        assert self.n[task_type] > 0
 
         # Update state
-        server_idx = self.find_completion_server_idx(TaskType.TASK_1, t_completion)
+        server_idx = self.find_completion_server_idx(task_type, t_completion)
         if server_idx is None:
-            raise RuntimeError("Cannot find server for task of type 1 and t_completion={}".format(t_completion))
-        t_service = self._servers[server_idx].submit_completion()
-        self.n_1 -= 1
+            raise RuntimeError("Cannot find server for completion of task {} at time {}".format(task_type, t_completion))
+        t_service = self.servers[server_idx].submit_completion()
+        self.n[task_type] -= 1
 
         # Update statistics
-        self.n_served_1 += 1
-        self.t_service_1 += t_service
-
-    def submit_completion_task_2(self, t_completion):
-        """
-        Submit to the Cloudlet the completion of a task of type 2.
-        :param t_completion: (float) the completion time.
-        :return: None
-        """
-        # Check correctness
-        assert self.n_2 > 0
-
-        # Update state
-        server_idx = self.find_completion_server_idx(TaskType.TASK_2, t_completion)
-        if server_idx is None:
-            raise RuntimeError("Cannot find completion server for task of type 2 and t_completion={}\n{}".format(t_completion, str(self._servers)))
-        t_service = self._servers[server_idx].submit_completion()
-        self.n_2 -= 1
-
-        # Update statistics
-        self.n_served_2 += 1
-        self.t_service_2 += t_service
-
-    # ==================================================================================================================
-    # RANDOM TIME GENERATION
-    #   * service time task 1
-    #   * service time task 2
-    # ==================================================================================================================
-
-    def get_service_time_task_1(self):
-        """
-        Generate the service time for a task of type 1, exponentially distributed with rate *service_rate_1*.
-        :return: (float) the completion time for a task of type 1 (s).
-        """
-        self._rndgen.stream(EventType.COMPLETION_CLOUDLET_TASK_1.value)
-        return exponential(1.0 / self.service_rate_1, self._rndgen.rnd())
-
-    def get_service_time_task_2(self):
-        """
-        Generate the service time for a task of type 2, exponentially distributed with rate *service_rate_2*.
-        :return: (float) the completion time for a task of type 2 (s).
-        """
-        self._rndgen.stream(EventType.COMPLETION_CLOUDLET_TASK_2.value)
-        return exponential(1.0 / self.service_rate_2, self._rndgen.rnd())
+        self.completed[task_type] += 1
+        self.service[task_type] += t_service
 
     # ==================================================================================================================
     # OTHER
@@ -220,7 +166,7 @@ class SimpleCloudlet:
         :param t_completion: (float) the completion time.
         :return: (int) the index of the completion server, if present; None, otherwise.
         """
-        for idx, server in enumerate(self._servers):
+        for idx, server in enumerate(self.servers):
             if server.task_type is task_type and server.t_completion == t_completion:
                 return idx
         return None
