@@ -1,9 +1,7 @@
 """
 Utilities for file system management.
 """
-
-import errno
-from os import path, makedirs
+import os
 
 
 def create_dir_tree(filename):
@@ -12,37 +10,34 @@ def create_dir_tree(filename):
     :param filename:
     :return: (void)
     """
-    if not path.exists(path.dirname(filename)):
-        try:
-            makedirs(path.dirname(filename))
-        except OSError as exc:
-            if exc.errno != errno.EEXIST:
-                raise
+    dirname = os.path.dirname(filename)
+    dirname = dirname if len(dirname) != 0 else os.path.curdir
+    os.makedirs(dirname, exist_ok=True)
 
 
 def save_list_of_numbers(filename, numbers):
-    makedirs(path.dirname(filename), exist_ok=True)
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
     with open(filename, "w+") as resfile:
         for value in numbers:
             resfile.write(str(value) + "\n")
 
 
 def append_list_of_numbers(filename, numbers):
-    makedirs(path.dirname(filename), exist_ok=True)
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
     with open(filename, "a") as resfile:
         for value in numbers:
             resfile.write(str(value) + "\n")
 
 
 def save_list_of_pairs(filename, pairs):
-    makedirs(path.dirname(filename), exist_ok=True)
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
     with open(filename, 'w+') as resfile:
         for pair in pairs:
             resfile.write("{},{}\n".format(pair[0], pair[1]))
 
 
 def append_list_of_pairs(filename, pairs):
-    makedirs(path.dirname(filename), exist_ok=True)
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
     with open(filename, "a") as resfile:
         for pair in pairs:
             resfile.write("{},{}\n".format(pair[0], pair[1]))

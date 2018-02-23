@@ -15,7 +15,7 @@ Results (best jumper and jump size):
 Notes: results are stored in folder 'out'.
 """
 from core.random.inspection import jumper_finder
-from core.utils.report import SimpleReport
+from core.simulation.model.report import SimpleReport
 from os import path
 from core.utils.file_utils import save_list_of_pairs
 
@@ -51,7 +51,7 @@ def experiment(modulus, multiplier, streams, outdir=DEFAULT_OUTDIR):
     r.add("Result", "Best Jumper", jmax[0])
     r.add("Result", "Best Jump Size", jmax[1])
 
-    r.save(filename + "_report.txt")
+    r.save_txt(filename + "_report.txt")
 
     print(r)
 

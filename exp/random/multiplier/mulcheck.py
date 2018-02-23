@@ -13,7 +13,7 @@ Results (largest FP/MC multiplier):
 Notes: results are stored in folder 'out'.
 """
 from core.random.inspection import multiplier_check
-from core.utils.report import SimpleReport
+from core.simulation.model.report import SimpleReport
 from os import path
 
 # Default parameters
@@ -45,7 +45,7 @@ def experiment(modulus, multiplier, outdir=DEFAULT_OUTDIR):
     r.add("Result", "MC", is_mcm)
     r.add("Result", "FP/MC", is_fpmcm)
 
-    r.save(filename + "_report.txt")
+    r.save_txt(filename + "_report.txt")
 
     print(r)
 

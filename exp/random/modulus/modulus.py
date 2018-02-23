@@ -13,7 +13,7 @@ Results:
 Notes: results are stored in folder 'out'.
 """
 from core.random.inspection import modulus_finder
-from core.utils.report import SimpleReport
+from core.simulation.model.report import SimpleReport
 from os import path
 
 DEFAULT_BITS = 32
@@ -30,7 +30,7 @@ def experiment(bits):
     r = SimpleReport("MODULUS")
     r.add("General", "Bits", bits)
     r.add("Result", "Modulus", modulus)
-    r.save(path.join("out", "modulus_{}.txt".format(bits)))
+    r.save_txt(path.join("out", "modulus_{}.txt".format(bits)))
 
     print(r)
 

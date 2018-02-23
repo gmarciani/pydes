@@ -4,7 +4,7 @@ Experiment: Gap Test of Independence.
 
 from core.random.rndgen import MarcianiMultiStream as RandomGenerator
 from _ignore.randomness import gap as test
-from core.utils.report import SimpleReport
+from core.simulation.model.report import SimpleReport
 from exp import EXP_DIR, PLT_EXT, RES_EXT
 
 
@@ -68,7 +68,7 @@ def experiment(generator=GENERATOR,
     r.add('Result', 'Confidence', '%.3f %%' % (sugg_confidence * 100))
 
     rep_filename = '{}.{}'.format(filename, RES_EXT)
-    r.save(rep_filename)
+    r.save_txt(rep_filename)
 
     print(r)
 

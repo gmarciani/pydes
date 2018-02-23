@@ -1,6 +1,7 @@
 general:
-  n_batch: 10  # the number of batches
-  t_batch: 100  # the stop time for a batch (s) 1hour=3600, 1day=86400, 1week=604800, 1month=2.628e+6
+  n_batch: 50  # the number of batches
+  t_batch: 500  # the stop time for a batch (s) 1hour=3600, 1day=86400, 1week=604800, 1month=2.628e+6
+  i_batch: 0  # the number of batches to ignore, due to the transient
   confidence: 0.95  # the level of confidence
   random:
     generator: "MarcianiMultiStream"  # the class name of the random generator

@@ -1,5 +1,5 @@
 import unittest
-from core.utils.report import SimpleReport
+from core.simulation.model.report import SimpleReport
 
 
 class ReportTest(unittest.TestCase):
@@ -75,7 +75,7 @@ class ReportTest(unittest.TestCase):
         s += "2nd Value....................................2.123\n"
         s += "3rd Value..............................Hello World\n"
 
-        self.r.save(self.file_txt)
+        self.r.save_txt(self.file_txt)
 
         with open(self.file_txt, "r") as f:
             actual = f.read()

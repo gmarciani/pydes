@@ -4,7 +4,7 @@ Utility classes that realize reports for experiments.
 
 
 from collections import OrderedDict
-import os
+from core.utils.file_utils import create_dir_tree
 
 
 class SimpleReport(object):
@@ -78,17 +78,15 @@ class SimpleReport(object):
                 return elem[1]
         return None
 
-    def save(self, filename):
+    def save_txt(self, filename):
         """
         Save the report onto a file.
         :param filename: (string) the absolute file path.
         :return: (void)
         """
-        dirname = os.path.dirname(filename)
-        dirname = dirname if len(dirname) != 0 else os.path.curdir
-        os.makedirs(dirname, exist_ok=True)
-        with open(filename, "w+") as outfile:
-            outfile.write(str(self))
+        create_dir_tree(filename)
+        with open(filename, "w+") as f:
+            f.write(str(self))
 
     def save_csv(self, filename, skip_header=False):
         """
@@ -97,10 +95,7 @@ class SimpleReport(object):
         :param skip_header: (bool) if True, header is skipped.
         :return: (void)
         """
-        dirname = os.path.dirname(filename)
-        dirname = dirname if len(dirname) != 0 else os.path.curdir
-        os.makedirs(dirname, exist_ok=True)
-
+        create_dir_tree(filename)
         if not skip_header:
             self.save_header_csv(filename)
         self.append_csv(filename)
@@ -111,13 +106,13 @@ class SimpleReport(object):
         :param filename: (string) the absolute file path.
         :return: (void)
         """
-        with open(filename, "w+") as outfile:
-            outfile.write("name,")
+        with open(filename, "w+") as f:
+            f.write("name,")
             for section in self.params:
                 headers = ["{}.{}".format(self.str_csv_format(section), self.str_csv_format(p[0])) for p in self.params[section]]
-                outfile.write(",".join(headers))
-                outfile.write(",")
-            outfile.write("\n")
+                f.write(",".join(headers))
+                f.write(",")
+            f.write("\n")
 
     def str_csv_format(self, s):
         return s.lower().replace(" ", "_")
@@ -128,13 +123,13 @@ class SimpleReport(object):
         :param filename: (string) the absolute file path.
         :return: (void)
         """
-        with open(filename, "a+") as resfile:
-            resfile.write("{},".format(self.title))
+        with open(filename, "a+") as f:
+            f.write("{},".format(self.title))
             for section in self.params:
                 values = [str(p[1]) for p in self.params[section]]
-                resfile.write(",".join(values))
-                resfile.write(",")
-            resfile.write("\n")
+                f.write(",".join(values))
+                f.write(",")
+            f.write("\n")
 
     def __str__(self):
         title_separator = "=" * 50

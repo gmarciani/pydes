@@ -39,13 +39,28 @@ class BatchedStatistic(metaclass=ABCMeta):
         self.batch_means = []
         self.curr_statistic = None  # abstract attribute
 
-    def close_batch(self):
+    def get_batch_value(self, batch):
         """
-        Close the current batch.
+        Get the value for the specified batch.
+        :param batch: (int) the batch index.
+        :return: the value for the specified batch.
+        """
+        return self.batch_means[batch]
+
+    def register_batch(self):
+        """
+        Register and close the current batch.
         :return: None
         """
         curr_batch_mean = self.curr_statistic.mean()
         self.batch_means.append(curr_batch_mean)
+        self.curr_statistic.reset()
+
+    def discard_batch(self):
+        """
+        Discard the current batch.
+        :return: None
+        """
         self.curr_statistic.reset()
 
     def nbatch(self):

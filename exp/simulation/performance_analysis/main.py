@@ -1,8 +1,6 @@
 """
-Experiment: Evaluate system performance, according to settings in 'experiment_1.yaml'
-Simulate the system model with N=20 and evaluate the system response time and the effective throughput
-as a function of the threshold S.
-Results are stored in 'experiment_1.csv' and can be viewed as plots running the Matlab script 'experiment_1.m'
+PERFORMANCE ANALYSIS: Evaluate the system performance, according to settings in 'config.yaml'
+Results are stored in 'result.csv' and can be visualized running the Matlab script 'result.m'
 """
 
 from core.simulation.simulation import Simulation as Simulation
@@ -22,20 +20,24 @@ THRESHOLDS = range(1, 21, 1)
 
 
 if __name__ == "__main__":
-    from time import sleep
     config = config = load_configuration(CONFIG_PATH)
 
     simulation_counter = 0
     simulation_max = len(THRESHOLDS)
-
     header_saved = False
+
+    logger.info("Launching performance analysis with n_batch={}, t_batch={}, i_batch={}, thresholds={}".format(
+        config["general"]["n_batch"],
+        config["general"]["t_batch"],
+        config["general"]["i_batch"],
+        THRESHOLDS
+    ))
+
     for threshold in THRESHOLDS:
         simulation_counter += 1
         config["system"]["cloudlet"]["threshold"] = threshold
         logger.info("Simulating {}/{} with threshold {}".format(simulation_counter, simulation_max, threshold))
-        sleep(0.1)
         simulation = Simulation(config, "SIMULATION-THRESHOLD-{}".format(threshold))
         simulation.run()
-        report = simulation.generate_report()
-        report.save_csv(RESULT_PATH, skip_header=header_saved)
+        report = simulation.generate_report().save_csv(RESULT_PATH, skip_header=header_saved)
         header_saved = True

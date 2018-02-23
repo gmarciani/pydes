@@ -19,7 +19,7 @@ Results:
 """
 from core.random.rndgen import MarcianiSingleStream
 from core.random.randomness import spectral as test
-from core.utils.report import SimpleReport
+from core.simulation.model.report import SimpleReport
 from os import path
 
 
@@ -52,7 +52,7 @@ def experiment(generator, samsize, interval, outdir):
     r.add("Test Parameters", "Sample Size", samsize)
     r.add("Test Parameters", "Interval", interval)
 
-    r.save(filename + "_report.txt")
+    r.save_txt(filename + "_report.txt")
     r.save_csv(filename + "_report.csv")
 
     print(r)

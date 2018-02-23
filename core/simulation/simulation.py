@@ -1,12 +1,12 @@
 from core.simulation.model.system import SimpleCloudletCloudSystem as System
 from core.simulation.model.task import Task
-from core.utils.report import SimpleReport as Report
+from core.simulation.model.report import SimpleReport as Report
 from core.random import rndgen
 from core.simulation.model.taskgen import SimpleTaskgen as Taskgen
 from core.simulation.model.calendar import NextEventCalendar as Calendar
 from core.simulation.model.event import EventType, Action
 from core.utils.guiutils import print_progress
-from core.simulation.model.statistics import SimulationStatistics
+from core.simulation.model.statistics import BatchStatistics
 from core.utils.logutils import ConsoleHandler
 import logging
 
@@ -30,12 +30,13 @@ class Simulation:
         self.name = name
 
         # The statistics
-        self.statistics = SimulationStatistics()
+        self.statistics = BatchStatistics()
 
         # Configuration - General
         config_general = config["general"]
         self.n_batch = config_general["n_batch"]
         self.t_batch = config_general["t_batch"]
+        self.i_batch = config_general["i_batch"]
         self.t_stop = self.n_batch * self.t_batch
         self.confidence = config_general["confidence"]
         self.rndgen = getattr(rndgen, config_general["random"]["generator"])(config_general["random"]["seed"])
@@ -120,8 +121,13 @@ class Simulation:
                 # Simulation progress
                 print_progress(self.calendar.get_clock(), self.t_stop)
 
+            # Process the current batch
+            if self.curr_batch >= self.i_batch:
+                self.statistics.register_batch()
+            else:
+                self.statistics.discard_batch()
+
             # Go to the next batch
-            self.statistics.close_batch()
             self.curr_batch += 1
 
         # Simulation End.
@@ -131,11 +137,11 @@ class Simulation:
     # REPORT
     # ==================================================================================================================
 
-    def generate_report(self, prec=3):
+    def generate_report(self, prc=3):
         """
-        Generate a full report about the given simulation.
-        :param prec: (int) the number of decimals for float values.
-        :return: (SimpleReport) the report.
+        Generate the statistics report.
+        :param prc: (int) the number of decimals for float values.
+        :return: (SimpleReport) the statistics report.
         """
         r = Report(self.name)
 
@@ -145,6 +151,7 @@ class Simulation:
         r.add("general", "t_stop", self.t_stop)
         r.add("general", "n_batch", self.n_batch)
         r.add("general", "t_batch", self.t_batch)
+        r.add("general", "i_batch", self.i_batch)
         r.add("general", "random_generator", self.rndgen.__class__.__name__)
         r.add("general", "random_seed", self.rndgen.get_initial_seed())
 
@@ -166,13 +173,53 @@ class Simulation:
         r.add("system/cloud", "setup_mean", self.system.cloud.setup_mean)
 
         # Report - System/Statistics
-        r.add("system/statistics", "t_response_mean", round(self.statistics.t_response.mean(), prec))
-        r.add("system/statistics", "t_response_sdev", round(self.statistics.t_response.sdev(), prec))
-        r.add("system/statistics", "t_response_cint", round(self.statistics.t_response.cint(alpha), prec))
+        r.add("system/statistics", "t_response_mean", round(self.statistics.t_response.mean(), prc))
+        r.add("system/statistics", "t_response_sdev", round(self.statistics.t_response.sdev(), prc))
+        r.add("system/statistics", "t_response_cint", round(self.statistics.t_response.cint(alpha), prc))
 
-        r.add("system/statistics", "throughput_mean", round(self.statistics.throughput.mean(), prec))
-        r.add("system/statistics", "throughput_sdev", round(self.statistics.throughput.sdev(), prec))
-        r.add("system/statistics", "throughput_cint", round(self.statistics.throughput.cint(alpha), prec))
+        r.add("system/statistics", "throughput_mean", round(self.statistics.throughput.mean(), prc))
+        r.add("system/statistics", "throughput_sdev", round(self.statistics.throughput.sdev(), prc))
+        r.add("system/statistics", "throughput_cint", round(self.statistics.throughput.cint(alpha), prc))
+
+        return r
+
+    def generate_batch_report(self, prc=3):
+        """
+        Generate the batch report.
+        :param prc: (int) the number of decimals for float values.
+        :return: (SimpleReport) the batch report.
+        """
+        r = Report(self.name)
+
+        # Report - General
+        r.add("general", "t_stop", self.t_stop)
+        r.add("general", "n_batch", self.n_batch)
+        r.add("general", "t_batch", self.t_batch)
+        r.add("general", "i_batch", self.i_batch)
+        r.add("general", "random_generator", self.rndgen.__class__.__name__)
+        r.add("general", "random_seed", self.rndgen.get_initial_seed())
+
+        # Report - Tasks
+        r.add("tasks", "arrival_rate_1", self.taskgen.rates[Task.TASK_1])
+        r.add("tasks", "arrival_rate_2", self.taskgen.rates[Task.TASK_2])
+        r.add("tasks", "n_generated_1", self.taskgen.generated[Task.TASK_1])
+        r.add("tasks", "n_generated_2", self.taskgen.generated[Task.TASK_2])
+
+        # Report - System/Cloudlet
+        r.add("system/cloudlet", "service_rate_1", self.system.cloudlet.rates[Task.TASK_1])
+        r.add("system/cloudlet", "service_rate_2", self.system.cloudlet.rates[Task.TASK_2])
+        r.add("system/cloudlet", "n_servers", self.system.cloudlet.n_servers)
+        r.add("system/cloudlet", "threshold", self.system.cloudlet.threshold)
+
+        # Report - System/Cloud
+        r.add("system/cloud", "service_rate_1", self.system.cloud.rates[Task.TASK_1])
+        r.add("system/cloud", "service_rate_2", self.system.cloud.rates[Task.TASK_2])
+        r.add("system/cloud", "setup_mean", self.system.cloud.setup_mean)
+
+        # Report - System/
+        for b in range(self.statistics.n_batches):
+            r.add("system/batch-{}".format(b), "t_response_mean", round(self.statistics.t_response.get_batch_value(b), prc))
+            r.add("system/batch-{}".format(b), "throughput_mean", round(self.statistics.throughput.get_batch_value(b), prc))
 
         return r
 

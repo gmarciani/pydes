@@ -22,7 +22,7 @@ Notes: results are stored in folder 'out' and can be visualized by running the M
 from core.random.rndgen import MarcianiMultiStream
 from core.random.randomness import kolmogorov_smirnov as test
 from core.random.randomness import extremes
-from core.utils.report import SimpleReport
+from core.simulation.model.report import SimpleReport
 from core.utils.file_utils import save_list_of_pairs
 from os import path
 
@@ -91,7 +91,7 @@ def experiment(generator, test_name, test_params, outdir=DEFAULT_OUTDIR):
     r.add("KS", "KS Critical Distance", round(ks_critical_distance, 3))
     r.add("Result", "Success", success)
 
-    r.save(filename + "_report.txt")
+    r.save_txt(filename + "_report.txt")
     r.save_csv(filename + "_report.csv")
 
     print(r)
