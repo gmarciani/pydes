@@ -1,5 +1,5 @@
 from core.simulation.model.system import SimpleCloudletCloudSystem as System
-from core.simulation.model.task import TaskType
+from core.simulation.model.task import Task
 from core.utils.report import SimpleReport as Report
 from core.random import rndgen
 from core.simulation.model.taskgen import SimpleTaskgen as Taskgen
@@ -64,9 +64,6 @@ class Simulation:
         # (iii) unscheduling of events to ignore, e.g. completion in Cloudlet of interrupted tasks of type 2.
         self.calendar = Calendar(0.0, self.t_stop, [EventType.ARRIVAL_TASK_1, EventType.ARRIVAL_TASK_2])
 
-        # The closed door status: if True, no more arrivals will be accepted.
-        #self.closed_door = False
-
         # The index of the current batch
         self.curr_batch = 0
 
@@ -86,8 +83,8 @@ class Simulation:
         # Initialize first arrivals
         # Schedule the first events, i.e. task of type 1 and 2.
         # Notice that the event order by arrival time is managed internally by the Calendar.
-        self.calendar.schedule(self.taskgen.generate(TaskType.TASK_1, self.calendar.get_clock()))
-        self.calendar.schedule(self.taskgen.generate(TaskType.TASK_2, self.calendar.get_clock()))
+        self.calendar.schedule(self.taskgen.generate(Task.TASK_1, self.calendar.get_clock()))
+        self.calendar.schedule(self.taskgen.generate(Task.TASK_2, self.calendar.get_clock()))
 
         # Run the simulation while the calendar clock is less than the stop time.
         while self.calendar.get_clock() < self.t_stop:
@@ -101,18 +98,18 @@ class Simulation:
                 event = self.calendar.get_next_event()
                 logger.debug("Next: %s", event)
 
-                # Process the event
+                # Submit the event to the system.
+                # Notice that every submission generates some other events to be scheduled/unscheduled,
+                # e.g., completions and interruptions (i.e., completions to be ignored).
                 events_to_schedule, events_to_unschedule = self.system.submit(event)
 
-                # Schedule response events
-                for event in events_to_schedule:
-                    self.calendar.schedule(event)
-
-                # Unschedule response events
-                for event in events_to_unschedule:
-                    self.calendar.unschedule(event)
+                # Schedule/Unschedule response events
+                self.calendar.schedule(*events_to_schedule)
+                self.calendar.unschedule(*events_to_unschedule)
 
                 # If the event is an arrival, schedule a new arrival of the same type
+                # Notice that the next arrival generation is not managed by the system, because it is an event that
+                # is related to the simulation paradigm, not to the internal mechanism of the system.
                 if event.type.action is Action.ARRIVAL:
                     next_arrival = self.taskgen.generate(event.type.task, self.calendar.get_clock())
                     self.calendar.schedule(next_arrival)
@@ -150,20 +147,20 @@ class Simulation:
         r.add("general", "random_seed", self.rndgen.get_initial_seed())
 
         # Report - Tasks
-        r.add("tasks", "arrival_rate_1", self.taskgen.rates[TaskType.TASK_1])
-        r.add("tasks", "arrival_rate_2", self.taskgen.rates[TaskType.TASK_2])
-        r.add("tasks", "n_generated_1", self.taskgen.generated[TaskType.TASK_1])
-        r.add("tasks", "n_generated_2", self.taskgen.generated[TaskType.TASK_2])
+        r.add("tasks", "arrival_rate_1", self.taskgen.rates[Task.TASK_1])
+        r.add("tasks", "arrival_rate_2", self.taskgen.rates[Task.TASK_2])
+        r.add("tasks", "n_generated_1", self.taskgen.generated[Task.TASK_1])
+        r.add("tasks", "n_generated_2", self.taskgen.generated[Task.TASK_2])
 
         # Report - System/Cloudlet
-        r.add("system/cloudlet", "service_rate_1", self.system.cloudlet.rates[TaskType.TASK_1])
-        r.add("system/cloudlet", "service_rate_2", self.system.cloudlet.rates[TaskType.TASK_2])
+        r.add("system/cloudlet", "service_rate_1", self.system.cloudlet.rates[Task.TASK_1])
+        r.add("system/cloudlet", "service_rate_2", self.system.cloudlet.rates[Task.TASK_2])
         r.add("system/cloudlet", "n_servers", self.system.cloudlet.n_servers)
         r.add("system/cloudlet", "threshold", self.system.cloudlet.threshold)
 
         # Report - System/Cloud
-        r.add("system/cloud", "service_rate_1", self.system.cloud.rates[TaskType.TASK_1])
-        r.add("system/cloud", "service_rate_2", self.system.cloud.rates[TaskType.TASK_2])
+        r.add("system/cloud", "service_rate_1", self.system.cloud.rates[Task.TASK_1])
+        r.add("system/cloud", "service_rate_2", self.system.cloud.rates[Task.TASK_2])
         r.add("system/cloud", "setup_mean", self.system.cloud.setup_mean)
 
         # Report - System/Statistics

@@ -4,7 +4,7 @@ from core.random.rndvar import exponential
 import logging
 
 # Configure logger
-from core.simulation.model.task import TaskType
+from core.simulation.model.task import Task
 
 logger = logging.getLogger(__name__)
 
@@ -24,8 +24,8 @@ class SimpleCloud:
         """
         # Service rates
         self.rates = {
-            TaskType.TASK_1: service_rate_1,
-            TaskType.TASK_2: service_rate_2
+            Task.TASK_1: service_rate_1,
+            Task.TASK_2: service_rate_2
         }
 
         # Setup
@@ -34,37 +34,19 @@ class SimpleCloud:
         # Randomization
         self.rndgen = rndgen
         self.streams = {
-            TaskType.TASK_1: EventType.COMPLETION_CLOUD_TASK_1.value,
-            TaskType.TASK_2: EventType.COMPLETION_CLOUD_TASK_2.value,
-            EventType.RESTART_TASK_2: EventType.RESTART_TASK_2.value
+            Task.TASK_1: EventType.COMPLETION_CLOUD_TASK_1.value,
+            Task.TASK_2: EventType.COMPLETION_CLOUD_TASK_2.value,
+            EventType.SWITCH_TASK_2: EventType.SWITCH_TASK_2.value
         }
 
         # State
-        self.n = {
-            TaskType.TASK_1: 0,  # number of current tasks of type 1
-            TaskType.TASK_2: 0  # number of current tasks of type 2
-        }
+        self.n = {task: 0 for task in Task}  # current number of tasks, by task type
 
         # Statistics
-        self.arrived = {
-            TaskType.TASK_1: 0,  # number of arrived tasks of type 1
-            TaskType.TASK_2: 0  # number of arrived tasks of type 2
-        }
-
-        self.completed = {
-            TaskType.TASK_1: 0,  # number of completed tasks of type 1
-            TaskType.TASK_2: 0  # number of completed tasks of type 2
-        }
-
-        self.restarted = {
-            TaskType.TASK_1: 0,  # number of interrupted tasks of type 1
-            TaskType.TASK_2: 0  # number of interrupted tasks of type 2
-        }
-
-        self.service = {
-            TaskType.TASK_1: 0.0,  # the total service time for tasks of type 1
-            TaskType.TASK_2: 0.0  # the total service time for tasks of tye 2
-        }
+        self.arrived = {task: 0 for task in Task}  # total number of arrived tasks, by task type
+        self.completed = {task: 0 for task in Task}  # total number of completed tasks, by task type
+        self.restarted = {task: 0 for task in Task}  # total number of restarted tasks, by task type
+        self.service = {task: 0 for task in Task}  # total service time, by task type
 
     # ==================================================================================================================
     # EVENT SUBMISSION
@@ -157,7 +139,7 @@ class SimpleCloud:
         Generate the setup time for a restarted task.
         :return: (float) the setup time for a restarted task.
         """
-        self.rndgen.stream(self.streams[EventType.RESTART_TASK_2])
+        self.rndgen.stream(self.streams[EventType.SWITCH_TASK_2])
         return exponential(self.setup_mean, self.rndgen.rnd())
 
     # ==================================================================================================================

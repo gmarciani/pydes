@@ -2,7 +2,7 @@ from core.simulation.model.server import SimpleServer as Server
 from core.simulation.model.event import SimpleEvent as Event
 from core.simulation.model.event import EventType
 from core.simulation.model.server_selection_rule import SelectionRule
-from core.simulation.model.task import TaskType
+from core.simulation.model.task import Task
 import logging
 
 # Configure logger
@@ -26,15 +26,15 @@ class SimpleCloudlet:
         """
         # Service rates
         self.rates = {
-            TaskType.TASK_1: service_rate_1,
-            TaskType.TASK_2: service_rate_2
+            Task.TASK_1: service_rate_1,
+            Task.TASK_2: service_rate_2
         }
 
         # Randomization
         self.rndgen = rndgen
         self.streams = {
-            TaskType.TASK_1: EventType.COMPLETION_CLOUDLET_TASK_1.value,
-            TaskType.TASK_2: EventType.COMPLETION_CLOUDLET_TASK_2.value
+            Task.TASK_1: EventType.COMPLETION_CLOUDLET_TASK_1.value,
+            Task.TASK_2: EventType.COMPLETION_CLOUDLET_TASK_2.value
         }
 
         # Servers
@@ -49,31 +49,13 @@ class SimpleCloudlet:
                     self.threshold, self.n_servers))
 
         # State
-        self.n = {
-            TaskType.TASK_1: 0,  # number of tasks of type 1 in Cloudlet
-            TaskType.TASK_2: 0  # number of tasks of type 2 in Cloudlet
-        }
+        self.n = {task: 0 for task in Task}  # current number of tasks, by task type
 
         # Statistics
-        self.arrived = {
-            TaskType.TASK_1: 0,  # number of tasks of type 1 arrived in Cloudlet
-            TaskType.TASK_2: 0  # number of tasks of type 2 arrived in Cloudlet
-        }
-
-        self.completed = {
-            TaskType.TASK_1: 0,  # number of tasks of type 1 completed in Cloudlet
-            TaskType.TASK_2: 0  # number of tasks of type 2 completed in Cloudlet
-        }
-
-        self.interrupted = {
-            TaskType.TASK_1: 0,  # number of tasks of type 1 interrupted in Cloudlet
-            TaskType.TASK_2: 0  # number of tasks of type 2 interrupted in Cloudlet
-        }
-
-        self.service = {
-            TaskType.TASK_1: 0.0,  # the total service time for tasks of type 1
-            TaskType.TASK_2: 0.0  # the total service time for tasks of tye 2
-        }
+        self.arrived = {task: 0 for task in Task}  # total number of arrived tasks, by task type
+        self.completed = {task: 0 for task in Task}  # total number of completed tasks, by task type
+        self.interrupted = {task: 0 for task in Task}  # total number of interrupted tasks, by task type
+        self.service = {task: 0 for task in Task}  # total service time, by task type
 
     # ==================================================================================================================
     # EVENT SUBMISSION
@@ -93,7 +75,7 @@ class SimpleCloudlet:
         *s* is the service time;
         """
         # Check correctness
-        assert self.n[task_type] + self.n[task_type] < self.n_servers
+        assert self.n[Task.TASK_1] + self.n[Task.TASK_2] < self.n_servers
 
         # Update state
         server_idx = self.server_selector.select_idle()

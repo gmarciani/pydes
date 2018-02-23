@@ -44,28 +44,29 @@ class NextEventCalendar:
         """
         self._clock = time
 
-    def schedule(self, ev):
+    def schedule(self, *events):
         """
-        Schedule an event.
-        :param ev: (SimpleEvent) the event to schedule.
-        :return: (boolean) True, if the event has been scheduled; False, otherwise.
+        Schedule events.
+        :param events: (SimpleEvent) the events to schedule.
+        :return: (boolean) True, if all the events has been scheduled; False, otherwise.
         """
-        if ev.type in self._arrival_types and ev.time >= self._stop:
-            logger.debug("Not scheduled (impossibile): {}".format(ev))
-            return False
-        else:
-            self._events.put((ev.time, ev))
-            logger.debug("Scheduled: {}".format(ev))
-            return True
+        for e in events:
+            if e.type in self._arrival_types and e.time >= self._stop:
+                logger.debug("Not scheduled (impossibile): {}".format(e))
+                return False
+            else:
+                self._events.put((e.time, e))
+                logger.debug("Scheduled: {}".format(e))
+                return True
 
     def unschedule(self, *events):
         """
         Unschedule events.
         :param events: (SimpleEvent) the events to unschedule.
         """
-        for ev in events:
-            self._ignore.add(ev)
-            logger.debug("Unscheduled: {}".format(ev))
+        for e in events:
+            self._ignore.add(e)
+            logger.debug("Unscheduled: {}".format(e))
 
     def get_next_event(self):
         """

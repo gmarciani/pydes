@@ -2,7 +2,7 @@ from enum import Enum, unique
 
 
 @unique
-class TaskType(Enum):
+class Task(Enum):
     """
     The types of tasks.
     """

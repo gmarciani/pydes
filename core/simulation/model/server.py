@@ -1,6 +1,6 @@
 from enum import Enum, unique
 from core.simulation.model.event import EventType
-from core.simulation.model.task import TaskType
+from core.simulation.model.task import Task
 from core.random.rndvar import exponential
 import logging
 
@@ -31,15 +31,15 @@ class SimpleServer:
         """
         # Service rates
         self.rates = {
-            TaskType.TASK_1: service_rate_1,
-            TaskType.TASK_2: service_rate_2
+            Task.TASK_1: service_rate_1,
+            Task.TASK_2: service_rate_2
         }
 
         # Randomization
         self.rndgen = rndgen
         self.streams = {
-            TaskType.TASK_1: EventType.COMPLETION_CLOUDLET_TASK_1.value + id(self),
-            TaskType.TASK_2: EventType.COMPLETION_CLOUDLET_TASK_2.value + id(self)
+            Task.TASK_1: EventType.COMPLETION_CLOUDLET_TASK_1.value + id(self),
+            Task.TASK_2: EventType.COMPLETION_CLOUDLET_TASK_2.value + id(self)
         }
 
         # State
@@ -51,25 +51,10 @@ class SimpleServer:
         self.t_interruption = 0.0  # the last interruption time (float) (s)
 
         # Statistics
-        self.arrived = {
-            TaskType.TASK_1: 0,  # the total amount of arrived tasks of type 1
-            TaskType.TASK_2: 0  # the total amount of arrived tasks of type 2
-        }
-
-        self.completed = {
-            TaskType.TASK_1: 0,  # the total amount of completed tasks of type 1
-            TaskType.TASK_2: 0  # the total amount of completed tasks of type 2
-        }
-
-        self.interrupted = {
-            TaskType.TASK_1: 0,  # the total amount of interrupted tasks of type 1
-            TaskType.TASK_2: 0  # the total amount of interrupted tasks of type 2
-        }
-
-        self.service = {
-            TaskType.TASK_1: 0.0,  # the total service time for tasks of type 1
-            TaskType.TASK_2: 0.0  # the total service time for tasks of tye 2
-        }
+        self.arrived = {task: 0 for task in Task}  # total number of arrived tasks, by task type
+        self.completed = {task: 0 for task in Task}  # total number of completed tasks, by task type
+        self.interrupted = {task: 0 for task in Task}  # total number of interrupted tasks, by task type
+        self.service = {task: 0 for task in Task}  # total service time, by task type
 
         self.t_idle = 0.0  # the total idle time (float) (s)
 

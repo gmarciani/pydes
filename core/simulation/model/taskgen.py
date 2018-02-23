@@ -5,7 +5,7 @@ from sys import maxsize
 import logging
 
 # Configure logger
-from core.simulation.model.task import TaskType
+from core.simulation.model.task import Task
 
 logger = logging.getLogger(__name__)
 
@@ -28,24 +28,24 @@ class SimpleTaskgen:
         self.t_stop = t_stop
 
         self.rates = {
-            TaskType.TASK_1: arrival_rate_1,
-            TaskType.TASK_2: arrival_rate_2
+            Task.TASK_1: arrival_rate_1,
+            Task.TASK_2: arrival_rate_2
         }
 
         self.streams = {
-            TaskType.TASK_1: EventType.ARRIVAL_TASK_1.value,
-            TaskType.TASK_2: EventType.ARRIVAL_TASK_2.value
+            Task.TASK_1: EventType.ARRIVAL_TASK_1.value,
+            Task.TASK_2: EventType.ARRIVAL_TASK_2.value
         }
 
         self.event_types = {
-            TaskType.TASK_1: EventType.ARRIVAL_TASK_1,
-            TaskType.TASK_2: EventType.ARRIVAL_TASK_2
+            Task.TASK_1: EventType.ARRIVAL_TASK_1,
+            Task.TASK_2: EventType.ARRIVAL_TASK_2
         }
 
         # state
         self.generated = {
-            TaskType.TASK_1: 0,  # total number of generated tasks of type 1
-            TaskType.TASK_2: 0  # total number of generated tasks of type 2
+            Task.TASK_1: 0,  # total number of generated tasks of type 1
+            Task.TASK_2: 0  # total number of generated tasks of type 2
         }
 
     def generate(self, task_type, t_clock):

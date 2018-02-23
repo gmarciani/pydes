@@ -1,6 +1,6 @@
 import unittest
 from core.simulation.config.configuration import get_default_configuration
-from core.simulation.model.task import TaskType
+from core.simulation.model.task import Task
 from core.simulation.simulation import Simulation as Simulation
 
 
@@ -27,19 +27,22 @@ class SimulationCloudTest(unittest.TestCase):
         simulation = Simulation(config)
         simulation.run()
 
-        for task_type in TaskType:
+        for task_type in Task:
             self.assertEqual(simulation.taskgen.generated[task_type],
                              simulation.system.arrived[task_type])
 
-            self.assertEqual(simulation.system.arrived[task_type],
-                             simulation.system.n[task_type] + simulation.system.completed[task_type])
+            self.assertEqual(simulation.system.n[task_type],
+                             simulation.system.arrived[task_type] - simulation.system.completed[task_type])
 
-            self.assertEqual(simulation.system.cloudlet.arrived[task_type],
-                             simulation.system.cloudlet.n[task_type] + simulation.system.cloudlet.completed[task_type] +
+            self.assertEqual(simulation.system.cloudlet.n[task_type],
+                             simulation.system.cloudlet.arrived[task_type] -
+                             simulation.system.cloudlet.completed[task_type] -
                              simulation.system.cloudlet.interrupted[task_type])
 
-            self.assertEqual(simulation.system.cloud.arrived[task_type],
-                             simulation.system.cloudlet.n[task_type] + simulation.system.cloudlet.completed[task_type])
+            self.assertEqual(simulation.system.cloud.n[task_type],
+                             simulation.system.cloud.arrived[task_type] +
+                             simulation.system.cloud.restarted[task_type] -
+                             simulation.system.cloud.completed[task_type])
 
             self.assertEqual(simulation.system.cloudlet.interrupted[task_type],
                              simulation.system.cloud.restarted[task_type])
@@ -64,7 +67,7 @@ class SimulationCloudTest(unittest.TestCase):
         simulation_2 = Simulation(config_2)
         simulation_2.run()
 
-        for task_type in TaskType:
+        for task_type in Task:
             self.assertGreater(simulation_2.system.arrived[task_type],
                                simulation_1.system.arrived[task_type])
 
@@ -92,7 +95,7 @@ class SimulationCloudTest(unittest.TestCase):
         simulation_2 = Simulation(config_2)
         simulation_2.run()
 
-        for task_type in TaskType:
+        for task_type in Task:
             self.assertGreater(simulation_2.taskgen.generated[task_type],
                                simulation_1.taskgen.generated[task_type])
 

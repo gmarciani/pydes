@@ -2,7 +2,7 @@ from core.simulation.model.cloudlet import SimpleCloudlet as Cloudlet
 from core.simulation.model.cloud import SimpleCloud as Cloud
 from core.simulation.model.event import SimpleEvent as Event, EventType, Action, Scope
 from core.simulation.model.server_selection_rule import SelectionRule
-from core.simulation.model.task import TaskType
+from core.simulation.model.task import Task
 import logging
 
 # Configure logger
@@ -39,31 +39,13 @@ class SimpleCloudletCloudSystem:
         )
 
         # State
-        self.n = {
-            TaskType.TASK_1: 0,  # number of current tasks of type 1
-            TaskType.TASK_2: 0  # number of current tasks of type 2
-        }
+        self.n = {task: 0 for task in Task}  # current number of tasks, by task type
 
         # Statistics
-        self.arrived = {
-            TaskType.TASK_1: 0,  # number of arrived tasks of type 1
-            TaskType.TASK_2: 0  # number of arrived tasks of type 2
-        }
-
-        self.completed = {
-            TaskType.TASK_1: 0,  # number of completed tasks of type 1
-            TaskType.TASK_2: 0  # number of completed tasks of type 2
-        }
-
-        self.restarted = {
-            TaskType.TASK_1: 0,  # number of interrupted tasks of type 1
-            TaskType.TASK_2: 0  # number of interrupted tasks of type 2
-        }
-
-        self.service = {
-            TaskType.TASK_1: 0.0,  # the total service time for tasks of type 1
-            TaskType.TASK_2: 0.0  # the total service time for tasks of tye 2
-        }
+        self.arrived = {task: 0 for task in Task}  # total number of arrived tasks, by task type
+        self.completed = {task: 0 for task in Task}  # total number of completed tasks, by task type
+        self.restarted = {task: 0 for task in Task}  # total number of restarted tasks, by task type
+        self.service = {task: 0 for task in Task}  # total service time, by task type
 
         # Simulation statistics
         self.statistics = statistics
@@ -90,24 +72,27 @@ class SimpleCloudletCloudSystem:
 
         if event.type.action is Action.ARRIVAL:
             # Submit the arrival
-            completion_event, interrupted_completion_event, completion_restart_event = self.submit_arrival(event.type.task, event.time)
+            e_completions_to_schedule, e_completions_to_unschedule = self.submit_arrival(event.type.task, event.time)
 
-            # Add the completion event to the events to be scheduled
-            response_events_to_schedule.append(completion_event)
+            # Add completions to schedule
+            response_events_to_schedule.extend(e_completions_to_schedule)
 
-            # If there was an interruption, unschedule the previous completion and schedule restart
-            if completion_restart_event is not None:
-                response_events_to_unschedule.append(interrupted_completion_event)
-                response_events_to_schedule.append(completion_restart_event)
+            # Add completions to unschedule
+            response_events_to_unschedule.extend(e_completions_to_unschedule)
+
         elif event.type.action is Action.COMPLETION:
+
             if event.type.scope is Scope.CLOUDLET:
                 # Submit the completion in Cloudlet
                 self.submit_completion_cloudlet(event.type.task, event.time, event.t_service)
+
             elif event.type.scope is Scope.CLOUD:
                 # Submit the completion in Cloud
                 self.submit_completion_cloud(event.type.task, event.time, event.t_service)
+
             else:
                 raise ValueError("Unrecognized event: {}".format(event))
+
         else:
             raise ValueError("Unrecognized event: {}".format(event))
 
@@ -118,8 +103,13 @@ class SimpleCloudletCloudSystem:
         Submit the arrival of a task.
         :param task_type: (TaskType) the type of task.
         :param t_arrival: (float) the arrival time.
-        :return: (SimpleEvent) completion event of the submitted task.
+        :return: (s,u) where
+        *s* is a list of events to schedule;
+        *u* is a list of events to unschedule;
         """
+        e_to_schedule = []
+        e_to_unschedule = []
+
         # Update state
         self.n[task_type] += 1
 
@@ -127,51 +117,60 @@ class SimpleCloudletCloudSystem:
         self.arrived[task_type] += 1
 
         # Process event
-        if task_type is TaskType.TASK_1:
+        if task_type is Task.TASK_1:
 
-            if self.cloudlet.n[TaskType.TASK_1] == self.cloudlet.n_servers:
+            if self.cloudlet.n[Task.TASK_1] == self.cloudlet.n_servers:
                 logger.debug("{} sent to CLOUD at {}".format(task_type, t_arrival))
-                completion_event = self.cloud.submit_arrival(task_type, t_arrival)
-                return completion_event, None, None
+                t_completion, t_service = self.cloud.submit_arrival(task_type, t_arrival)
+                e_completion = Event(EventType.of(Action.COMPLETION, Scope.CLOUD, task_type), t_completion, t_service=t_service)
+                e_to_schedule.append(e_completion)
 
-            elif self.cloudlet.n[TaskType.TASK_1] + self.cloudlet.n[TaskType.TASK_2] < self.cloudlet.threshold:
+            elif self.cloudlet.n[Task.TASK_1] + self.cloudlet.n[Task.TASK_2] < self.cloudlet.threshold:
                 logger.debug("{} sent to CLOUDLET at {}".format(task_type, t_arrival))
-                completion_event = self.cloudlet.submit_arrival(task_type, t_arrival)
-                return completion_event, None, None
+                t_completion, t_service = self.cloudlet.submit_arrival(task_type, t_arrival)
+                e_completion = Event(EventType.of(Action.COMPLETION, Scope.CLOUDLET, task_type), t_completion, t_service=t_service)
+                e_to_schedule.append(e_completion)
 
-            elif self.cloudlet.n[TaskType.TASK_2] > 0:
-                task_to_interrupt = TaskType.TASK_2
+            elif self.cloudlet.n[Task.TASK_2] > 0:
+                task_to_interrupt = Task.TASK_2
                 logger.debug("{} interrupted in CLOUDLET at {}".format(task_to_interrupt, t_arrival))
-                t_completion, t_arrival, t_served, ratio_remaining = self.cloudlet.submit_interruption(task_to_interrupt, t_arrival)
+                t_completion, t_arrival, t_served, r_remaining = self.cloudlet.submit_interruption(task_to_interrupt, t_arrival)
+                e_completion_to_ignore = Event(EventType.of(Action.COMPLETION, Scope.CLOUDLET, task_to_interrupt), t_completion)
+                e_to_unschedule.append(e_completion_to_ignore)
 
                 logger.debug("{} restarted in CLOUD at {}".format(task_to_interrupt, t_arrival))
-                completion_restart_event = self.cloud.submit_restart(task_to_interrupt, t_arrival, ratio_remaining)
+                t_completion, t_service = self.cloud.submit_restart(task_to_interrupt, t_arrival, r_remaining)
+                e_completion = Event(EventType.of(Action.COMPLETION, Scope.CLOUD, task_to_interrupt), t_completion, t_service=t_service)
+                e_to_schedule.append(e_completion)
 
                 logger.debug("{} sent to CLOUDLET at {}".format(task_type, t_arrival))
-                completion_event = self.cloudlet.submit_arrival(task_type, t_arrival)
-                completion_event_to_ignore = Event(EventType.COMPLETION_CLOUDLET_TASK_2, t_completion)
-
-                return completion_event, completion_event_to_ignore, completion_restart_event
+                t_completion, t_service = self.cloudlet.submit_arrival(task_type, t_arrival)
+                e_completion = Event(EventType.of(Action.COMPLETION, Scope.CLOUDLET, task_type), t_completion, t_service=t_service)
+                e_to_schedule.append(e_completion)
 
             else:
                 logger.debug("{} sent to CLOUDLET at {}".format(task_type, t_arrival))
-                completion_event = self.cloudlet.submit_arrival(task_type, t_arrival)
+                t_completion, t_service = self.cloudlet.submit_arrival(task_type, t_arrival)
+                e_completion = Event(EventType.of(Action.COMPLETION, Scope.CLOUDLET, task_type), t_completion, t_service=t_service)
+                e_to_schedule.append(e_completion)
 
-                return completion_event, None, None
-
-        elif task_type is TaskType.TASK_2:
-            if self.cloudlet.n[TaskType.TASK_1] + self.cloudlet.n[TaskType.TASK_2] >= self.cloudlet.threshold:
+        elif task_type is Task.TASK_2:
+            if self.cloudlet.n[Task.TASK_1] + self.cloudlet.n[Task.TASK_2] >= self.cloudlet.threshold:
                 logger.debug("{} sent to CLOUD at {}".format(task_type, t_arrival))
-                completion_event = self.cloud.submit_arrival(task_type, t_arrival)
+                t_completion, t_service = self.cloud.submit_arrival(task_type, t_arrival)
+                e_completion = Event(EventType.of(Action.COMPLETION, Scope.CLOUD, task_type), t_completion, t_service=t_service)
+                e_to_schedule.append(e_completion)
 
             else:
                 logger.debug("{} sent to CLOUDLET at {}".format(task_type, t_arrival))
-                completion_event = self.cloudlet.submit_arrival(task_type, t_arrival)
+                t_completion, t_service = self.cloudlet.submit_arrival(task_type, t_arrival)
+                e_completion = Event(EventType.of(Action.COMPLETION, Scope.CLOUDLET, task_type), t_completion, t_service=t_service)
+                e_to_schedule.append(e_completion)
 
         else:
             raise ValueError("Unrecognized task type {}".format(task_type))
 
-        return completion_event
+        return e_to_schedule, e_to_unschedule
 
     def submit_completion_cloudlet(self, task_type, t_completion, t_service):
         """
@@ -264,7 +263,7 @@ class SimpleCloudletCloudSystem:
         Check weather the system is empty or not.
         :return: True, if the system is empty; False, otherwise.
         """
-        return self.n[TaskType.TASK_1] + self.n[TaskType.TASK_2] == 0
+        return self.n[Task.TASK_1] + self.n[Task.TASK_2] == 0
 
     def __str__(self):
         """

@@ -7,10 +7,8 @@ class Action(Enum):
     The actions:
         * arrival
         * completion
-        * interruption
-        * restart
+        * switch
     """
     ARRIVAL = 0
     COMPLETION = 1
-    INTERRUPTION = 2
-    RESTART = 3
+    SWITCH = 2

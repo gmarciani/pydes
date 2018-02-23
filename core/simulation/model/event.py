@@ -2,7 +2,7 @@ from enum import Enum, unique
 
 from core.simulation.model.action import Action
 from core.simulation.model.scope import Scope
-from core.simulation.model.task import TaskType
+from core.simulation.model.task import Task
 
 
 @unique
@@ -21,13 +21,27 @@ class EventType(Enum):
         self.scope = scope
         self.task = task
 
-    ARRIVAL_TASK_1 = Action.ARRIVAL, Scope.SYSTEM, TaskType.TASK_1  # 0
-    ARRIVAL_TASK_2 = Action.ARRIVAL, Scope.SYSTEM, TaskType.TASK_2  # 1
-    COMPLETION_CLOUDLET_TASK_1 = Action.COMPLETION, Scope.CLOUDLET, TaskType.TASK_1  # 2
-    COMPLETION_CLOUDLET_TASK_2 = Action.COMPLETION, Scope.CLOUDLET, TaskType.TASK_2  # 3
-    COMPLETION_CLOUD_TASK_1 = Action.COMPLETION, Scope.CLOUD, TaskType.TASK_1  # 4
-    COMPLETION_CLOUD_TASK_2 = Action.COMPLETION, Scope.CLOUD, TaskType.TASK_2  # 5
-    RESTART_TASK_2 = Action.RESTART, Scope.SYSTEM, TaskType.TASK_2  # 6
+    ARRIVAL_TASK_1 = Action.ARRIVAL, Scope.SYSTEM, Task.TASK_1  # 0
+    ARRIVAL_TASK_2 = Action.ARRIVAL, Scope.SYSTEM, Task.TASK_2  # 1
+    COMPLETION_CLOUDLET_TASK_1 = Action.COMPLETION, Scope.CLOUDLET, Task.TASK_1  # 2
+    COMPLETION_CLOUDLET_TASK_2 = Action.COMPLETION, Scope.CLOUDLET, Task.TASK_2  # 3
+    COMPLETION_CLOUD_TASK_1 = Action.COMPLETION, Scope.CLOUD, Task.TASK_1  # 4
+    COMPLETION_CLOUD_TASK_2 = Action.COMPLETION, Scope.CLOUD, Task.TASK_2  # 5
+    SWITCH_TASK_2 = Action.SWITCH, Scope.SYSTEM, Task.TASK_2  # 6
+
+    @staticmethod
+    def of(action, scope, task):
+        """
+        Return the event type from action, scope and task.
+        :param action: (Action) the action.
+        :param scope: (Scope) the scope.
+        :param task:  (TaskType) the task type.
+        :return: (EventType) the event type.
+        """
+        for event_type in EventType:
+            if event_type.action is action and event_type.scope is scope and event_type.task is task:
+                return event_type
+        raise KeyError("Cannot find event type for action={}, scope={}, task={}".format(action, scope, task))
 
 
 class SimpleEvent:
@@ -80,3 +94,7 @@ if __name__ == "__main__":
     print(e.type.action)
     print(e.type.scope)
     print(e.type.task)
+
+    etype = EventType.of(e.type.action, e.type.scope, e.type.task)
+
+    print(etype is e.type)

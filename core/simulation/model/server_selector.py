@@ -1,6 +1,6 @@
 from random import choice
 from core.simulation.model.server import ServerState
-from core.simulation.model.task import TaskType
+from core.simulation.model.task import Task
 
 
 class BaseServerSelection:
@@ -119,7 +119,7 @@ class ServerSelectorEquity(BaseServerSelection):
         candidates = [(idx, server) for idx, server in enumerate(self._servers) if server.task_type is task_type]
         if len(candidates) == 0:
             return None
-        return min(candidates, key=lambda elem: elem.wasted_time)[0]
+        return min(candidates, key=lambda elem: elem.interrupted[task_type])[0]
 
 
 class ServerSelectorRandom(BaseServerSelection):
