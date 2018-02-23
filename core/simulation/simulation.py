@@ -7,9 +7,12 @@ from core.simulation.model.calendar import NextEventCalendar as Calendar
 from core.simulation.model.event import EventType, Action
 from core.utils.guiutils import print_progress
 from core.simulation.model.statistics import SimulationStatistics
+from core.utils.logutils import ConsoleHandler
 import logging
 
+
 # Configure logger
+logging.basicConfig(level=logging.INFO, handlers=[ConsoleHandler(logging.INFO)])
 logger = logging.getLogger(__name__)
 
 
@@ -18,7 +21,7 @@ class Simulation:
     A simple simulation about Cloud computing.
     """
 
-    def __init__(self, config, name="SIMULATION"):
+    def __init__(self, config, name="SIMULATION-CLOUD-CLOUDLET"):
         """
         Create a new simulation.
         :param config: the configuration for the simulation.
@@ -121,8 +124,8 @@ class Simulation:
             self.statistics.close_batch()
             self.curr_batch += 1
 
-            # Simulation End.
-        logger.info("Simulation stopped")
+        # Simulation End.
+        logger.info("Simulation completed")
 
     # ==================================================================================================================
     # REPORT
@@ -139,7 +142,6 @@ class Simulation:
         alpha = 1.0 - self.confidence
 
         # Report - General
-        r.add("general", "simulation_class", self.__class__.__name__)
         r.add("general", "t_stop", self.t_stop)
         r.add("general", "n_batch", self.n_batch)
         r.add("general", "t_batch", self.t_batch)
@@ -192,6 +194,8 @@ if __name__ == "__main__":
     from core.simulation.config.configuration import get_default_configuration
 
     config = get_default_configuration()
+    config["general"]["n_batch"] = 10
+    config["general"]["t_batch"] = 200
     simulation = Simulation(config)
 
     simulation.run()

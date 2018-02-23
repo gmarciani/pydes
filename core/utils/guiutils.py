@@ -2,11 +2,10 @@
 Utilities for CLI.
 """
 
-
 import sys
 
 
-def print_progress(iteration, total, prefix="Progress", suffix="Complete", decimals=0, bar_length=50):
+def print_progress(iteration, total, prefix="Progress", suffix="Complete", decimals=0, bar_length=25):
     format_string = "{0:." + str(decimals) + "f}"
     percents = format_string.format(100 * (iteration / float(total)))
     filled_length = int(round(bar_length * iteration / float(total)))
@@ -15,8 +14,9 @@ def print_progress(iteration, total, prefix="Progress", suffix="Complete", decim
     sys.stdout.flush()
 
     sys.stdout.write("\r%s [%s] %s%s %s" % (prefix, bar, percents, "%", suffix))
-    if iteration == total:
+    if iteration >= total:
         sys.stdout.write("\n")
+        sys.stdout.flush()
 
 
 if __name__ == "__main__":

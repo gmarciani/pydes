@@ -1,5 +1,5 @@
 """
-A collection of mathematical and statistical utilities.
+Utilities for math and statistics.
 """
 
 import math

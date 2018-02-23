@@ -1,3 +1,7 @@
+"""
+Utilities for file system management.
+"""
+
 import errno
 from os import path, makedirs
 

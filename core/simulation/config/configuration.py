@@ -1,11 +1,12 @@
 import copy
+import yaml
 
 default_configuration = {
 
     "general": {
         "n_batch": 1,  # the number of batches
-        "t_batch": 1000,  # the stop time for a batch (s)
-        "confidence": 0.95,  # the confidence level for the statistics
+        "t_batch": 1000,  # the stop time for a batch (s) 1hour=3600, 1day=86400, 1week=604800, 1month=2.628e+6
+        "confidence": 0.95,  # the level of confidence
         "random": {
             "generator": "MarcianiMultiStream",  # the class name of the random generator
             "seed": 123456789  # the initial seed for the random generator
@@ -27,9 +28,9 @@ default_configuration = {
         },
 
         "cloud": {
-            "service_rate_1": 0.25,  # the service rate for job of type 1 (tasks/s).
-            "service_rate_2": 0.22,  # the service rate for job of type 2 (tasks/s).
-            "t_setup_mean": 0.8  # the mean setup time to restart a task of type 2 in the Cloud (s).
+            "service_rate_1": 0.25,  # the service rate for tasks of type 1 (tasks/s).
+            "service_rate_2": 0.22,  # the service rate for tasks of type 2 (tasks/s).
+            "t_setup_mean": 0.8  # the mean setup time to restart a task in the Cloud (s).
         }
     }
 }
@@ -41,6 +42,17 @@ def get_default_configuration():
     :return: a copy of default configuration.
     """
     return copy.deepcopy(default_configuration)
+
+
+def load_configuration(filename):
+    """
+    Load the configuration from a file.
+    :param filename: (string) the file name.
+    :return: (Configuration) the configuration.
+    """
+    with open(filename, "r") as config_file:
+        config = yaml.load(config_file)
+    return config
 
 
 if __name__ == "__main__":

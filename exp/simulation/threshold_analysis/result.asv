@@ -1,0 +1,42 @@
+% D
+t = readtable('result.csv');
+
+threshold = t{:,{'system_cloudlet_threshold'}};
+response = t{:,{'system_statistics_t_response_mean'}};
+throughput = t{:,{'system_statistics_throughput_mean'}};
+
+one = ones(size(threshold));
+
+minResponse = min(response);
+maxResponse = max(response);
+
+minThroughput = min(throughput);
+maxThroughput = max(throughput);
+
+
+% PLOT: RESPONSE TIME
+figure(2);
+plot(threshold, response);
+title('Response Time Analysis');
+xlabel('Threshold (tasks)');
+ylabel('Response Time (s)');
+
+yyaxis right
+plot(threshold, one * minResponse, '--r')
+hold on
+plot(threshold, one * maxResponse, '--r')
+hold off
+
+% PLOT: THROUGHPUT
+figure(1);
+plot(threshold, throughput);
+title('Throughput Analysis');
+xlabel('Threshold (tasks)');
+ylabel('Throughput (tasks/s)');
+
+yyaxis right
+plot(threshold, one * minThroughput, '--r')
+hold on
+plot(threshold, one * maxThroughput, '--r')
+hold off
+
