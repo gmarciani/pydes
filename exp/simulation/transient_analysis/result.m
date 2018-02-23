@@ -8,10 +8,15 @@
 data = readtable('result.csv');
 
 batch      = data{:,{'batch'}};
+completed  = data{:,{'completed'}};
 response   = data{:,{'t_response'}};
 throughput = data{:,{'throughput'}};
 
 one = ones(size(batch));
+
+minCompleted = min(completed);
+maxCompleted = max(completed);
+avgCompleted = mean(completed);
 
 minResponse = min(response);
 maxResponse = max(response);
@@ -26,6 +31,25 @@ avgThroughput = mean(throughput);
 % =========================================================================
 scaleMax = 1.025;
 scaleMin = 0.975;
+
+% =========================================================================
+% PLOT: TRANSIENT ANALYSIS, COMPLETED
+% =========================================================================
+figure(1);
+plot(batch, completed);
+title('Transient Analysis, Completed');
+xlabel('Batch Number');
+ylabel('Completed (tasks)');
+ylim([minCompleted*scaleMin maxCompleted*scaleMax]);
+
+yyaxis right
+plot(batch, one * minCompleted, '--r')
+hold on
+plot(batch, one * maxCompleted, '--r')
+plot(batch, one * avgCompleted, '--r')
+ylim([minCompleted*scaleMin maxCompleted*scaleMax]);
+set(gca,'ytick',[minCompleted avgCompleted maxCompleted])
+hold off
 
 % =========================================================================
 % PLOT: TRANSIENT ANALYSIS, RESPONSE TIME

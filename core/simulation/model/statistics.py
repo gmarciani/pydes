@@ -1,6 +1,7 @@
-from core.statistics.batch_means import BatchedSampleStatistic
+from core.statistics.batch_means import BatchedSampleStatistic, BatchedMeasure
 from core.statistics.batch_means import BatchedSamplePathStatistic
 from core.utils.csv_utils import save
+
 
 class BatchStatistics:
     """
@@ -11,6 +12,8 @@ class BatchStatistics:
         """
         Create a new set of statistics.
         """
+        self.completed = BatchedMeasure()
+
         self.t_response = BatchedSampleStatistic()
         self.throughput = BatchedSamplePathStatistic()
         self.n_batches = 0
@@ -20,8 +23,10 @@ class BatchStatistics:
         Register and close the current batch statistics.
         :return: None
         """
+        self.completed.register_batch()
         self.t_response.register_batch()
         self.throughput.register_batch()
+
         self.n_batches += 1
 
     def discard_batch(self):
@@ -29,6 +34,7 @@ class BatchStatistics:
         Discard the current batch statistics.
         :return: None
         """
+        self.completed.discard_batch()
         self.t_response.discard_batch()
         self.throughput.discard_batch()
 
@@ -40,9 +46,14 @@ class BatchStatistics:
         :param append: (bool) if True, append to an existing file.
         :return: None
         """
-        header = ["batch", "t_response", "throughput"]
+        header = ["batch", "completed", "t_response", "throughput"]
         data = []
         for b in range(self.n_batches):
-            sample = [b, self.t_response.get_batch_value(b), self.throughput.get_batch_value(b)]
+            sample = [
+                b,
+                self.completed.get_batch_value(b),
+                self.t_response.get_batch_value(b),
+                self.throughput.get_batch_value(b)
+            ]
             data.append(sample)
         save(filename, header, data, skip_header, append)

@@ -5,7 +5,7 @@ from statistics import mean, stdev
 from abc import ABCMeta
 
 
-class BatchedMeasure():
+class BatchedMeasure:
     """
     A batch mean measure.
     """
@@ -14,17 +14,47 @@ class BatchedMeasure():
         """
         Create a new batch means measure.
         """
-        self.batch_means = []
+        self.batch_value = []
         self.curr_value = 0
 
-    def close_batch(self):
+    def add_value(self, value):
         """
-        Close the current batch.
+        Add the value.
+        :param value: the value to add.
+        :return: None
+        """
+        self.curr_value += value
+
+    def get_batch_value(self, batch):
+        """
+        Get the value for the specified batch.
+        :param batch: (int) the batch index.
+        :return: the value for the specified batch.
+        """
+        return self.batch_value[batch]
+
+    def register_batch(self):
+        """
+        Register and close the current batch.
         :return: None
         """
         curr_batch_mean = self.curr_value
-        self.batch_means.append(curr_batch_mean)
+        self.batch_value.append(curr_batch_mean)
         self.curr_value = 0
+
+    def discard_batch(self):
+        """
+        Discard the current batch.
+        :return: None
+        """
+        self.curr_value = 0
+
+    def nbatch(self):
+        """
+        Retunr the total number of batches.
+        :return: (int) the total number of batches.
+        """
+        return len(self.batch_value)
 
 
 class BatchedStatistic(metaclass=ABCMeta):

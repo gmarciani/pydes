@@ -140,7 +140,7 @@ class SimpleCloudletCloudSystem:
 
                 logger.debug("{} restarted in CLOUD at {}".format(task_to_interrupt, t_arrival))
                 t_completion, t_service = self.cloud.submit_restart(task_to_interrupt, t_arrival, r_remaining)
-                e_completion = Event(EventType.of(Action.COMPLETION, Scope.CLOUD, task_to_interrupt), t_completion, t_service=t_service)
+                e_completion = Event(EventType.of(Action.COMPLETION, Scope.CLOUD, task_to_interrupt), t_completion, t_service=t_service+t_served)  # IMPORTANT
                 e_to_schedule.append(e_completion)
 
                 logger.debug("{} sent to CLOUDLET at {}".format(task_type, t_arrival))
@@ -188,11 +188,14 @@ class SimpleCloudletCloudSystem:
         # Update state
         self.n[task_type] -= 1
 
-        # Update statistics
+        # Update local metrics
         self.completed[task_type] += 1
         self.service[task_type] += t_service
+
+        # Update batch metrics
         self.statistics.t_response.add_sample(t_service)
-        self.statistics.throughput.add_sample(self.completed[task_type], t_completion)
+        self.statistics.completed.add_value(1)
+        self.statistics.throughput.add_sample(self.completed[task_type], t_completion)  # BUG
 
         # Process event
         self.cloudlet.submit_completion(task_type, t_completion)
@@ -213,11 +216,14 @@ class SimpleCloudletCloudSystem:
         # Update state
         self.n[task_type] -= 1
 
-        # Update statistics
+        # Update local metrics
         self.completed[task_type] += 1
         self.service[task_type] += t_service
+
+        # Update batch metrics
         self.statistics.t_response.add_sample(t_service)
-        self.statistics.throughput.add_sample(self.completed[task_type], t_completion)
+        self.statistics.completed.add_value(1)
+        self.statistics.throughput.add_sample(self.completed[task_type], t_completion)  # BUG
 
         # Process event
         self.cloud.submit_completion(task_type, t_completion, t_service)
