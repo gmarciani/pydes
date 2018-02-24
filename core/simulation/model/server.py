@@ -53,7 +53,7 @@ class SimpleServer:
         # Statistics
         self.arrived = {task: 0 for task in Task}  # total number of arrived tasks, by task type
         self.completed = {task: 0 for task in Task}  # total number of completed tasks, by task type
-        self.interrupted = {task: 0 for task in Task}  # total number of interrupted tasks, by task type
+        self.switched = {task: 0 for task in Task}  # total number of interrupted tasks, by task type
         self.service = {task: 0 for task in Task}  # total service time, by task type
 
         self.t_idle = 0.0  # the total idle time (float) (s)
@@ -113,7 +113,7 @@ class SimpleServer:
         self.t_interruption = t_clock
 
         # Update statistics
-        self.interrupted[task_type] += 1
+        self.switched[task_type] += 1
         self.service[task_type] += t_served
 
         ratio_remaining = (self.t_completion - t_served) / (self.t_completion - self.t_arrival)

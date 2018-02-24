@@ -44,10 +44,10 @@ class SimpleCloudletCloudSystem:
         # Statistics
         self.arrived = {task: 0 for task in Task}  # total number of arrived tasks, by task type
         self.completed = {task: 0 for task in Task}  # total number of completed tasks, by task type
-        self.restarted = {task: 0 for task in Task}  # total number of restarted tasks, by task type
+        self.switched = {task: 0 for task in Task}  # total number of restarted tasks, by task type
         self.service = {task: 0 for task in Task}  # total service time, by task type
 
-        # Simulation statistics
+        # Batch statistics
         self.statistics = statistics
 
     # ==================================================================================================================
@@ -116,6 +116,10 @@ class SimpleCloudletCloudSystem:
         # Update statistics
         self.arrived[task_type] += 1
 
+        # Update batch statistics
+        self.statistics.n.add_sample(self.n[Task.TASK_1]+self.n[Task.TASK_2])
+        self.statistics.arrived.increment()
+
         # Process event
         if task_type is Task.TASK_1:
 
@@ -147,6 +151,12 @@ class SimpleCloudletCloudSystem:
                 t_completion, t_service = self.cloudlet.submit_arrival(task_type, t_arrival)
                 e_completion = Event(EventType.of(Action.COMPLETION, Scope.CLOUDLET, task_type), t_completion, t_service=t_service)
                 e_to_schedule.append(e_completion)
+
+                # Update statistic
+                self.switched[task_type] += 1
+
+                # Update batch statistics
+                self.statistics.switched.increment()
 
             else:
                 logger.debug("{} sent to CLOUDLET at {}".format(task_type, t_arrival))
@@ -193,9 +203,11 @@ class SimpleCloudletCloudSystem:
         self.service[task_type] += t_service
 
         # Update batch metrics
-        self.statistics.t_response.add_sample(t_service)
-        self.statistics.completed.add_value(1)
-        self.statistics.throughput.add_sample(self.completed[task_type], t_completion)  # BUG
+        self.statistics.n.add_sample(self.n[Task.TASK_1] + self.n[Task.TASK_2])
+        self.statistics.completed.increment()
+        self.statistics.service.increment(t_service)
+        self.statistics.response.add_sample(t_service)
+        self.statistics.throughput.add_sample(self.statistics.completed.get_value(), t_completion)
 
         # Process event
         self.cloudlet.submit_completion(task_type, t_completion)
@@ -221,44 +233,14 @@ class SimpleCloudletCloudSystem:
         self.service[task_type] += t_service
 
         # Update batch metrics
-        self.statistics.t_response.add_sample(t_service)
-        self.statistics.completed.add_value(1)
-        self.statistics.throughput.add_sample(self.completed[task_type], t_completion)  # BUG
+        self.statistics.n.add_sample(self.n[Task.TASK_1] + self.n[Task.TASK_2])
+        self.statistics.completed.increment()
+        self.statistics.service.increment(t_service)
+        self.statistics.response.add_sample(t_service)
+        self.statistics.throughput.add_sample(self.statistics.completed.get_value(), t_completion)
 
         # Process event
         self.cloud.submit_completion(task_type, t_completion, t_service)
-
-    # ==================================================================================================================
-    # METRICS
-    # ==================================================================================================================
-
-    #def get_response_time(self):
-    #    """
-    #    Compute the overall system response time (mean).
-    #    :return: (float) the overall system response time.
-    #    """
-    #    return self.statistics.response_time.get_mean()
-
-    #def get_throughput(self):
-    #    """
-    #    Compute the overall system throughput.
-    #    :return: (float) the overall system throughput.
-    #    """
-    #    return (self.n_served_1 + self.n_served_2) / self.t_last_completion
-
-    #def get_utilization(self):
-    #    """
-    #    Compute the overall system utilization.
-    #    :return: (float) the overall system utilization.
-    #    """
-    #    return self.area_service / self.t_last_completion
-
-    #def get_wasted_time(self):
-    #    """
-    #    Compute the overall system wasted time.
-    #    :return: (float) the overall system wasted time.
-    #    """
-    #    return self.cloudlet.t_wasted_2 + self.cloud.t_restart_2
 
     # ==================================================================================================================
     # OTHER

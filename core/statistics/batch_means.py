@@ -5,114 +5,83 @@ from statistics import mean, stdev
 from abc import ABCMeta
 
 
-class BatchedMeasure:
+class BaseBatchedMeasure:
     """
-    A batch mean measure.
+    The base class for batched measures and sampe statistics.
     """
 
     def __init__(self):
         """
         Create a new batch means measure.
         """
-        self.batch_value = []
-        self.curr_value = 0
+        self.batch_values = []
+        self.curr_value = self.init_value()
 
-    def add_value(self, value):
+    def init_value(self):
         """
-        Add the value.
-        :param value: the value to add.
+        Initialize the value.
+        :return: the initialized value.
+        """
+        return None
+
+    def compute_batch_value(self):
+        """
+        Compute the current batch value from the current value.
+        :return: the batch value.
+        """
+        return self.curr_value
+
+    def reset_value(self):
+        """
+        Reset the current value.
         :return: None
         """
-        self.curr_value += value
+        self.curr_value = None
 
-    def get_batch_value(self, batch):
+    def get_value(self, batch=None):
         """
         Get the value for the specified batch.
-        :param batch: (int) the batch index.
-        :return: the value for the specified batch.
+        :param batch: (int) the batch index (Default: current batch).
+        :return: the value for the specified batch, or the current batch if not specified.
         """
-        return self.batch_value[batch]
+        return self.batch_values[batch] if batch is not None else self.curr_value
 
     def register_batch(self):
         """
         Register and close the current batch.
         :return: None
         """
-        curr_batch_mean = self.curr_value
-        self.batch_value.append(curr_batch_mean)
-        self.curr_value = 0
+        curr_batch_value = self.compute_batch_value()
+        self.batch_values.append(curr_batch_value)
+        self.reset_value()
 
     def discard_batch(self):
         """
         Discard the current batch.
         :return: None
         """
-        self.curr_value = 0
+        self.reset_value()
 
     def nbatch(self):
         """
         Retunr the total number of batches.
         :return: (int) the total number of batches.
         """
-        return len(self.batch_value)
-
-
-class BatchedStatistic(metaclass=ABCMeta):
-    """
-    A batch mean statistic.
-    """
-
-    def __init__(self):
-        """
-        Create a new batch means statistic.
-        """
-        self.batch_means = []
-        self.curr_statistic = None  # abstract attribute
-
-    def get_batch_value(self, batch):
-        """
-        Get the value for the specified batch.
-        :param batch: (int) the batch index.
-        :return: the value for the specified batch.
-        """
-        return self.batch_means[batch]
-
-    def register_batch(self):
-        """
-        Register and close the current batch.
-        :return: None
-        """
-        curr_batch_mean = self.curr_statistic.mean()
-        self.batch_means.append(curr_batch_mean)
-        self.curr_statistic.reset()
-
-    def discard_batch(self):
-        """
-        Discard the current batch.
-        :return: None
-        """
-        self.curr_statistic.reset()
-
-    def nbatch(self):
-        """
-        Retunr the total number of batches.
-        :return: (int) the total number of batches.
-        """
-        return len(self.batch_means)
+        return len(self.batch_values)
 
     def mean(self):
         """
         Return the mean value among all batch means.
         :return: (float) the mean value among all batches.
         """
-        return mean(self.batch_means)
+        return mean(self.batch_values)
 
     def sdev(self):
         """
         Return the standard deviation among all batch means.
         :return: (float) the standard deviation among all batches.
         """
-        return stdev(self.batch_means) if self.nbatch() > 1 else 0.0
+        return stdev(self.batch_values) if self.nbatch() > 1 else 0.0
 
     def cint(self, alpha):
         """
@@ -123,7 +92,56 @@ class BatchedStatistic(metaclass=ABCMeta):
         return get_interval_estimation(self.nbatch(), self.sdev(), alpha)
 
 
-class BatchedSampleStatistic(BatchedStatistic):
+class BatchedMeasure(BaseBatchedMeasure):
+    """
+    A batch mean measure.
+    """
+
+    def __init__(self):
+        """
+        Create a new batch means measure.
+        """
+        BaseBatchedMeasure.__init__(self)
+
+    def init_value(self):
+        """
+        Initialize the value.
+        :return: the initialized value.
+        """
+        return 0
+
+    def compute_batch_value(self):
+        """
+        Compute the current batch value from the current value.
+        :return: the batch value.
+        """
+        return self.curr_value
+
+    def reset_value(self):
+        """
+        Reset the current value.
+        :return: None
+        """
+        self.curr_value = 0
+
+    def increment(self, value=1):
+        """
+        Add the value.
+        :param value: the value (Default: 1).
+        :return: None
+        """
+        self.curr_value += value
+
+    def decrement(self, value=1):
+        """
+        Substract the value.
+        :param value: the value (Default: 1).
+        :return: None
+        """
+        self.curr_value -= value
+
+
+class BatchedSampleStatistic(BaseBatchedMeasure):
     """
     A batch mean statistic with the running statistic as simple sample statistic.
     """
@@ -132,8 +150,28 @@ class BatchedSampleStatistic(BatchedStatistic):
         """
         Create a new batch mean statistic.
         """
-        BatchedStatistic.__init__(self)
-        self.curr_statistic = SimpleSampleStatistic()
+        BaseBatchedMeasure.__init__(self)
+
+    def init_value(self):
+        """
+        Initialize the value.
+        :return: the initialized value.
+        """
+        return SimpleSampleStatistic()
+
+    def compute_batch_value(self):
+        """
+        Compute the current batch value from the current value.
+        :return: the batch value.
+        """
+        return self.curr_value.mean()
+
+    def reset_value(self):
+        """
+        Reset the current value.
+        :return: None
+        """
+        self.curr_value.reset()
 
     def add_sample(self, value):
         """
@@ -141,10 +179,10 @@ class BatchedSampleStatistic(BatchedStatistic):
         :param value: the value to add.
         :return: None
         """
-        self.curr_statistic.add_value(value)
+        self.curr_value.add_value(value)
 
 
-class BatchedSamplePathStatistic(BatchedStatistic):
+class BatchedSamplePathStatistic(BaseBatchedMeasure):
     """
     A batch mean statistic with the running statistic as sample path statistic.
     """
@@ -153,8 +191,28 @@ class BatchedSamplePathStatistic(BatchedStatistic):
         """
         Create a new batch mean statistic.
         """
-        BatchedStatistic.__init__(self)
-        self.curr_statistic = SimpleSamplePathStatistic()
+        BaseBatchedMeasure.__init__(self)
+
+    def init_value(self):
+        """
+        Initialize the value.
+        :return: the initialized value.
+        """
+        return SimpleSamplePathStatistic()
+
+    def compute_batch_value(self):
+        """
+        Compute the current batch value from the current value.
+        :return: the batch value.
+        """
+        return self.curr_value.mean()
+
+    def reset_value(self):
+        """
+        Reset the current value.
+        :return: None
+        """
+        self.curr_value.reset()
 
     def add_sample(self, value, t_now):
         """
@@ -163,4 +221,4 @@ class BatchedSamplePathStatistic(BatchedStatistic):
         :param t_now: the time.
         :return: None
         """
-        self.curr_statistic.add_value(value, t_now)
+        self.curr_value.add_value(value, t_now)

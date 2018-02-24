@@ -45,7 +45,7 @@ class SimpleCloud:
         # Statistics
         self.arrived = {task: 0 for task in Task}  # total number of arrived tasks, by task type
         self.completed = {task: 0 for task in Task}  # total number of completed tasks, by task type
-        self.restarted = {task: 0 for task in Task}  # total number of restarted tasks, by task type
+        self.switched = {task: 0 for task in Task}  # total number of restarted tasks, by task type
         self.service = {task: 0 for task in Task}  # total service time, by task type
 
     # ==================================================================================================================
@@ -97,7 +97,7 @@ class SimpleCloud:
         t_completion = t_arrival + t_service
 
         # Update statistics
-        self.restarted[task_type] += 1
+        self.switched[task_type] += 1
 
         return t_completion, t_service
 

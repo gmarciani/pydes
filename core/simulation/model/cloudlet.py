@@ -54,7 +54,7 @@ class SimpleCloudlet:
         # Statistics
         self.arrived = {task: 0 for task in Task}  # total number of arrived tasks, by task type
         self.completed = {task: 0 for task in Task}  # total number of completed tasks, by task type
-        self.interrupted = {task: 0 for task in Task}  # total number of interrupted tasks, by task type
+        self.switched = {task: 0 for task in Task}  # total number of interrupted tasks, by task type
         self.service = {task: 0 for task in Task}  # total service time, by task type
 
     # ==================================================================================================================
@@ -111,7 +111,7 @@ class SimpleCloudlet:
         self.n[task_type] -= 1
 
         # Update statistics
-        self.interrupted[task_type] += 1
+        self.switched[task_type] += 1
         self.service[task_type] += t_served
 
         return t_completion_to_ignore, t_arrival, t_served, ratio_remaining

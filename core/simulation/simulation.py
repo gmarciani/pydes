@@ -172,54 +172,18 @@ class Simulation:
         r.add("system/cloud", "service_rate_2", self.system.cloud.rates[Task.TASK_2])
         r.add("system/cloud", "setup_mean", self.system.cloud.setup_mean)
 
-        # Report - System/Statistics
-        r.add("system/statistics", "t_response_mean", round(self.statistics.t_response.mean(), prc))
-        r.add("system/statistics", "t_response_sdev", round(self.statistics.t_response.sdev(), prc))
-        r.add("system/statistics", "t_response_cint", round(self.statistics.t_response.cint(alpha), prc))
+        # Report - Statistics
+        r.add("statistics", "n_mean", round(self.statistics.n.mean(), prc))
+        r.add("statistics", "n_sdev", round(self.statistics.n.sdev(), prc))
+        r.add("statistics", "n_cint", round(self.statistics.n.cint(alpha), prc))
 
-        r.add("system/statistics", "throughput_mean", round(self.statistics.throughput.mean(), prc))
-        r.add("system/statistics", "throughput_sdev", round(self.statistics.throughput.sdev(), prc))
-        r.add("system/statistics", "throughput_cint", round(self.statistics.throughput.cint(alpha), prc))
+        r.add("statistics", "response_mean", round(self.statistics.response.mean(), prc))
+        r.add("statistics", "response_sdev", round(self.statistics.response.sdev(), prc))
+        r.add("statistics", "response_cint", round(self.statistics.response.cint(alpha), prc))
 
-        return r
-
-    def generate_batch_report(self, prc=3):
-        """
-        Generate the batch report.
-        :param prc: (int) the number of decimals for float values.
-        :return: (SimpleReport) the batch report.
-        """
-        r = Report(self.name)
-
-        # Report - General
-        r.add("general", "t_stop", self.t_stop)
-        r.add("general", "n_batch", self.n_batch)
-        r.add("general", "t_batch", self.t_batch)
-        r.add("general", "i_batch", self.i_batch)
-        r.add("general", "random_generator", self.rndgen.__class__.__name__)
-        r.add("general", "random_seed", self.rndgen.get_initial_seed())
-
-        # Report - Tasks
-        r.add("tasks", "arrival_rate_1", self.taskgen.rates[Task.TASK_1])
-        r.add("tasks", "arrival_rate_2", self.taskgen.rates[Task.TASK_2])
-        r.add("tasks", "n_generated_1", self.taskgen.generated[Task.TASK_1])
-        r.add("tasks", "n_generated_2", self.taskgen.generated[Task.TASK_2])
-
-        # Report - System/Cloudlet
-        r.add("system/cloudlet", "service_rate_1", self.system.cloudlet.rates[Task.TASK_1])
-        r.add("system/cloudlet", "service_rate_2", self.system.cloudlet.rates[Task.TASK_2])
-        r.add("system/cloudlet", "n_servers", self.system.cloudlet.n_servers)
-        r.add("system/cloudlet", "threshold", self.system.cloudlet.threshold)
-
-        # Report - System/Cloud
-        r.add("system/cloud", "service_rate_1", self.system.cloud.rates[Task.TASK_1])
-        r.add("system/cloud", "service_rate_2", self.system.cloud.rates[Task.TASK_2])
-        r.add("system/cloud", "setup_mean", self.system.cloud.setup_mean)
-
-        # Report - System/
-        for b in range(self.statistics.n_batches):
-            r.add("system/batch-{}".format(b), "t_response_mean", round(self.statistics.t_response.get_batch_value(b), prc))
-            r.add("system/batch-{}".format(b), "throughput_mean", round(self.statistics.throughput.get_batch_value(b), prc))
+        r.add("statistics", "throughput_mean", round(self.statistics.throughput.mean(), prc))
+        r.add("statistics", "throughput_sdev", round(self.statistics.throughput.sdev(), prc))
+        r.add("statistics", "throughput_cint", round(self.statistics.throughput.cint(alpha), prc))
 
         return r
 

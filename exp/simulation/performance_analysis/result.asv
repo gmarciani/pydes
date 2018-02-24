@@ -8,20 +8,20 @@
 data       = readtable('result.csv');
 threshold  = data{:, {'system_cloudlet_threshold'}};
 
-measures = ["Response Time",                 "Throughput"];
+measures = ["response",                 "throughput"];
 entries  = ["statistics_response_mean", "statistics_throughput_mean"];
 units    = ["sec",                      "tasks/sec"];
 
 % =========================================================================
 % SETTINGS
 % =========================================================================
-scalemn = [0.975, 0.999];
-scalemx = [1.025, 1.001];
+scalemn = 0.975;
+scalemx = 1.025;
 
 % =========================================================================
 % PLOTS
 % =========================================================================
-one = ones(size(threshold));
+one = ones(size(batch));
 for i = 1:length(measures)
     measure = measures(i);
     entry   = entries(i);
@@ -38,14 +38,14 @@ for i = 1:length(measures)
     title({'Performance Analysis', measure});
     xlabel('Cloudlet Threshold (tasks)');
     ylabel(sprintf('%s (%s)', measure, unit));
-    ylim([mn*scalemn(i) mx*scalemx(i)]);
+    ylim([mn*scalemn mx*scalemx]);
 
     yyaxis right
-    plot(threshold, one * mn, '--r')
+    plot(batch, one * mn, '--r')
     hold on
-    plot(threshold, one * mx, '--r')
-    plot(threshold, one * avg, '--r')
-    ylim([mn*scalemn(i) mx*scalemx(i)]);
+    plot(batch, one * mx, '--r')
+    plot(batch, one * avg, '--r')
+    ylim([mn*scalemn mx*scalemx]);
     set(gca,'ytick', [mn avg mx])
     hold off
 end
