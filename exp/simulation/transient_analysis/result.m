@@ -8,15 +8,22 @@
 data     = readtable('out/result.csv');
 batch    = data{:, {'batch'}};
 
-measures = ["Arrived",   "Completed", "Service Time", "N",     "Response Time", "Throughput"];
-entries  = ["arrived",   "completed", "service",      "n",     "response",      "throughput"];
-units    = ["tasks/sec", "tasks/sec", "sec",          "tasks", "sec",           "tasks/sec"];
+%measures = ["Arrived",   "Completed", "Service Time", "N",     "Response Time", "Throughput"];
+%entries  = ["arrived",   "completed", "service",      "n",     "response",      "throughput"];
+%units    = ["tasks",     "tasks",     "sec",          "tasks", "sec",           "tasks/sec"];
+
+measures = ["Completed", "Service Time", "Response Time", "Throughput"];
+entries  = ["completed", "service",      "response",      "throughput"];
+units    = ["tasks",     "sec",          "sec",           "tasks/sec"];
 
 % =========================================================================
 % SETTINGS
 % =========================================================================
-scalemn = 0.975;
-scalemx = 1.025;
+%scalemn = [0.975, 0.975, 0.975, 0.975, 0.975, 0.975];
+%scalemx = [1.025, 1.025, 1.025, 1.025, 1.025, 1.025];
+
+scalemn = [0.975, 0.975, 0.975, 0.975];
+scalemx = [1.025, 1.025, 1.025, 1.025];
 
 % =========================================================================
 % PLOTS
@@ -34,18 +41,18 @@ for i = 1:length(measures)
     avg = mean(values);
     
     figure(i);
-    plot(batch, values);
+    scatter(batch, values);
     title({'Transient Analysis', measure});
     xlabel('Batch (id)');
     ylabel(sprintf('%s (%s)', measure, unit));
-    ylim([mn*scalemn mx*scalemx]);
+    ylim([mn*scalemn(i) mx*scalemx(i)]);
 
     yyaxis right
     plot(batch, one * mn,'--r')
     hold on
     plot(batch, one * mx, '--r')
     plot(batch, one * avg, '--r')
-    ylim([mn*scalemn mx*scalemx]);
+    ylim([mn*scalemn(i) mx*scalemx(i)]);
     set(gca,'ytick', [mn avg mx])
     hold off
 end

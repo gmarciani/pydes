@@ -212,7 +212,8 @@ class BatchedSamplePathStatistic(BaseBatchedMeasure):
         Reset the current value.
         :return: None
         """
-        self.curr_value.reset()
+        t_batch_start = self.curr_value.time()
+        self.curr_value.reset(t_start=t_batch_start)
 
     def add_sample(self, value, t_now):
         """

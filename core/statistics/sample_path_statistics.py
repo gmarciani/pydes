@@ -10,24 +10,26 @@ class SimpleSamplePathStatistic:
         * sample-path standard deviation.
     """
 
-    def __init__(self):
+    def __init__(self, t_start=0.0):
         """
         Create a new *SimpleStatisticsCalculator*.
+        :param t_start: (float) the start time (Default: 0.0).
         """
         self._n = 0  # the number of values
-        self._time = 0.0  # the current time
+        self._time = t_start  # the current time
 
         # statistics
         self._mean = 0.0  # the mean value
         self._variance = 0.0  # the variance
 
-    def reset(self):
+    def reset(self, t_start=0.0):
         """
         Reset statistics.
+        :param t_start: (float) the start time (Default: 0.0).
         :return: None
         """
         self._n = 0
-        self._time = 0.0
+        self._time = t_start
 
         self._mean = 0.0
         self._variance = 0.0
