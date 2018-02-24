@@ -4,6 +4,43 @@ Utilities for file system management.
 import os
 
 
+def exists_file(filename):
+    """
+    Check whether a file exists or not.
+    :param filename: (string) the filename.
+    :return: True, if the file exists; False, otherwise.
+    """
+    dirname = os.path.dirname(filename)
+    dirname = dirname if len(dirname) != 0 else os.path.curdir
+    filepath = os.path.join(dirname, filename)
+    return os.path.exists(filepath)
+
+
+def is_empty_file(filename):
+    """
+    Check whether a file is empty or not.
+    :param filename: (string) the filename.
+    :return: True, if the file exists; False, otherwise.
+    """
+    with open(filename, "r") as f:
+        s = f.read()
+    return len(s) == 0
+
+
+def empty_file(filename):
+    """
+    Delete the file.
+    :param filename: (string) the filename.
+    :return: None
+    """
+    #dirname = os.path.dirname(filename)
+    #dirname = dirname if len(dirname) != 0 else os.path.curdir
+    #filepath = os.path.join(dirname, filename)
+    create_dir_tree(filename)
+    with open(filename, "w"):
+        pass
+
+
 def create_dir_tree(filename):
     """
     Create directory trees.

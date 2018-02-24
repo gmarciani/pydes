@@ -5,7 +5,7 @@
 % =========================================================================
 % DATA
 % =========================================================================
-data     = readtable('result.csv');
+data     = readtable('out/result.csv');
 batch    = data{:, {'batch'}};
 
 measures = ["Arrived",   "Completed", "Service Time", "N",     "Response Time", "Throughput"];

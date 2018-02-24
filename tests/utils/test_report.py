@@ -87,8 +87,8 @@ class ReportTest(unittest.TestCase):
         Test the report saving to a CSV file.
         :return: None
         """
-        s = "name,section-1.1st_value,section-1.2nd_value,section-1.3rd_value,section-2/subsection-1.1st_value,section-2/subsection-1.2nd_value,section-2/subsection-1.3rd_value,section-3.1st_value,section-3.2nd_value,section-3.3rd_value,\n"
-        s += "SAMPLE REPORT,1,2.123,Hello World,1,2.123,Hello World,1,2.123,Hello World,\n"
+        s = "name,section-1.1st_value,section-1.2nd_value,section-1.3rd_value,section-2/subsection-1.1st_value,section-2/subsection-1.2nd_value,section-2/subsection-1.3rd_value,section-3.1st_value,section-3.2nd_value,section-3.3rd_value\n"
+        s += "SAMPLE REPORT,1,2.123,Hello World,1,2.123,Hello World,1,2.123,Hello World\n"
 
         self.r.save_csv(self.file_csv)
 

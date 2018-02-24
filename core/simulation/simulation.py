@@ -8,6 +8,7 @@ from core.simulation.model.event import EventType, Action
 from core.utils.guiutils import print_progress
 from core.simulation.model.statistics import BatchStatistics
 from core.utils.logutils import ConsoleHandler
+from core.utils.file_utils import empty_file
 import logging
 
 
@@ -75,11 +76,17 @@ class Simulation:
     # SIMULATION PROCESS
     # ==================================================================================================================
 
-    def run(self):
+    def run(self, outfile=None, show_progress=False):
         """
         Run the simulation.
+        :param outfile (string) the output file (Default: None)
+        :param show_progress (bool) if True, print the simulation real time progress bar.
         :return: None
         """
+
+        # Prepare the output file
+        if outfile is not None:
+            empty_file(outfile)
 
         # Simulation Start.
         logger.info("Simulation started")
@@ -119,11 +126,15 @@ class Simulation:
                     self.calendar.schedule(next_arrival)
 
                 # Simulation progress
-                print_progress(self.calendar.get_clock(), self.t_stop)
+                if show_progress:
+                    print_progress(self.calendar.get_clock(), self.t_stop)
 
             # Process the current batch
+            # Notice that, if an outpur file has been specified, it is filled with current batch metrics as CSV.
             if self.curr_batch >= self.i_batch:
                 self.statistics.register_batch()
+                if outfile is not None:
+                    self.statistics.save_csv(outfile, append=True, batch=self.curr_batch)
             else:
                 self.statistics.discard_batch()
 

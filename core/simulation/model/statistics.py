@@ -59,17 +59,19 @@ class BatchStatistics:
         self.response.discard_batch()
         self.throughput.discard_batch()
 
-    def save_csv(self, filename, skip_header=False, append=False):
+    def save_csv(self, filename, append=False, skip_header=False, batch=None):
         """
         Save the current statistics as CSV.
         :param filename: (string) the filename.
-        :param skip_header: (bool) if True, skip the CSV header.
         :param append: (bool) if True, append to an existing file.
+        :param skip_header: (bool) if True, skip the CSV header.
+        :param batch: (integer) the batch id. If None, all batches are saved.
         :return: None
         """
         header = ["batch", "arrived", "completed", "switched", "service", "n", "response", "throughput"]
         data = []
-        for b in range(self.n_batches):
+        rng_batches = range(self.n_batches) if batch is None else range(batch, batch+1)
+        for b in rng_batches:
             sample = [
                 b,
                 self.arrived.get_value(b),
@@ -81,4 +83,4 @@ class BatchStatistics:
                 self.throughput.get_value(b)
             ]
             data.append(sample)
-        save(filename, header, data, skip_header, append)
+        save(filename, header, data, append, skip_header)

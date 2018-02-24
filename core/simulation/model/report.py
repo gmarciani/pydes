@@ -5,6 +5,7 @@ Utility classes that realize reports for experiments.
 
 from collections import OrderedDict
 from core.utils.file_utils import create_dir_tree
+from core.utils.csv_utils import save
 
 
 class SimpleReport(object):
@@ -88,50 +89,29 @@ class SimpleReport(object):
         with open(filename, "w+") as f:
             f.write(str(self))
 
-    def save_csv(self, filename, skip_header=False):
+    def save_csv(self, filename, append=False, skip_header=False):
         """
-        Saves the report onto a CSV file.
-        :param filename: (string) the absolute file path.
-        :param skip_header: (bool) if True, header is skipped.
-        :return: (void)
+        Save the current statistics as CSV.
+        :param filename: (string) the filename.
+        :param append: (bool) if True, append to an existing file.
+        :param skip_header: (bool) if True, skip the CSV header.
+        :return: None
         """
-        create_dir_tree(filename)
-        if not skip_header:
-            self.save_header_csv(filename)
-        self.append_csv(filename)
+        header = ["name"]
+        row = [self.title]
 
-    def save_header_csv(self, filename):
-        """
-        Save report headers onto a CSV file.
-        :param filename: (string) the absolute file path.
-        :return: (void)
-        """
-        with open(filename, "w+") as f:
-            f.write("name,")
-            for section in self.params:
-                headers = ["{}.{}".format(self.str_csv_format(section), self.str_csv_format(p[0])) for p in self.params[section]]
-                f.write(",".join(headers))
-                f.write(",")
-            f.write("\n")
-
-    def str_csv_format(self, s):
-        return s.lower().replace(" ", "_")
-
-    def append_csv(self, filename):
-        """
-        Append the report onto a CSV file.
-        :param filename: (string) the absolute file path.
-        :return: (void)
-        """
-        with open(filename, "a+") as f:
-            f.write("{},".format(self.title))
-            for section in self.params:
-                values = [str(p[1]) for p in self.params[section]]
-                f.write(",".join(values))
-                f.write(",")
-            f.write("\n")
+        for section in self.params:
+            for p in self.params[section]:
+                header.append("{}.{}".format(section, p[0]))
+                row.append(p[1])
+        data = [row]
+        save(filename, header, data, append, skip_header)
 
     def __str__(self):
+        """
+        Return the string representation.
+        :return: (string) the string representation.
+        """
         title_separator = "=" * 50
 
         s = "\n{}\n{:^50}\n{}\n".format(title_separator, self.title, title_separator)

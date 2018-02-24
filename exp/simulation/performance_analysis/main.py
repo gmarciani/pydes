@@ -15,7 +15,10 @@ logger = logging.getLogger(__name__)
 
 # Configuration
 CONFIG_PATH = "config.yaml"
-RESULT_PATH = "result.csv"
+
+# Results
+RESULT_PATH = "out/result.csv"
+RESULT_BATCH_PATH = "out/result_{}.csv"
 THRESHOLDS = range(1, 21, 1)
 
 
@@ -24,7 +27,6 @@ if __name__ == "__main__":
 
     simulation_counter = 0
     simulation_max = len(THRESHOLDS)
-    header_saved = False
 
     logger.info("Launching performance analysis with n_batch={}, t_batch={}, i_batch={}, thresholds={}".format(
         config["general"]["n_batch"],
@@ -38,6 +40,5 @@ if __name__ == "__main__":
         config["system"]["cloudlet"]["threshold"] = threshold
         logger.info("Simulating {}/{} with threshold {}".format(simulation_counter, simulation_max, threshold))
         simulation = Simulation(config, "SIMULATION-THRESHOLD-{}".format(threshold))
-        simulation.run()
-        report = simulation.generate_report().save_csv(RESULT_PATH, skip_header=header_saved)
-        header_saved = True
+        simulation.run(outfile=RESULT_BATCH_PATH.format(threshold), show_progress=True)
+        simulation.generate_report().save_csv(RESULT_PATH, append=(simulation_counter > 1))

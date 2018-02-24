@@ -5,10 +5,10 @@
 % =========================================================================
 % DATA
 % =========================================================================
-data       = readtable('result.csv');
+data       = readtable('out/result.csv');
 threshold  = data{:, {'system_cloudlet_threshold'}};
 
-measures = ["Response Time",                 "Throughput"];
+measures = ["Response Time",            "Throughput"];
 entries  = ["statistics_response_mean", "statistics_throughput_mean"];
 units    = ["sec",                      "tasks/sec"];
 
