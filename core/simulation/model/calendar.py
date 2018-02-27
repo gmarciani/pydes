@@ -55,7 +55,10 @@ class NextEventCalendar:
                 logger.debug("Not scheduled (impossibile): {}".format(e))
                 return False
             else:
-                self._events.put((e.time, e))
+                try:
+                    self._events.put((e.time, e))
+                except TypeError as exc:
+                    print("Error: {} : {}".format(str(exc), e))
                 logger.debug("Scheduled: {}".format(e))
                 return True
 

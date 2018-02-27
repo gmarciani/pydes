@@ -41,7 +41,7 @@ class SimpleCloudletCloudSystem:
         # State
         self.n = {task: 0 for task in Task}  # current number of tasks, by task type
 
-        # Statistics
+        # Whole-run Statistics (used in verification)
         self.arrived = {task: 0 for task in Task}  # total number of arrived tasks, by task type
         self.completed = {task: 0 for task in Task}  # total number of completed tasks, by task type
         self.switched = {task: 0 for task in Task}  # total number of restarted tasks, by task type
@@ -82,16 +82,8 @@ class SimpleCloudletCloudSystem:
 
         elif event.type.action is Action.COMPLETION:
 
-            if event.type.scope is Scope.CLOUDLET:
-                # Submit the completion in Cloudlet
-                self.submit_completion_cloudlet(event.type.task, event.time, event.t_service)
-
-            elif event.type.scope is Scope.CLOUD:
-                # Submit the completion in Cloud
-                self.submit_completion_cloud(event.type.task, event.time, event.t_service)
-
-            else:
-                raise ValueError("Unrecognized event: {}".format(event))
+            # Submit the completion
+            self.submit_completion(event.type.task, event.type.scope, event.time, event.t_arrival)
 
         else:
             raise ValueError("Unrecognized event: {}".format(event))
@@ -117,7 +109,7 @@ class SimpleCloudletCloudSystem:
         self.arrived[task_type] += 1
 
         # Update batch statistics
-        self.statistics.n.add_sample(self.n[Task.TASK_1]+self.n[Task.TASK_2])
+        self.statistics.n.add_sample(self.n[Task.TASK_1] + self.n[Task.TASK_2])
         self.statistics.arrived.increment()
 
         # Process event
@@ -125,31 +117,31 @@ class SimpleCloudletCloudSystem:
 
             if self.cloudlet.n[Task.TASK_1] == self.cloudlet.n_servers:
                 logger.debug("{} sent to CLOUD at {}".format(task_type, t_arrival))
-                t_completion, t_service = self.cloud.submit_arrival(task_type, t_arrival)
-                e_completion = Event(EventType.of(Action.COMPLETION, Scope.CLOUD, task_type), t_completion, t_service=t_service)
+                t_completion = self.cloud.submit_arrival(task_type, t_arrival)
+                e_completion = Event(EventType.of(Action.COMPLETION, Scope.CLOUD, task_type), t_completion, t_arrival=t_arrival)
                 e_to_schedule.append(e_completion)
 
             elif self.cloudlet.n[Task.TASK_1] + self.cloudlet.n[Task.TASK_2] < self.cloudlet.threshold:
                 logger.debug("{} sent to CLOUDLET at {}".format(task_type, t_arrival))
-                t_completion, t_service = self.cloudlet.submit_arrival(task_type, t_arrival)
-                e_completion = Event(EventType.of(Action.COMPLETION, Scope.CLOUDLET, task_type), t_completion, t_service=t_service)
+                t_completion = self.cloudlet.submit_arrival(task_type, t_arrival)
+                e_completion = Event(EventType.of(Action.COMPLETION, Scope.CLOUDLET, task_type), t_completion, t_arrival=t_arrival)
                 e_to_schedule.append(e_completion)
 
             elif self.cloudlet.n[Task.TASK_2] > 0:
                 task_to_interrupt = Task.TASK_2
                 logger.debug("{} interrupted in CLOUDLET at {}".format(task_to_interrupt, t_arrival))
-                t_completion, t_arrival, t_served, r_remaining = self.cloudlet.submit_interruption(task_to_interrupt, t_arrival)
-                e_completion_to_ignore = Event(EventType.of(Action.COMPLETION, Scope.CLOUDLET, task_to_interrupt), t_completion)
+                t_completion_1, t_arrival_1, r_remaining_1 = self.cloudlet.submit_interruption(task_to_interrupt, t_arrival)
+                e_completion_to_ignore = Event(EventType.of(Action.COMPLETION, Scope.CLOUDLET, task_to_interrupt), t_completion_1)
                 e_to_unschedule.append(e_completion_to_ignore)
 
                 logger.debug("{} restarted in CLOUD at {}".format(task_to_interrupt, t_arrival))
-                t_completion, t_service = self.cloud.submit_restart(task_to_interrupt, t_arrival, r_remaining)
-                e_completion = Event(EventType.of(Action.COMPLETION, Scope.CLOUD, task_to_interrupt), t_completion, t_service=t_service+t_served)  # IMPORTANT
+                t_completion = self.cloud.submit_restart(task_to_interrupt, t_arrival, r_remaining_1)
+                e_completion = Event(EventType.of(Action.COMPLETION, Scope.CLOUD, task_to_interrupt), t_completion, t_arrival=t_arrival_1)
                 e_to_schedule.append(e_completion)
 
                 logger.debug("{} sent to CLOUDLET at {}".format(task_type, t_arrival))
-                t_completion, t_service = self.cloudlet.submit_arrival(task_type, t_arrival)
-                e_completion = Event(EventType.of(Action.COMPLETION, Scope.CLOUDLET, task_type), t_completion, t_service=t_service)
+                t_completion = self.cloudlet.submit_arrival(task_type, t_arrival)
+                e_completion = Event(EventType.of(Action.COMPLETION, Scope.CLOUDLET, task_type), t_completion, t_arrival=t_arrival)
                 e_to_schedule.append(e_completion)
 
                 # Update statistic
@@ -160,21 +152,21 @@ class SimpleCloudletCloudSystem:
 
             else:
                 logger.debug("{} sent to CLOUDLET at {}".format(task_type, t_arrival))
-                t_completion, t_service = self.cloudlet.submit_arrival(task_type, t_arrival)
-                e_completion = Event(EventType.of(Action.COMPLETION, Scope.CLOUDLET, task_type), t_completion, t_service=t_service)
+                t_completion = self.cloudlet.submit_arrival(task_type, t_arrival)
+                e_completion = Event(EventType.of(Action.COMPLETION, Scope.CLOUDLET, task_type), t_completion, t_arrival=t_arrival)
                 e_to_schedule.append(e_completion)
 
         elif task_type is Task.TASK_2:
             if self.cloudlet.n[Task.TASK_1] + self.cloudlet.n[Task.TASK_2] >= self.cloudlet.threshold:
                 logger.debug("{} sent to CLOUD at {}".format(task_type, t_arrival))
-                t_completion, t_service = self.cloud.submit_arrival(task_type, t_arrival)
-                e_completion = Event(EventType.of(Action.COMPLETION, Scope.CLOUD, task_type), t_completion, t_service=t_service)
+                t_completion = self.cloud.submit_arrival(task_type, t_arrival)
+                e_completion = Event(EventType.of(Action.COMPLETION, Scope.CLOUD, task_type), t_completion, t_arrival=t_arrival)
                 e_to_schedule.append(e_completion)
 
             else:
                 logger.debug("{} sent to CLOUDLET at {}".format(task_type, t_arrival))
-                t_completion, t_service = self.cloudlet.submit_arrival(task_type, t_arrival)
-                e_completion = Event(EventType.of(Action.COMPLETION, Scope.CLOUDLET, task_type), t_completion, t_service=t_service)
+                t_completion = self.cloudlet.submit_arrival(task_type, t_arrival)
+                e_completion = Event(EventType.of(Action.COMPLETION, Scope.CLOUDLET, task_type), t_completion, t_arrival=t_arrival)
                 e_to_schedule.append(e_completion)
 
         else:
@@ -182,65 +174,42 @@ class SimpleCloudletCloudSystem:
 
         return e_to_schedule, e_to_unschedule
 
-    def submit_completion_cloudlet(self, task_type, t_completion, t_service):
+    def submit_completion(self, task_type, scope, t_completion, t_arrival):
         """
-        Submit the completion of a task in Cloudlet.
+        Submit the completion of a task.
         :param task_type: (TaskType) the type of task.
+        :param scope: (Scope) the scope.
         :param t_completion: (float) the occurrence time of the event.
-        :param t_service: (float) the service time.
+        :param t_arrival: (float) the arrival time.
         :return: None
         """
-        logger.debug("{} completed in CLOUDLET at {}".format(task_type, t_completion))
+        logger.debug("{} completed in {} at {}".format(task_type, scope, t_completion))
 
         # Check correctness
-        assert self.cloudlet.n[task_type] > 0
+        if scope is Scope.CLOUDLET:
+            assert self.cloudlet.n[task_type] > 0
+        if scope is Scope.CLOUD:
+            assert self.cloud.n[task_type] > 0
 
         # Update state
         self.n[task_type] -= 1
 
         # Update local metrics
         self.completed[task_type] += 1
-        self.service[task_type] += t_service
+        self.service[task_type] += t_completion - t_arrival
 
         # Update batch metrics
         self.statistics.n.add_sample(self.n[Task.TASK_1] + self.n[Task.TASK_2])
         self.statistics.completed.increment()
-        self.statistics.service.increment(t_service)
-        self.statistics.response.add_sample(t_service)
-        self.statistics.throughput.add_sample(self.statistics.completed.get_value(), t_completion)
+        self.statistics.service.increment(t_completion - t_arrival)
 
         # Process event
-        self.cloudlet.submit_completion(task_type, t_completion)
-
-    def submit_completion_cloud(self, task_type, t_completion, t_service):
-        """
-        Submit the completion of a task in Cloud.
-        :param task_type: (TaskType) the type of task.
-        :param t_completion: (float) the occurrence time of the event.
-        :param t_service: (float) the service time.
-        :return: None
-        """
-        logger.debug("{} completed in CLOUD at {}".format(task_type, t_completion))
-
-        # Check correctness
-        assert self.cloud.n[task_type] > 0
-
-        # Update state
-        self.n[task_type] -= 1
-
-        # Update local metrics
-        self.completed[task_type] += 1
-        self.service[task_type] += t_service
-
-        # Update batch metrics
-        self.statistics.n.add_sample(self.n[Task.TASK_1] + self.n[Task.TASK_2])
-        self.statistics.completed.increment()
-        self.statistics.service.increment(t_service)
-        self.statistics.response.add_sample(t_service)
-        self.statistics.throughput.add_sample(self.statistics.completed.get_value(), t_completion)
-
-        # Process event
-        self.cloud.submit_completion(task_type, t_completion, t_service)
+        if scope is Scope.CLOUDLET:
+            self.cloudlet.submit_completion(task_type, t_completion, t_arrival)
+        elif scope is Scope.CLOUD:
+            self.cloud.submit_completion(task_type, t_completion, t_arrival)
+        else:
+            raise ValueError("Unrecognized scope {}".format(scope))
 
     # ==================================================================================================================
     # OTHER

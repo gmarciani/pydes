@@ -42,7 +42,7 @@ class SimpleCloud:
         # State
         self.n = {task: 0 for task in Task}  # current number of tasks, by task type
 
-        # Statistics
+        # Whole-run Statistics (used in verification)
         self.arrived = {task: 0 for task in Task}  # total number of arrived tasks, by task type
         self.completed = {task: 0 for task in Task}  # total number of completed tasks, by task type
         self.switched = {task: 0 for task in Task}  # total number of restarted tasks, by task type
@@ -62,9 +62,7 @@ class SimpleCloud:
         Submit to the Cloud the arrival of a task.
         :param task_type: (TaskType) the type of the task.
         :param t_arrival: (float) the arrival time.
-        :return: (c,s) where
-        *c* is the completion time;
-        *s* is the service time;
+        :return: (float) the completion time.
         """
         # Update state
         self.n[task_type] += 1
@@ -76,7 +74,7 @@ class SimpleCloud:
         # Update statistics
         self.arrived[task_type] += 1
 
-        return t_completion, t_service
+        return t_completion
 
     def submit_restart(self, task_type, t_arrival, ratio_remaining):
         """
@@ -84,9 +82,7 @@ class SimpleCloud:
         :param task_type: (TaskType) the type of the task.
         :param t_arrival: (float) the arrival time.
         :param ratio_remaining: (float) the remaining ratio.
-        :return: (c,s) where
-        *c* is the completion time;
-        *s* is the service time;
+        :return: (float) the completion time.
         """
         # Update state
         self.n[task_type] += 1
@@ -99,14 +95,14 @@ class SimpleCloud:
         # Update statistics
         self.switched[task_type] += 1
 
-        return t_completion, t_service
+        return t_completion
 
-    def submit_completion(self, task_type, t_completion, t_service):
+    def submit_completion(self, task_type, t_completion, t_arrival):
         """
         Submit to the Cloud the completion of a task.
         :param task_type: (TaskType) the type of the task.
         :param t_completion: (float) the completion time.
-        :param t_service: (float) the service time.
+        :param t_arrival: (float) the arrival time.
         :return: None
         """
         # Check correctness
@@ -117,7 +113,7 @@ class SimpleCloud:
 
         # Update statistics
         self.completed[task_type] += 1
-        self.service[task_type] += t_service
+        self.service[task_type] += t_completion - t_arrival
 
     # ==================================================================================================================
     # RANDOM TIME GENERATION

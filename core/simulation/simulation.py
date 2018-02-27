@@ -30,9 +30,6 @@ class Simulation:
         """
         self.name = name
 
-        # The statistics
-        self.statistics = BatchStatistics()
-
         # Configuration - General
         config_general = config["general"]
         self.n_batch = config_general["n_batch"]
@@ -41,6 +38,9 @@ class Simulation:
         self.t_stop = self.n_batch * self.t_batch
         self.confidence = config_general["confidence"]
         self.rndgen = getattr(rndgen, config_general["random"]["generator"])(config_general["random"]["seed"])
+
+        # The statistics
+        self.statistics = BatchStatistics(self.t_batch)
 
         # Configuration - Tasks
         config_tasks = config["tasks"]
@@ -130,15 +130,14 @@ class Simulation:
                     print_progress(self.calendar.get_clock(), self.t_stop)
 
             # Process the current batch
-            # Notice that, if an outpur file has been specified, it is filled with current batch metrics as CSV.
+            # Notice that, if an output file has been specified, it is filled with current batch metrics as CSV.
             if self.curr_batch >= self.i_batch:
                 self.statistics.register_batch()
                 if outfile is not None:
-                    self.statistics.save_csv(outfile, append=True, batch=self.curr_batch)
+                    self.statistics.save_csv(outfile, append=True, batch=(self.curr_batch-self.i_batch))
             else:
                 self.statistics.discard_batch()
 
-            # Go to the next batch
             self.curr_batch += 1
 
         # Simulation End.

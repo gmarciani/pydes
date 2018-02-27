@@ -46,6 +46,18 @@ class BaseBatchedMeasure:
         """
         return self.batch_values[batch] if batch is not None else self.curr_value
 
+    def set_value(self, value, batch=None):
+        """
+        Set the value for the specified batch.
+        :param value: the value.
+        :param batch: (int) the batch index (Default: current batch).
+        :return: None
+        """
+        if batch is not None:
+            self.batch_values[batch] = value
+        else:
+            self.curr_value = value
+
     def register_batch(self):
         """
         Register and close the current batch.

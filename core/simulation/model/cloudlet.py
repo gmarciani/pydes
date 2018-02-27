@@ -51,7 +51,7 @@ class SimpleCloudlet:
         # State
         self.n = {task: 0 for task in Task}  # current number of tasks, by task type
 
-        # Statistics
+        # Whole-run Statistics (used in verification)
         self.arrived = {task: 0 for task in Task}  # total number of arrived tasks, by task type
         self.completed = {task: 0 for task in Task}  # total number of completed tasks, by task type
         self.switched = {task: 0 for task in Task}  # total number of interrupted tasks, by task type
@@ -70,9 +70,7 @@ class SimpleCloudlet:
         Submit the arrival of a task.
         :param task_type: (TaskType) the type of the task.
         :param t_arrival: (float) the arrival time.
-        :return: (c,s) where
-        *c* is the completion time;
-        *s* is the service time;
+        :return: (float) the completion time.
         """
         # Check correctness
         assert self.n[Task.TASK_1] + self.n[Task.TASK_2] < self.n_servers
@@ -81,13 +79,13 @@ class SimpleCloudlet:
         server_idx = self.server_selector.select_idle()
         if server_idx is None:
             raise RuntimeError("Cannot find server for arrival of task {} at time {}".format(task_type, t_arrival))
-        t_completion, t_service = self.servers[server_idx].submit_arrival(task_type, t_arrival)
+        t_completion = self.servers[server_idx].submit_arrival(task_type, t_arrival)
         self.n[task_type] += 1
 
         # Update statistics
         self.arrived[task_type] += 1
 
-        return t_completion, t_service
+        return t_completion
 
     def submit_interruption(self, task_type, t_interruption):
         """
@@ -97,8 +95,7 @@ class SimpleCloudlet:
         :return: (c,w,s,r) where
         *c* is the completion time to ignore;
         *a* is the arrival time;
-        *s* is the served time;
-        *r* is the remaining ratio;
+        *r* is the remaining service time ratio;
         """
         # Check correctness
         assert self.n[task_type] > 0
@@ -107,20 +104,21 @@ class SimpleCloudlet:
         server_idx = self.server_selector.select_interruption(task_type)
         if server_idx is None:
             raise RuntimeError("Cannot find server for interruption of task {} at time {}".format(task_type, t_interruption))
-        t_completion_to_ignore, t_arrival, t_served, ratio_remaining = self.servers[server_idx].submit_interruption(task_type, t_interruption)
+        t_completion_to_ignore, t_arrival, t_served, r_remaining = self.servers[server_idx].submit_interruption(task_type, t_interruption)
         self.n[task_type] -= 1
 
         # Update statistics
         self.switched[task_type] += 1
         self.service[task_type] += t_served
 
-        return t_completion_to_ignore, t_arrival, t_served, ratio_remaining
+        return t_completion_to_ignore, t_arrival, r_remaining
 
-    def submit_completion(self, task_type, t_completion):
+    def submit_completion(self, task_type, t_completion, t_arrival):
         """
         Submit the completion of a task.
         :param task_type: (TaskType) the type of the task.
         :param t_completion: (float) the completion time.
+        :param t_arrival: (float) the arrival time.
         :return: None
         """
         # Check correctness
@@ -130,12 +128,12 @@ class SimpleCloudlet:
         server_idx = self.find_completion_server_idx(task_type, t_completion)
         if server_idx is None:
             raise RuntimeError("Cannot find server for completion of task {} at time {}".format(task_type, t_completion))
-        t_service = self.servers[server_idx].submit_completion()
+        self.servers[server_idx].submit_completion()
         self.n[task_type] -= 1
 
         # Update statistics
         self.completed[task_type] += 1
-        self.service[task_type] += t_service
+        self.service[task_type] += t_completion - t_arrival
 
     # ==================================================================================================================
     # OTHER

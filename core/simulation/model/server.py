@@ -72,9 +72,7 @@ class SimpleServer:
         Submit a task.
         :param task_type: (TaskType) the type of the task.
         :param t_clock: (float) the current time.
-        :return: (c,s) where
-        *c* is the completion time;
-        *s* is the service time.
+        :return: (float) the completion time;
         """
         assert self.state is ServerState.IDLE
 
@@ -89,7 +87,7 @@ class SimpleServer:
         self.arrived[task_type] += 1
         self.t_idle += (t_clock - self.t_completion)
 
-        return self.t_completion, self.t_service
+        return self.t_completion
 
     def submit_interruption(self, task_type, t_clock):
         """
@@ -99,8 +97,8 @@ class SimpleServer:
         :return: (c,a,s,r) where
         *c* is the scheduled completion time of the interrupted task;
         *a* is the arrival time of the interrupted task;
-        *s* is the served time for the interrupted task;
-        *r* is the remaining ratio.
+        *s* is the served time of the interrupted task;
+        *r* is the remaining service time ratio of the interrupted task.
         """
         assert self.state is ServerState.BUSY and self.task_type is task_type
         assert self.t_completion >= t_clock

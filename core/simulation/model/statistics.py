@@ -8,7 +8,7 @@ class BatchStatistics:
     The set of statistics for the simulation.
     """
 
-    def __init__(self):
+    def __init__(self, t_batch=None):
         """
         Create a new set of statistics.
         """
@@ -18,27 +18,28 @@ class BatchStatistics:
         self.completed = BatchedMeasure()
         self.switched = BatchedMeasure()
         self.service = BatchedMeasure()
-
-        # Sample Statistics
         self.n = BatchedSampleStatistic()
-        self.response = BatchedSampleStatistic()
-
-        # Sample Path Statistics
-        self.throughput = BatchedSamplePathStatistic()
+        self.response = BatchedMeasure()
+        self.throughput = BatchedMeasure()
 
         # Batch management
         self.n_batches = 0
+        self.t_batch = t_batch
 
     def register_batch(self):
         """
         Register and close the current batch statistics.
         :return: None
         """
+        # Compute derived metrics
+        self.response.set_value(self.service.get_value() / self.completed.get_value())
+        self.throughput.set_value(self.completed.get_value() / self.t_batch)
+
+        # Register all metrics
         self.arrived.register_batch()
         self.completed.register_batch()
         self.switched.register_batch()
         self.service.register_batch()
-
         self.n.register_batch()
         self.response.register_batch()
         self.throughput.register_batch()
