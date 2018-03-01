@@ -8,6 +8,10 @@ from core.utils.file_utils import create_dir_tree
 from core.utils.csv_utils import save
 
 
+PREC = 5
+WIDTH = 40
+
+
 class SimpleReport(object):
     """
     The simplest report for an experiment.
@@ -32,7 +36,7 @@ class SimpleReport(object):
         """
         if section_title not in self.params:
             self.params[section_title] = []
-        self.params[section_title].append((param_title, str(param_value)))
+        self.params[section_title].append((param_title, param_value))
 
     def add_all(self, section_title, obj):
         """
@@ -46,7 +50,7 @@ class SimpleReport(object):
             if not attr.startswith("__") and not attr.startswith("_") and not callable(getattr(obj, attr)):
                 value = obj.__dict__[attr]
                 if isinstance(value, float):
-                    self.add(section_title, attr, round(value, 3))
+                    self.add(section_title, attr, round(value, PREC))
                 else:
                     self.add(section_title, attr, str(value))
 
@@ -63,7 +67,7 @@ class SimpleReport(object):
             if attr in obj.__dict__ and not callable(getattr(obj, attr)):
                 value = obj.__dict__[attr]
                 if isinstance(value, float):
-                    self.add(section_title, attr, round(value, 3))
+                    self.add(section_title, attr, round(value, PREC))
                 else:
                     self.add(section_title, attr, value)
 
@@ -112,13 +116,17 @@ class SimpleReport(object):
         Return the string representation.
         :return: (string) the string representation.
         """
-        title_separator = "=" * 50
+        title_separator = "=" * WIDTH
 
-        s = "\n{}\n{:^50}\n{}\n".format(title_separator, self.title, title_separator)
+        fmt_title = '\n{}\n{:^' + str(WIDTH) + '}\n{}\n'
+        fmt_section = '\n{:^' + str(WIDTH) + '}\n'
+        fmt_value = '{:.<' + str(int(WIDTH/2)) + '}{:.>' + str(int(WIDTH/2)) + '}\n'
+
+        s = fmt_title.format(title_separator, self.title, title_separator)
 
         for section in self.params.items():
-            s += "\n{:^50}\n".format(section[0])
+            s += fmt_section.format(section[0])
             for p in section[1]:
-                s += "{:.<25}{:.>25}\n".format(str(p[0]), str(p[1]))
+                s += fmt_value.format(str(p[0]), str(round(p[1], PREC) if isinstance(p[1], float) else str(p[1])))
 
         return s

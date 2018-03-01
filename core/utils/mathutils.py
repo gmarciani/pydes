@@ -3,7 +3,7 @@ Utilities for math and statistics.
 """
 
 import math
-from _ignore.leemis import rvms
+from core.random import rndf
 
 
 def gcd(a, b):
@@ -71,18 +71,18 @@ def get_frequencies(sample, min, max, bins):
     return frequencies
 
 
-def get_frequencies_bivariate(sample, min, max, bins):
+def get_frequencies_bivariate(sample, mn, mx, bins):
     """
     Computes the frequencies of a bounded bivariate sample.
     :param sample: (List((Float,Float)) array of bivariate sample values.
-    :param min: (Float) the lower bound.
-    :param max: (Float) the upper bound.
+    :param mn: (Float) the lower bound.
+    :param mx: (Float) the upper bound.
     :param bins: (Int) the number of bins to divide the interval into.
     :return: (List[Int]) the list of frequencies in bins.
     """
 
     frequencies = []
-    interval = max -min
+    interval = mx - mn
     binsize = interval / bins
 
     for bin1 in range(0, bins):
@@ -91,8 +91,8 @@ def get_frequencies_bivariate(sample, min, max, bins):
             frequencies[bin1].append(0)
 
     for values in sample:
-        bin1 = math.floor(values[0] / binsize)
-        bin2 = math.floor(values[1] / binsize)
+        bin1 = int(math.floor(values[0] / binsize))
+        bin2 = int(math.floor(values[1] / binsize))
         frequencies[bin1][bin2] += 1
 
     return frequencies
@@ -216,7 +216,7 @@ def interval_estimation(sample, significance):
     samsize = len(sample)
     m = mean(sample)
     s = standard_deviation(sample)
-    t = rvms.idfStudent(samsize - 1, 1 - significance / 2)
+    t = rndf.idfStudent(samsize - 1, 1 - significance / 2)
     i = t * s / math.sqrt(samsize - 1)
     return m - i, m, m + i
 

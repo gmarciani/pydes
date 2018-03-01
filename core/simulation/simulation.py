@@ -6,9 +6,11 @@ from core.simulation.model.taskgen import SimpleTaskgen as Taskgen
 from core.simulation.model.calendar import NextEventCalendar as Calendar
 from core.simulation.model.event import EventType, Action
 from core.utils.guiutils import print_progress
-from core.simulation.model.statistics import BatchStatistics
+from core.simulation.model.statistics import SimulationStatistics
 from core.utils.logutils import ConsoleHandler
 from core.utils.file_utils import empty_file
+import os
+from core.utils.csv_utils import save
 import logging
 
 
@@ -32,15 +34,16 @@ class Simulation:
 
         # Configuration - General
         config_general = config["general"]
+        self.t_stop = config["general"]["t_stop"]
+        self.t_tran = config["general"]["t_tran"]
         self.n_batch = config_general["n_batch"]
-        self.t_batch = config_general["t_batch"]
-        self.i_batch = config_general["i_batch"]
-        self.t_stop = self.n_batch * self.t_batch
+        self.t_batch = self.t_stop / self.n_batch
         self.confidence = config_general["confidence"]
         self.rndgen = getattr(rndgen, config_general["random"]["generator"])(config_general["random"]["seed"])
+        self.t_sample = config["general"]["t_sample"]
 
         # The statistics
-        self.statistics = BatchStatistics(self.t_batch)
+        self.statistics = SimulationStatistics(self.t_batch)
 
         # Configuration - Tasks
         config_tasks = config["tasks"]
@@ -76,17 +79,24 @@ class Simulation:
     # SIMULATION PROCESS
     # ==================================================================================================================
 
-    def run(self, outfile=None, show_progress=False):
+    def run(self, outdir=None, show_progress=False):
         """
         Run the simulation.
-        :param outfile (string) the output file (Default: None)
+        :param outdir (string) the directory for output files (Default: None)
         :param show_progress (bool) if True, print the simulation real time progress bar.
         :return: None
         """
 
-        # Prepare the output file
-        if outfile is not None:
-            empty_file(outfile)
+        # Prepare the output files
+        if outdir is not None:
+            transientfile = os.path.join(outdir, "result.transient.csv")
+            batchmeansfile = os.path.join(outdir, "result.batch.csv")
+            empty_file(transientfile)
+            empty_file(batchmeansfile)
+        else:
+            transientfile = None
+            batchmeansfile = None
+        t_last_sample = 0
 
         # Simulation Start.
         logger.info("Simulation started")
@@ -125,20 +135,26 @@ class Simulation:
                     next_arrival = self.taskgen.generate(event.type.task, self.calendar.get_clock())
                     self.calendar.schedule(next_arrival)
 
+                # If transient data has to be recorded
+                if transientfile is not None and \
+                    self.calendar.get_clock() > self.t_tran and \
+                    self.calendar.get_clock() >= t_last_sample + self.t_sample:
+                        self.statistics.sample(self.calendar.get_clock()).save_csv(transientfile, append=True)
+                        t_last_sample = self.calendar.get_clock()
+
                 # Simulation progress
                 if show_progress:
                     print_progress(self.calendar.get_clock(), self.t_stop)
 
             # Process the current batch
             # Notice that, if an output file has been specified, it is filled with current batch metrics as CSV.
-            if self.curr_batch >= self.i_batch:
+            if self.calendar.get_clock() > self.t_tran:
                 self.statistics.register_batch()
-                if outfile is not None:
-                    self.statistics.save_csv(outfile, append=True, batch=(self.curr_batch-self.i_batch))
+                if batchmeansfile is not None:
+                    self.statistics.save_csv(batchmeansfile, append=True, batch=(self.curr_batch))
+                self.curr_batch += 1
             else:
                 self.statistics.discard_batch()
-
-            self.curr_batch += 1
 
         # Simulation End.
         logger.info("Simulation completed")
@@ -147,10 +163,9 @@ class Simulation:
     # REPORT
     # ==================================================================================================================
 
-    def generate_report(self, prc=3):
+    def generate_report(self):
         """
         Generate the statistics report.
-        :param prc: (int) the number of decimals for float values.
         :return: (SimpleReport) the statistics report.
         """
         r = Report(self.name)
@@ -162,8 +177,8 @@ class Simulation:
         r.add("general", "n_batch", self.n_batch)
         r.add("general", "t_batch", self.t_batch)
         r.add("general", "i_batch", self.i_batch)
-        r.add("general", "random_generator", self.rndgen.__class__.__name__)
-        r.add("general", "random_seed", self.rndgen.get_initial_seed())
+        r.add("general", "rndgen", self.rndgen.__class__.__name__)
+        r.add("general", "rndseed", self.rndgen.get_initial_seed())
 
         # Report - Tasks
         r.add("tasks", "arrival_rate_1", self.taskgen.rates[Task.TASK_1])
@@ -183,17 +198,17 @@ class Simulation:
         r.add("system/cloud", "setup_mean", self.system.cloud.setup_mean)
 
         # Report - Statistics
-        r.add("statistics", "n_mean", round(self.statistics.n.mean(), prc))
-        r.add("statistics", "n_sdev", round(self.statistics.n.sdev(), prc))
-        r.add("statistics", "n_cint", round(self.statistics.n.cint(alpha), prc))
+        r.add("statistics", "population_mean", self.statistics.population.mean())
+        r.add("statistics", "population_sdev", self.statistics.population.sdev())
+        r.add("statistics", "population_cint", self.statistics.population.cint(alpha))
 
-        r.add("statistics", "response_mean", round(self.statistics.response.mean(), prc))
-        r.add("statistics", "response_sdev", round(self.statistics.response.sdev(), prc))
-        r.add("statistics", "response_cint", round(self.statistics.response.cint(alpha), prc))
+        r.add("statistics", "response_mean", self.statistics.response.mean())
+        r.add("statistics", "response_sdev", self.statistics.response.sdev())
+        r.add("statistics", "response_cint", self.statistics.response.cint(alpha))
 
-        r.add("statistics", "throughput_mean", round(self.statistics.throughput.mean(), prc))
-        r.add("statistics", "throughput_sdev", round(self.statistics.throughput.sdev(), prc))
-        r.add("statistics", "throughput_cint", round(self.statistics.throughput.cint(alpha), prc))
+        r.add("statistics", "throughput_mean", self.statistics.throughput.mean())
+        r.add("statistics", "throughput_sdev", self.statistics.throughput.sdev())
+        r.add("statistics", "throughput_cint", self.statistics.throughput.cint(alpha))
 
         return r
 

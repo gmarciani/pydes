@@ -17,16 +17,34 @@ logger = logging.getLogger(__name__)
 CONFIG_PATH = "config.yaml"
 
 # Results
-RESULT_PATH = "out/result.csv"
+RESULT_PATH = "out"
+
+# Experiment Parameters
+REPLICATIONS = 5
+
+
+def run(config_path=CONFIG_PATH, replications=REPLICATIONS):
+    """
+    Execute the experiment.
+    :param config_path: (string) the path of the configuration file.
+    :param replications: (int) the number of replications.
+    :return: None
+    """
+
+    config = load_configuration(config_path)
+
+    logger.info("Launching transient analysis with t_stop={}".format(config["general"]["t_stop"]))
+
+    seed = 123456789
+
+    for replication in range(0, replications):
+        config["general"]["random"]["seed"] = seed
+        logger.info("Launching replication {}/{} with seed {}".format(replication+1, replications, seed))
+        result_path = "{}/{}".format(RESULT_PATH, seed)
+        simulation = Simulation(config, "SIMULATION-TRANSIENT-ANALYSIS")
+        simulation.run(outdir=result_path, show_progress=True)
+        seed = simulation.rndgen.get_seed()
 
 
 if __name__ == "__main__":
-    config = config = load_configuration(CONFIG_PATH)
-
-    logger.info("Launching transient analysis with n_batch={}, t_batch={}, i_batch={}".format(
-        config["general"]["n_batch"],
-        config["general"]["t_batch"],
-        config["general"]["i_batch"]))
-
-    simulation = Simulation(config, "SIMULATION-TRANSIENT-ANALYSIS")
-    simulation.run(outfile=RESULT_PATH, show_progress=True)
+    run()

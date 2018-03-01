@@ -14,9 +14,9 @@ class SimulationCloudTest(unittest.TestCase):
         self.n_batch = 1
         self.t_batch = 200
 
-    def test_verification_flow_balance(self):
+    def test_flow_consistency(self):
         """
-        Verify the flow balance.
+        Flow consistency check.
         :return: None
         """
 
@@ -37,41 +37,17 @@ class SimulationCloudTest(unittest.TestCase):
             self.assertEqual(simulation.system.cloudlet.n[task_type],
                              simulation.system.cloudlet.arrived[task_type] -
                              simulation.system.cloudlet.completed[task_type] -
-                             simulation.system.cloudlet.interrupted[task_type])
+                             simulation.system.cloudlet.switched[task_type])
 
             self.assertEqual(simulation.system.cloud.n[task_type],
                              simulation.system.cloud.arrived[task_type] +
-                             simulation.system.cloud.restarted[task_type] -
+                             simulation.system.cloud.switched[task_type] -
                              simulation.system.cloud.completed[task_type])
 
-            self.assertEqual(simulation.system.cloudlet.interrupted[task_type],
-                             simulation.system.cloud.restarted[task_type])
+            self.assertEqual(simulation.system.cloudlet.switched[task_type],
+                             simulation.system.cloud.switched[task_type])
 
-    def test_verification_workload_change_duration(self):
-        """
-        Verify that the model responses correctly to workload changes (duration).
-        :return: None
-        """
-
-        config_1 = get_default_configuration()
-        config_1["general"]["n_batch"] = self.n_batch
-        config_1["general"]["t_batch"] = self.t_batch
-
-        simulation_1 = Simulation(config_1)
-        simulation_1.run()
-
-        config_2 = get_default_configuration()
-        config_2["general"]["n_batch"] = self.n_batch
-        config_2["general"]["t_batch"] = 2 * self.t_batch
-
-        simulation_2 = Simulation(config_2)
-        simulation_2.run()
-
-        for task_type in Task:
-            self.assertGreater(simulation_2.system.arrived[task_type],
-                               simulation_1.system.arrived[task_type])
-
-    def test_verification_workload_change_arrival_rates(self):
+    def test_workload_change_consistency_1(self):
         """
         Verify that the model responses correctly to workload changes (arrival rates).
         :return: None
@@ -105,13 +81,13 @@ class SimulationCloudTest(unittest.TestCase):
             self.assertGreater(simulation_2.system.completed[task_type],
                                simulation_1.system.completed[task_type])
 
-        self.assertGreater(simulation_2.statistics.t_response.mean(),
-                           simulation_1.statistics.t_response.mean())
+        self.assertGreater(simulation_2.statistics.response.mean(),
+                           simulation_1.statistics.response.mean())
 
         self.assertLess(simulation_2.statistics.throughput.mean(),
                         simulation_1.statistics.throughput.mean())
 
-    def test_verification_workload_change_service_rates(self):
+    def test_workload_change_consistency(self):
         """
         Verify that the model responses correctly to workload changes (service rates).
         :return: None

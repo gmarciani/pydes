@@ -22,8 +22,13 @@ RESULT_BATCH_PATH = "out/result_{}.csv"
 THRESHOLDS = range(1, 21, 1)
 
 
-if __name__ == "__main__":
-    config = config = load_configuration(CONFIG_PATH)
+def run(config_path=CONFIG_PATH):
+    """
+    Execute the experiment.
+    :param config_path: (string) the path of the configuration file.
+    :return: None
+    """
+    config = load_configuration(config_path)
 
     simulation_counter = 0
     simulation_max = len(THRESHOLDS)
@@ -42,3 +47,8 @@ if __name__ == "__main__":
         simulation = Simulation(config, "SIMULATION-THRESHOLD-{}".format(threshold))
         simulation.run(outfile=RESULT_BATCH_PATH.format(threshold), show_progress=True)
         simulation.generate_report().save_csv(RESULT_PATH, append=(simulation_counter > 1))
+
+
+
+if __name__ == "__main__":
+    run()

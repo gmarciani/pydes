@@ -4,9 +4,10 @@ import yaml
 default_configuration = {
 
     "general": {
-        "n_batch": 1,  # the number of batches
-        "t_batch": 1000,  # the stop time for a batch (s) 1hour=3600, 1day=86400, 1week=604800, 1month=2.628e+6
-        "i_batch": 0,  # the number of batches to ignore, due to the transient
+        "t_stop": 1000,  # the stop time for the simulation (s) 1hour=3600, 1day=86400, 1week=604800, 1month=2.628e+6
+        "t_tran": 0,  # the transient time
+        "n_batch": 0,  # the number of batches
+        "t_sample": 1,  # the sampling interval (sec)
         "confidence": 0.95,  # the level of confidence
         "random": {
             "generator": "MarcianiMultiStream",  # the class name of the random generator

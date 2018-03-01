@@ -114,6 +114,7 @@ class BatchedMeasure(BaseBatchedMeasure):
         Create a new batch means measure.
         """
         BaseBatchedMeasure.__init__(self)
+        self.global_value = self.init_value()
 
     def init_value(self):
         """
@@ -143,6 +144,7 @@ class BatchedMeasure(BaseBatchedMeasure):
         :return: None
         """
         self.curr_value += value
+        self.global_value += value
 
     def decrement(self, value=1):
         """
@@ -151,6 +153,14 @@ class BatchedMeasure(BaseBatchedMeasure):
         :return: None
         """
         self.curr_value -= value
+        self.global_value -= value
+
+    def sample(self):
+        """
+        Return the global value.
+        :return: the global value.
+        """
+        return self.global_value
 
 
 class BatchedSampleStatistic(BaseBatchedMeasure):
@@ -163,6 +173,7 @@ class BatchedSampleStatistic(BaseBatchedMeasure):
         Create a new batch mean statistic.
         """
         BaseBatchedMeasure.__init__(self)
+        self.global_value = 0
 
     def init_value(self):
         """
@@ -192,6 +203,14 @@ class BatchedSampleStatistic(BaseBatchedMeasure):
         :return: None
         """
         self.curr_value.add_value(value)
+        self.global_value = value
+
+    def sample(self):
+        """
+        Return the global value.
+        :return: the global value.
+        """
+        return self.global_value
 
 
 class BatchedSamplePathStatistic(BaseBatchedMeasure):

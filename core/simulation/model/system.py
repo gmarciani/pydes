@@ -109,7 +109,7 @@ class SimpleCloudletCloudSystem:
         self.arrived[task_type] += 1
 
         # Update batch statistics
-        self.statistics.n.add_sample(self.n[Task.TASK_1] + self.n[Task.TASK_2])
+        self.statistics.population.add_sample(self.n[Task.TASK_1] + self.n[Task.TASK_2])
         self.statistics.arrived.increment()
 
         # Process event
@@ -199,7 +199,7 @@ class SimpleCloudletCloudSystem:
         self.service[task_type] += t_completion - t_arrival
 
         # Update batch metrics
-        self.statistics.n.add_sample(self.n[Task.TASK_1] + self.n[Task.TASK_2])
+        self.statistics.population.add_sample(self.n[Task.TASK_1] + self.n[Task.TASK_2])
         self.statistics.completed.increment()
         self.statistics.service.increment(t_completion - t_arrival)
 
