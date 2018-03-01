@@ -1,9 +1,9 @@
 general:
-  t_stop: 100000  # the stop time for the simulation (sec) 1hour=3600, 1day=86400, 1week=604800, 1month=2.628e+6
-  t_tran: 0  # the transient time (sec)
-  n_batch: 1  # the number of batches
-  t_sample: 100  # the sampling interval (sec)
-  confidence: 0.95  # the level of confidence
+  t_stop: 100000  # the stop time for the simulation (sec) 1hour=3600, 1day=86400, 1week=604800, 1month=2.628e+6 (suggested: 100000)
+  t_tran: 0  # the transient time (sec) (must be: 0)
+  n_batch: 1  # the number of batches (must be: 1)
+  t_sample: 100  # the sampling interval (sec) (suggested: 100)
+  confidence: 0.95  # the level of confidence (suggested: 0.95)
   random:
     generator: "MarcianiMultiStream"  # the class name of the random generator
     seed: 123456789  # the initial seed for the random generator

@@ -21,7 +21,7 @@ end
 % =========================================================================
 % SETTINGS
 % =========================================================================
-samplePoints = 30;
+samplePoints = 80;
 
 % =========================================================================
 % PLOTS
@@ -44,7 +44,7 @@ for i = 1:length(measures)
         samplePace = floor(size(time,1)/samplePoints);
     
         hold on
-        scatter(time(1:samplePace:end), values(1:samplePace:end), 'DisplayName', char(seed));  
+        scatter(time(1:samplePace:end), values(1:samplePace:end), 3, 'DisplayName', char(seed));  
         hold off
     end
     

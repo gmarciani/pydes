@@ -19,8 +19,6 @@ CONFIG_PATH = "config.yaml"
 
 # Results
 OUTDIR = "out"
-RESULT_PATH = "out/result.csv"
-RESULT_BATCH_PATH = "out"
 
 # Parameters
 THRESHOLDS = range(1, 21, 1)
@@ -51,7 +49,7 @@ def run(config_path=CONFIG_PATH):
         outdir = "{}/{}".format(OUTDIR, threshold)
         simulation = Simulation(config, "SIMULATION-THRESHOLD-{}".format(threshold))
         simulation.run(outdir=outdir, show_progress=True)
-        reportfile = os.path.join(outdir, "result.csv")
+        reportfile = os.path.join(OUTDIR, "result.csv")
         simulation.generate_report().save_csv(reportfile, append=(simulation_counter > 1))
 
 

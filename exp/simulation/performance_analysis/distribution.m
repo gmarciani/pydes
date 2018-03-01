@@ -5,7 +5,7 @@
 % =========================================================================
 % DATA
 % =========================================================================
-data     = readtable('out/result_10.csv');
+data     = readtable('out/20/result.transient.csv');
 
 measures = ["Response Time", "Throughput"];
 entries  = ["response", "throughput"];

@@ -37,10 +37,11 @@ class Simulation:
         self.t_stop = config["general"]["t_stop"]
         self.t_tran = config["general"]["t_tran"]
         self.n_batch = config_general["n_batch"]
-        self.t_batch = self.t_stop / self.n_batch
+        self.t_batch = (self.t_stop - self.t_tran) / self.n_batch
         self.confidence = config_general["confidence"]
         self.rndgen = getattr(rndgen, config_general["random"]["generator"])(config_general["random"]["seed"])
         self.t_sample = config["general"]["t_sample"] if config["general"]["t_sample"] is not None else float("inf")
+
 
         # The statistics
         self.statistics = SimulationStatistics(self.t_batch)
@@ -72,8 +73,14 @@ class Simulation:
         # (iii) unscheduling of events to ignore, e.g. completion in Cloudlet of interrupted tasks of type 2.
         self.calendar = Calendar(0.0, self.t_stop, [EventType.ARRIVAL_TASK_1, EventType.ARRIVAL_TASK_2])
 
-        # The index of the current batch
+        # Sampling management
+        self.t_last_sample = 0
+        self.sampling_file = None
+
+        # Batch management
         self.curr_batch = 0
+        self.transient_mark = False
+        self.t_last_batch = self.t_tran
 
     # ==================================================================================================================
     # SIMULATION PROCESS
@@ -89,14 +96,8 @@ class Simulation:
 
         # Prepare the output files
         if outdir is not None:
-            transientfile = os.path.join(outdir, "result.transient.csv")
-            batchmeansfile = os.path.join(outdir, "result.batch.csv")
-            empty_file(transientfile)
-            empty_file(batchmeansfile)
-        else:
-            transientfile = None
-            batchmeansfile = None
-        t_last_sample = 0
+            self.sampling_file = os.path.join(outdir, "result.sampling.csv")
+            empty_file(self.sampling_file)
 
         # Simulation Start.
         logger.info("Simulation started")
@@ -111,50 +112,54 @@ class Simulation:
         while self.calendar.get_clock() < self.t_stop:
 
             # Run the simulation for the current batch
-            while self.curr_batch < self.n_batch and self.calendar.get_clock() < self.t_batch * (self.curr_batch+1):
+            #while self.curr_batch < self.n_batch and self.calendar.get_clock() < self.t_batch * (self.curr_batch+1):
 
-                # Get the next event and update the calendar clock.
-                # Notice that the Calendar clock is automatically updated.
-                # Notice that the next event is always a possible event.
-                event = self.calendar.get_next_event()
-                logger.debug("Next: %s", event)
+            # Get the next event and update the calendar clock.
+            # Notice that the Calendar clock is automatically updated.
+            # Notice that the next event is always a possible event.
+            event = self.calendar.get_next_event()
+            logger.debug("Next: %s", event)
 
-                # Submit the event to the system.
-                # Notice that every submission generates some other events to be scheduled/unscheduled,
-                # e.g., completions and interruptions (i.e., completions to be ignored).
-                events_to_schedule, events_to_unschedule = self.system.submit(event)
+            # Submit the event to the system.
+            # Notice that every submission generates some other events to be scheduled/unscheduled,
+            # e.g., completions and interruptions (i.e., completions to be ignored).
+            events_to_schedule, events_to_unschedule = self.system.submit(event)
 
-                # Schedule/Unschedule response events
-                self.calendar.schedule(*events_to_schedule)
-                self.calendar.unschedule(*events_to_unschedule)
+            # Schedule/Unschedule response events
+            self.calendar.schedule(*events_to_schedule)
+            self.calendar.unschedule(*events_to_unschedule)
 
-                # If the event is an arrival, schedule a new arrival of the same type
-                # Notice that the next arrival generation is not managed by the system, because it is an event that
-                # is related to the simulation paradigm, not to the internal mechanism of the system.
-                if event.type.action is Action.ARRIVAL:
-                    next_arrival = self.taskgen.generate(event.type.task, self.calendar.get_clock())
-                    self.calendar.schedule(next_arrival)
+            # If the event is an arrival, schedule a new arrival of the same type
+            # Notice that the next arrival generation is not managed by the system, because it is an event that
+            # is related to the simulation paradigm, not to the internal mechanism of the system.
+            if event.type.action is Action.ARRIVAL:
+                next_arrival = self.taskgen.generate(event.type.task, self.calendar.get_clock())
+                self.calendar.schedule(next_arrival)
 
-                # If transient data has to be recorded
-                if transientfile is not None and \
-                    self.calendar.get_clock() > self.t_tran and \
-                    self.calendar.get_clock() >= t_last_sample + self.t_sample:
-                        self.statistics.sample(self.calendar.get_clock()).save_csv(transientfile, append=True)
-                        t_last_sample = self.calendar.get_clock()
+            # Simulation progress
+            if show_progress:
+                print_progress(self.calendar.get_clock(), self.t_stop)
 
-                # Simulation progress
-                if show_progress:
-                    print_progress(self.calendar.get_clock(), self.t_stop)
-
-            # Process the current batch
-            # Notice that, if an output file has been specified, it is filled with current batch metrics as CSV.
+            # If transient period has been passed...
             if self.calendar.get_clock() > self.t_tran:
-                self.statistics.register_batch()
-                if batchmeansfile is not None:
-                    self.statistics.save_csv(batchmeansfile, append=True, batch=(self.curr_batch))
-                self.curr_batch += 1
-            else:
-                self.statistics.discard_batch()
+
+                # Write sampling data
+                if self.sampling_file is not None and self.calendar.get_clock() >= self.t_last_sample + self.t_sample:
+                    self.statistics.sample(self.calendar.get_clock()).save_csv(self.sampling_file, append=True)
+                    self.t_last_sample = self.calendar.get_clock()
+
+                # Discard batch data collected during the transient period
+                if not self.transient_mark:
+                    self.statistics.discard_batch()
+                    self.transient_mark = True
+
+                # Record batch data
+                if self.calendar.get_clock() >= self.t_last_batch + self.t_batch:
+                    self.statistics.register_batch()
+                    # if batchmeansfile is not None:
+                    #    self.statistics.save_csv(batchmeansfile, append=True, batch=(self.curr_batch))
+                    self.curr_batch += 1
+                    self.t_last_batch = self.calendar.get_clock()
 
         # Simulation End.
         logger.info("Simulation completed")
@@ -174,9 +179,9 @@ class Simulation:
 
         # Report - General
         r.add("general", "t_stop", self.t_stop)
+        r.add("general", "t_tran", self.t_tran)
         r.add("general", "n_batch", self.n_batch)
         r.add("general", "t_batch", self.t_batch)
-        r.add("general", "i_batch", self.i_batch)
         r.add("general", "rndgen", self.rndgen.__class__.__name__)
         r.add("general", "rndseed", self.rndgen.get_initial_seed())
 
