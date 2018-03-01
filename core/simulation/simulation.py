@@ -40,7 +40,7 @@ class Simulation:
         self.t_batch = self.t_stop / self.n_batch
         self.confidence = config_general["confidence"]
         self.rndgen = getattr(rndgen, config_general["random"]["generator"])(config_general["random"]["seed"])
-        self.t_sample = config["general"]["t_sample"]
+        self.t_sample = config["general"]["t_sample"] if config["general"]["t_sample"] is not None else float("inf")
 
         # The statistics
         self.statistics = SimulationStatistics(self.t_batch)

@@ -6,6 +6,7 @@ Results are stored in 'result.csv' and can be visualized running the Matlab scri
 from core.simulation.simulation import Simulation as Simulation
 from core.simulation.config.configuration import load_configuration
 from core.utils.logutils import ConsoleHandler
+import os
 import logging
 
 
@@ -17,8 +18,11 @@ logger = logging.getLogger(__name__)
 CONFIG_PATH = "config.yaml"
 
 # Results
+OUTDIR = "out"
 RESULT_PATH = "out/result.csv"
-RESULT_BATCH_PATH = "out/result_{}.csv"
+RESULT_BATCH_PATH = "out"
+
+# Parameters
 THRESHOLDS = range(1, 21, 1)
 
 
@@ -33,10 +37,10 @@ def run(config_path=CONFIG_PATH):
     simulation_counter = 0
     simulation_max = len(THRESHOLDS)
 
-    logger.info("Launching performance analysis with n_batch={}, t_batch={}, i_batch={}, thresholds={}".format(
+    logger.info("Launching performance analysis with t_stop={}, t_tran={}, n_batch={}, thresholds={}".format(
+        config["general"]["t_stop"],
+        config["general"]["t_tran"],
         config["general"]["n_batch"],
-        config["general"]["t_batch"],
-        config["general"]["i_batch"],
         THRESHOLDS
     ))
 
@@ -44,10 +48,11 @@ def run(config_path=CONFIG_PATH):
         simulation_counter += 1
         config["system"]["cloudlet"]["threshold"] = threshold
         logger.info("Simulating {}/{} with threshold {}".format(simulation_counter, simulation_max, threshold))
+        outdir = "{}/{}".format(OUTDIR, threshold)
         simulation = Simulation(config, "SIMULATION-THRESHOLD-{}".format(threshold))
-        simulation.run(outfile=RESULT_BATCH_PATH.format(threshold), show_progress=True)
-        simulation.generate_report().save_csv(RESULT_PATH, append=(simulation_counter > 1))
-
+        simulation.run(outdir=outdir, show_progress=True)
+        reportfile = os.path.join(outdir, "result.csv")
+        simulation.generate_report().save_csv(reportfile, append=(simulation_counter > 1))
 
 
 if __name__ == "__main__":

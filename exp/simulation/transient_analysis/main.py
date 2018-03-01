@@ -17,9 +17,9 @@ logger = logging.getLogger(__name__)
 CONFIG_PATH = "config.yaml"
 
 # Results
-RESULT_PATH = "out"
+OUTDIR = "out"
 
-# Experiment Parameters
+# Parameters
 REPLICATIONS = 5
 
 
@@ -40,9 +40,9 @@ def run(config_path=CONFIG_PATH, replications=REPLICATIONS):
     for replication in range(0, replications):
         config["general"]["random"]["seed"] = seed
         logger.info("Launching replication {}/{} with seed {}".format(replication+1, replications, seed))
-        result_path = "{}/{}".format(RESULT_PATH, seed)
+        outdir = "{}/{}".format(OUTDIR, seed)
         simulation = Simulation(config, "SIMULATION-TRANSIENT-ANALYSIS")
-        simulation.run(outdir=result_path, show_progress=True)
+        simulation.run(outdir=outdir, show_progress=True)
         seed = simulation.rndgen.get_seed()
 
 
