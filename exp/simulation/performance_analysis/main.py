@@ -21,7 +21,8 @@ CONFIG_PATH = "config.yaml"
 OUTDIR = "out"
 
 # Parameters
-THRESHOLDS = range(1, 21, 1)
+THRESHOLDS = range(20, 21, 1)
+THRESHOLD_FOR_DISTRIBUTION = 20
 
 
 def run(config_path=CONFIG_PATH):
@@ -46,11 +47,14 @@ def run(config_path=CONFIG_PATH):
         simulation_counter += 1
         config["system"]["cloudlet"]["threshold"] = threshold
         logger.info("Simulating {}/{} with threshold {}".format(simulation_counter, simulation_max, threshold))
-        outdir = "{}/{}".format(OUTDIR, threshold)
+        outdir = "{}/{}".format(OUTDIR, threshold) if threshold == THRESHOLD_FOR_DISTRIBUTION else None
         simulation = Simulation(config, "SIMULATION-THRESHOLD-{}".format(threshold))
         simulation.run(outdir=outdir, show_progress=True)
-        reportfile = os.path.join(OUTDIR, "result.csv")
-        simulation.generate_report().save_csv(reportfile, append=(simulation_counter > 1))
+        reportfilecsv = os.path.join(OUTDIR, "result.csv")
+        reportfiletxt = os.path.join(OUTDIR, "result.txt")
+        report = simulation.generate_report()
+        report.save_csv(reportfilecsv, append=(simulation_counter > 1))
+        report.save_txt(reportfiletxt, append=(simulation_counter > 1))
 
 
 if __name__ == "__main__":

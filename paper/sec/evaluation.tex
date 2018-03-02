@@ -81,8 +81,8 @@ The randomness has been assessed by the following tests:
 % EXPERIMENTS: RESPONSE-TIME, THROUGHPUT
 % %
 \subsection{Performance Analysis}
-Let us now consider the results about the performance recorded by the simulation of the system.
-In all the experiments we consider the following parameters:
+Let us now consider the results about the performance recorded during the simulation of the target system.
+In all the experiments we have considered the following parameters:
 
 \begin{itemize}
 	\item \textbf{arrivals:} exponential with rate $\lambda_{1}=3.25 task/s$ and $\lambda_{2}=6.25 task/s$.
@@ -90,22 +90,76 @@ In all the experiments we consider the following parameters:
 	\item \textbf{setup:} exponential with mean $E[T_{setup}]=0.8s$.
 \end{itemize}
 
-arrival rates, exponential service rates and exponential setup time
-
 \begin{figure}
-  \label{fig:evaluation-response-time}
-  \includegraphics{fig/fly}
-  \caption{Response Time Analysis, as a function of $N$.}
+	\includegraphics[width=\columnwidth]{fig/evaluation-transient-analysis-response-time}
+	\caption{Transient analysis for response time.}
+	\label{fig:evaluation-transient-analysis-response-time}
 \end{figure}
 
 \begin{figure}
-	\label{fig:evaluation-throughput}
-	\includegraphics{fig/fly}
-	\caption{Throughput Analysis, as a function of $N$.}
+	\includegraphics[width=\columnwidth]{fig/evaluation-transient-analysis-throughput}
+	\caption{Transient analysis for throughput.}
+	\label{fig:evaluation-transient-analysis-throughput}
 \end{figure}
 
 \begin{figure}
-	\label{fig:evaluation-response-time-distribution}
-	\includegraphics{fig/fly}
-	\caption{The response time distribution with $S=N$.}
+	\includegraphics[width=\columnwidth]{fig/evaluation-performance-analysis-response-time}
+	\caption{Performance analysis of response time as a function of the threshold $S$ with level of confidence $95\%$. The threshold that minimizes the response time is $S*=2$ with mean value $E[R]\approx3.7512 \; sec$.}
+	\label{fig:evaluation-performance-analysis-response-time}
+\end{figure}
+
+\begin{figure}
+	\begin{center}
+	\begin{tabular}{|c||c|c|}
+		\hline
+		$\mathbf{S}$ & $\mathbf{\mu(R)\pm\delta_{0.05}}$ & $\mathbf{\sigma(R)}$\\
+		\hline
+		$0$  & $3.75149\pm 0.00342$ & $0.01346$ \\
+		$1$  & $3.75172\pm 0.00335$ & $0.01322$ \\
+		$\mathbf{2}$  & $\mathbf{3.75120\pm 0.00338}$ & $\mathbf{0.01330}$ \\
+		$3$  & $3.75198\pm 0.00334$ & $0.01315$ \\
+		$4$  & $3.75200\pm 0.00328$ & $0.01292$ \\
+		$5$  & $3.75430\pm 0.00324$ & $0.01275$ \\
+		$10$ & $3.80394\pm 0.00330$ & $0.01299$ \\
+		$15$ & $4.01623\pm 0.00406$ & $0.01599$ \\
+		$20$ & $4.35885\pm 0.00342$ & $0.01349$ \\
+		\hline
+	\end{tabular}
+	\end{center}
+	\caption{Performance analysis of the response time as a function of the threshold $S$ with level of confidence $95\%$.}
+	\label{tbl:evaluation-performance-analysis-response-time}
+\end{figure}
+
+\begin{figure}
+	\includegraphics[width=\columnwidth]{fig/evaluation-performance-analysis-throughput}
+	\caption{Performance analysis of the throughput as a function of the threshold $S$  with level of confidence $95\%$. The throughput is clearly threshold insensitive, with a constant mean value $E[X]\approx9.5030 \; task/sec$. The threshold $S*=2$ is a good choice}
+	\label{fig:evaluation-performance-analysis-throughput}
+\end{figure}
+
+\begin{figure}
+	\begin{center}
+		\begin{tabular}{|c||c|c|}
+			\hline
+			$\mathbf{S}$ & $\mathbf{\mu(X)\pm\delta_{0.05}}$ & $\mathbf{\sigma(X)}$\\
+			\hline
+			$0$  & $9.50296\pm 0.00969$ & $0.03818 $ \\
+			$1$  & $9.50295\pm 0.00969$ & $0.03818$ \\
+			$\mathbf{2}$  & $\mathbf{9.50296\pm 0.00969}$ & $\mathbf{0.03816}$ \\
+			$3$  & $9.50294\pm 0.00967$ & $0.03808$ \\
+			$4$  & $9.50296\pm 0.00969$ & $0.03816$ \\
+			$5$  & $9.50294\pm 0.00969$ & $0.03818$ \\
+			$10$ & $9.50295\pm 0.00969$ & $0.03818$ \\
+			$15$ & $9.50295\pm 0.00968$ & $0.03813$ \\
+			$20$ & $9.50296\pm 0.00970$ & $0.03821$ \\
+			\hline
+		\end{tabular}
+	\end{center}
+	\caption{Performance analysis of the throughput as a function of the threshold $S$ with level of confidence $95\%$.}
+	\label{tbl:evaluation-performance-analysis-throughput}
+\end{figure}
+
+\begin{figure}
+	\includegraphics[width=\columnwidth]{fig/evaluation-distribution-analysis-response-time}
+	\caption{Distribution analysis for response time with threshold $S=20$. The binnign rule is Freedman-Diaconis Rule. The best fitting is the Weibull with parameters $A\approx4.357$ and $B\approx3546.917$.}
+	\label{fig:evaluation-distribution-analysis-response-time}
 \end{figure}

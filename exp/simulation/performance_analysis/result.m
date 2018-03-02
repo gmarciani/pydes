@@ -12,12 +12,7 @@ measures = ["Response Time",            "Throughput"];
 ventries = ["statistics_response_mean", "statistics_throughput_mean"];
 eentries = ["statistics_response_cint", "statistics_throughput_cint"];
 units    = ["sec/task",                 "task/sec"];
-
-% =========================================================================
-% SETTINGS
-% =========================================================================
-scalemn = [0.975, 0.9999];
-scalemx = [1.025, 1.0001];
+notables = ["min",                      "max"];
 
 % =========================================================================
 % PLOTS
@@ -28,27 +23,35 @@ for i = 1:length(measures)
     ventry  = ventries(i);
     eentry  = eentries(i);
     unit    = units(i);
+    notable = notables(i);
     
     values = data{:, {char(ventry)}};
     errors = data{:, {char(eentry)}};
     
-    mn  = min(values);
-    mx  = max(values);
-    avg = mean(values);
+    if strcmp(notable, "min") == 1
+        criticalName = "Minimum";
+        critical = min(values);
+    elseif strcmp(notable, "max") == 1
+        criticalName = "Maximum";
+        critical = max(values);
+    else
+        raise 
+    end
     
     figure(i);
-    errorbar(threshold, values, errors);
+    errorbar(threshold, values, errors, 'DisplayName', 'Average');
     title({'Performance Analysis', measure});
-    xlabel('Cloudlet Threshold (tasks)');
+    xlabel('Cloudlet Threshold (task)');
     ylabel(sprintf('%s (%s)', measure, unit));
-    %ylim([mn*scalemn(i) mx*scalemx(i)]);
-
+    
+    yl = ylim;
+    
     yyaxis right
-    plot(threshold, one * mn, '--r')
-    hold on
-    plot(threshold, one * mx, '--r')
-    plot(threshold, one * avg, '--r')
-    %ylim([mn*scalemn(i) mx*scalemx(i)]);
-    set(gca,'ytick', [mn avg mx])
-    hold off
+    plot(threshold, ones(size(threshold)) * critical, '--r', 'DisplayName', criticalName);
+    ylim(yl);
+    set(gca,'ytick', (critical));
+    
+    lgd = legend('show');
+    set(lgd, 'Location', 'northwest');
+    set(lgd, 'Orientation', 'vertical');
 end

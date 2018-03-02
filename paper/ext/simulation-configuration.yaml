@@ -1,10 +1,9 @@
 general:
-  t_stop: 3600
-  replications: 1000
+  t_stop: 604800
+  t_tran: 80000
+  n_batch: 64
+  t_sample: 100
   confidence: 0.95
-  random:
-    generator: "MarcianiMultiStream"
-    seed: 123456789
 
 tasks:
   arrival_rate_1: 3.25

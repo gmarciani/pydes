@@ -3,24 +3,24 @@
 % =========================================================================
 
 % =========================================================================
-% DATA
-% =========================================================================
-data     = readtable('out/20/result.transient.csv');
-
-measures = ["Response Time", "Throughput"];
-entries  = ["response", "throughput"];
-units    = ["sec", "task/sec"];
-
-% =========================================================================
 % SETTINGS
 % =========================================================================
-scalemn = [0.98, 0.98];
-scalemx = [1.02, 1.02];
+threshold = 20;
+distName = 'Weibull';
+binMethod = 'fd';
 
 % =========================================================================
-% PLOTS: histogram
+% DATA
 % =========================================================================
-bins = 10;
+data     = readtable(sprintf('out/%d/result.sampling.csv', threshold));
+
+measures = ["Response Time"];
+entries  = ["response"];
+units    = ["sec"];
+
+% =========================================================================
+% PLOTS: distribution fitting histogram
+% =========================================================================
 for i = 1:length(measures)
     measure = measures(i);
     entry   = entries(i);
@@ -28,18 +28,16 @@ for i = 1:length(measures)
     
     values = data{:, {char(entry)}};
     
-    mn = min(values);
-    mx = max(values);
-    avg = mean(values);
-    sdev = std(values) / sqrt(length(values));
-    
-    x = linspace(avg-3*sdev, avg+3*sdev);
-    norm = normpdf(x, avg, sdev);
+    bins = size(histcounts(values, 'BinMethod', binMethod), 2);
+    dparams = fitdist(values, distName);
     
     figure(i);
-    histogram(values, 'Normalization','probability');
+    histfit(values, bins, distName);
     title({'Distribution Analysis', measure});
     xlabel(sprintf('%s (%s)', measure, unit));
-    ylabel('PDF');
+    ylabel('Frequency');
     
+    lgd = legend('Empirical',sprintf('%s(%.3f,%.3f)', distName, dparams.A, dparams.B));
+    set(lgd, 'Location', 'northwest');
+    set(lgd, 'Orientation', 'vertical');
 end

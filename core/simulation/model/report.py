@@ -83,14 +83,18 @@ class SimpleReport(object):
                 return elem[1]
         return None
 
-    def save_txt(self, filename):
+    def save_txt(self, filename, append=False, ):
         """
         Save the report onto a file.
         :param filename: (string) the absolute file path.
+        :param append: (bool) if True, append to an existing file.
         :return: (void)
         """
         create_dir_tree(filename)
-        with open(filename, "w+") as f:
+
+        mode = "a+" if append else "w+"
+
+        with open(filename, mode) as f:
             f.write(str(self))
 
     def save_csv(self, filename, append=False, skip_header=False):

@@ -43,9 +43,9 @@ class SimpleCloudlet:
         self.servers = [Server(rndgen, service_rate_1, service_rate_2) for _ in range(n_servers)]
         self.server_selector = server_selection_rule.selector(self.servers)
 
-        if not (1 <= self.threshold <= self.n_servers):
+        if not (0 <= self.threshold <= self.n_servers):
             raise ValueError(
-                "Invalid threhsold: should be >= 1 and <= n_servers, but threshold is {} and n_servers is {}".format(
+                "Invalid threhsold: should be >= 0 and <= n_servers, but threshold is {} and n_servers is {}".format(
                     self.threshold, self.n_servers))
 
         # State
