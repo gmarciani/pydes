@@ -1,12 +1,12 @@
 Metadata-Version: 1.1
-Name: demule
+Name: pydes
 Version: 1.0.0
 Summary: A pythonic discrete-event simulation suite
-Home-page: http://gmarciani.com/portfolio/demule
+Home-page: http://gmarciani.com/portfolio/pydes
 Author: Giacomo Marciani
 Author-email: gmarciani@acm.org
 License: MIT
-Download-URL: http://gmarciani.com/workspace/demule/installing.html
+Download-URL: http://gmarciani.com/workspace/pydes/installing.html
 Description: A pythonic discrete-event simulation suite
 
 Platform: any

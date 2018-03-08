@@ -5,7 +5,7 @@
 % %
 % SYSTEM DESCRIPTION
 % %
-We consider the environment sketched in Figure \ref{fig:modeling-system-sketch}, which is characterized by:
+We consider the environment sketched in Figure~\ref{fig:modeling-system-sketch}, which is characterized by:
 
 \begin{itemize}
 	\item  \textbf{workload:} mobile devices send to the system tasks that can be partitioned in two classes $C_{1}$ and $C_{2}$.
@@ -44,7 +44,7 @@ In particular, we propose to determine with a $95\%$ level of confidence
 % CONCEPTUAL MODEL
 % %
 \paragraph{Conceptual Model}
-The conceptual model is depicted in Figure \ref{fig:modeling-conceptual-model}.
+The conceptual model is depicted in Figure~\ref{fig:modeling-conceptual-model}.
 
 \begin{figure}
 	\includegraphics[width=\columnwidth]{fig/modeling-conceptual-model}
@@ -96,10 +96,10 @@ We assume that
 \paragraph{Computational Model}
 The proposed performance model has been implemented as a Python application. 
 The simulation parameters can be configured with a simple YAML file that can be loaded by the simulation program.
-The full open source code is available at \cite{gmarciani-demule} and some representative configurations and outputs are presented in Section \ref{sec:usage}.
+The full open source code is available at \cite{gmarciani-pydes} and some representative configurations and outputs are presented in Section~\ref{sec:usage}.
 
 We adopted the next-event simulation paradigm, using 
-(i) a custom multi-stream Lehmer generator to generate random events, whose parameters have been described in Section \ref{sec:random-number-generation} and whose evaluation will be presented in Section \ref{sec:evaluation}; and
+(i) a custom multi-stream Lehmer generator to generate random events, whose parameters have been described in Section~\ref{sec:random-number-generation} and whose evaluation will be presented in Section~\ref{sec:evaluation}; and
 (ii) a priority-queue based calendar with the ability both to schedule and un-schedule events.
 
 

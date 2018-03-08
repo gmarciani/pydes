@@ -31,7 +31,7 @@ The randomness has been assessed by the following tests:
 	
 	The more the total number of fails is close to the expected value, i.e. $streams \cdot confidence$, the better the generator is.
 	
-	In Figure \ref{fig:experimental-analysis-randomness-extremes-508012} we show the test results for the proposed generator $(508012,2^{31}-1, 256)$ with sample size $n=10000$, $k=1000$ bins, sequence size $d=5$ and $95\%$ level of confidence.
+	In Figure~\ref{fig:experimental-analysis-randomness-extremes-508012} we show the test results for the proposed generator $(508012,2^{31}-1, 256)$ with sample size $n=10000$, $k=1000$ bins, sequence size $d=5$ and $95\%$ level of confidence.
 	%	
 	The proposed generator shows critical values $v_{min}=913$ and $v_{max}=1088$ and 14 total fails (7 lower fails and 7 upper fails), that is not far from the theoretical accepted number of fails, i.e. $256*0.05=13$.
 	The proposed generator successfully passed the test with a $94.531\%$ level of confidence.
@@ -40,40 +40,40 @@ The randomness has been assessed by the following tests:
 	The more the recorded distance $d$ is less than the critical value $d*$ for the considered level of confidence, the better the generator is.
 	As the Kolmogorov-Smirnov analysis relies on pre-calculated randomness statistics, we have chosen to take into account the statistics obtained by the previous text of extremes.
 	
-	In Figure \ref{fig:evaluation-randomness-kolmogorov-smirnov-50812} we show the test results for the proposed generator $(508012,2^{31}-1, 256)$ with a $95\%$ level of confidence.
+	In Figure~\ref{fig:evaluation-randomness-kolmogorov-smirnov-50812} we show the test results for the proposed generator $(508012,2^{31}-1, 256)$ with a $95\%$ level of confidence.
 	%
 	The proposed generator successfully passed the test, as $d=0.041<0.081=d*$.
 	
 \end{itemize}
 
 \begin{figure}
-  \label{fig:evaluation-randomness-spectral-16807}
-  \includegraphics[width=\columnwidth]{fig/evaluation-randomness-spectral-16807}
-  \caption{The Spectral Test to evaluate the randomness of the random number generator $(16807,2^{31}-1, 1)$ in the interval $(0, 10^{-3})$.}
+	\includegraphics[width=\columnwidth]{fig/evaluation-randomness-spectral-16807}
+	\caption{The Spectral Test to evaluate the randomness of the random number generator $(16807,2^{31}-1, 1)$ in the interval $(0, 10^{-3})$.}
+	\label{fig:evaluation-randomness-spectral-16807}
 \end{figure}
 
 \begin{figure}
-	\label{fig:evaluation-randomness-spectral-48271}
 	\includegraphics[width=\columnwidth]{fig/evaluation-randomness-spectral-48271}
 	\caption{The Spectral Test to evaluate the randomness of the random number generator $(48271,2^{31}-1, 1)$ in the interval $(0, 10^{-3})$.}
+	\label{fig:evaluation-randomness-spectral-48271}
 \end{figure}
 
 \begin{figure}
-	\label{fig:evaluation-randomness-spectral-50812}
 	\includegraphics[width=\columnwidth]{fig/evaluation-randomness-spectral-50812}
 	\caption{The Spectral Test to evaluate the randomness of the random number generator $(50812,2^{31}-1, 1)$ in the interval $(0, 10^{-3})$.}
+	\label{fig:evaluation-randomness-spectral-50812}
 \end{figure}
 
 \begin{figure}
-	\label{fig:evaluation-randomness-extremes-50812}
 	\includegraphics[width=\columnwidth]{fig/evaluation-randomness-extremes-50812}
 	\caption{The Test of Extremes with $d=5$ to evaluate the randomness of the random number generator $(50812,2^{31}-1, 256)$.}
+	\label{fig:evaluation-randomness-extremes-50812}
 \end{figure}
 
 \begin{figure}
-	\label{fig:evaluation-randomness-kolmogorov-smirnov-50812}
 	\includegraphics[width=\columnwidth]{fig/evaluation-randomness-kolmogorov-smirnov-50812}
 	\caption{The Kolmogorov-Smirnov Analysis (leveraging the Test of Extremes with $d=5$) to evaluate the randomness of the random number generator $(50812,2^{31}-1, 256)$ with $0.95$ confidence level.}
+	\label{fig:evaluation-randomness-kolmogorov-smirnov-50812}
 \end{figure}
 
 

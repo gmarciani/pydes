@@ -1,4 +1,4 @@
-# Demule
+# pyDES
 
 *A pythonic discrete-event simulation suite*
 
@@ -12,16 +12,16 @@ Install all required packages with PIP, running:
 
 
 ## Simulations
-Demule provides the user with the following simulation models:
+pyDES provides the user with the following simulation models:
 
 * cloud: a simulation about Cloud computing
 
 Launch a simulation, running:
 
     $> python simulation.py [MY_SIMULATION] --config [MY_CONFIGURATION]
-    
-where 
-*[MY_SIMULATION]* is the name of the simulation to launch, i.e. the package name contained in demule.simulations, and
+
+where
+*[MY_SIMULATION]* is the name of the simulation to launch, i.e. the package name contained in pydes.simulations, and
 *[MY_CONFIGURATION]* is the relative path to the YAML configuration file for the simulation.
 
 For example, to launch the cloud simulation, run:
@@ -53,7 +53,7 @@ cloud:
 In package 'experiments/random' you can find experiments about multi-stream Lehmer pseudo-random generator.
 In package 'experiments/simulation' you can find experiments about the simulated system.
 
-* random/modulus: 
+* random/modulus:
 
 
 
