@@ -14,9 +14,9 @@ binMethod = 'fd';
 % =========================================================================
 data     = readtable(sprintf('out/%d/result.sampling.csv', threshold));
 
-measures = ["Response Time"];
-entries  = ["response"];
-units    = ["sec"];
+measures = ["Response Time", "Throughput"];
+entries  = ["response",      "throughput"];
+units    = ["sec/task",      "task/sec"];
 
 % =========================================================================
 % PLOTS: distribution fitting histogram

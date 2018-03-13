@@ -9,14 +9,14 @@ general:
     seed: 123456789  # the initial seed for the random generator
 
 tasks:
-  arrival_rate_1: 3.25  # the arrival rate for tasks of type 1 (tasks/s)
+  arrival_rate_1: 6.00  # the arrival rate for tasks of type 1 (tasks/s)
   arrival_rate_2: 6.25  # the arrival rate for tasks of type 2 (tasks/s)
 
 system:
   cloudlet:
     n_servers: 20  # the number of servers
     service_rate_1: 0.45  # the service rate for tasks of type 1 (tasks/s)
-    service_rate_2: 0.30  # the service rate for tasks of type 2 (tasks/s)
+    service_rate_2: 0.27  # the service rate for tasks of type 2 (tasks/s)
     threshold: 20  # the occupancy threshold
     server_selection: "ORDER"  # the server-selection rule
 

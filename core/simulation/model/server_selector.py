@@ -1,6 +1,6 @@
 from random import choice
 from core.simulation.model.server import ServerState
-from core.simulation.model.task import Task
+from core.simulation.model.scope import TaskScope
 
 
 class BaseServerSelection:

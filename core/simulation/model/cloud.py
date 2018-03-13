@@ -1,10 +1,9 @@
 from core.simulation.model.event import EventType
-from core.simulation.model.event import SimpleEvent as Event
 from core.random.rndvar import exponential
 import logging
 
 # Configure logger
-from core.simulation.model.task import Task
+from core.simulation.model.scope import TaskScope
 
 logger = logging.getLogger(__name__)
 
@@ -24,8 +23,8 @@ class SimpleCloud:
         """
         # Service rates
         self.rates = {
-            Task.TASK_1: service_rate_1,
-            Task.TASK_2: service_rate_2
+            TaskScope.TASK_1: service_rate_1,
+            TaskScope.TASK_2: service_rate_2
         }
 
         # Setup
@@ -34,19 +33,19 @@ class SimpleCloud:
         # Randomization
         self.rndgen = rndgen
         self.streams = {
-            Task.TASK_1: EventType.COMPLETION_CLOUD_TASK_1.value,
-            Task.TASK_2: EventType.COMPLETION_CLOUD_TASK_2.value,
+            TaskScope.TASK_1: EventType.COMPLETION_CLOUD_TASK_1.value,
+            TaskScope.TASK_2: EventType.COMPLETION_CLOUD_TASK_2.value,
             EventType.SWITCH_TASK_2: EventType.SWITCH_TASK_2.value
         }
 
         # State
-        self.n = {task: 0 for task in Task}  # current number of tasks, by task type
+        self.n = {task: 0 for task in TaskScope}  # current number of tasks, by task type
 
         # Whole-run Statistics (used in verification)
-        self.arrived = {task: 0 for task in Task}  # total number of arrived tasks, by task type
-        self.completed = {task: 0 for task in Task}  # total number of completed tasks, by task type
-        self.switched = {task: 0 for task in Task}  # total number of restarted tasks, by task type
-        self.service = {task: 0 for task in Task}  # total service time, by task type
+        self.arrived = {task: 0 for task in TaskScope}  # total number of arrived tasks, by task type
+        self.completed = {task: 0 for task in TaskScope}  # total number of completed tasks, by task type
+        self.switched = {task: 0 for task in TaskScope}  # total number of restarted tasks, by task type
+        self.service = {task: 0 for task in TaskScope}  # total service time, by task type
 
     # ==================================================================================================================
     # EVENT SUBMISSION

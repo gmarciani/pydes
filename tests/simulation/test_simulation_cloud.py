@@ -1,6 +1,6 @@
 import unittest
 from core.simulation.config.configuration import get_default_configuration
-from core.simulation.model.task import Task
+from core.simulation.model.scope import TaskScope
 from core.simulation.simulation import Simulation as Simulation
 
 
@@ -27,7 +27,7 @@ class SimulationCloudTest(unittest.TestCase):
         simulation = Simulation(config)
         simulation.run()
 
-        for task_type in Task:
+        for task_type in TaskScope:
             self.assertEqual(simulation.taskgen.generated[task_type],
                              simulation.system.arrived[task_type])
 
@@ -71,7 +71,7 @@ class SimulationCloudTest(unittest.TestCase):
         simulation_2 = Simulation(config_2)
         simulation_2.run()
 
-        for task_type in Task:
+        for task_type in TaskScope:
             self.assertGreater(simulation_2.taskgen.generated[task_type],
                                simulation_1.taskgen.generated[task_type])
 

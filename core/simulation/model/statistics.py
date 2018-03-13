@@ -1,5 +1,8 @@
-from core.statistics.batch_means import BatchedSampleStatistic, BatchedMeasure
+from core.statistics.batch_means import BatchedMeasure
+from types import SimpleNamespace
 from core.utils.csv_utils import save
+from core.simulation.model.scope import SystemScope
+from core.simulation.model.scope import TaskScope
 
 
 NAN = float("nan")
@@ -15,13 +18,16 @@ class InstantaneousStatistics:
         Create a new set of instantaneous statistics.
         """
         self.time = t_now
-        self.arrived = 0
-        self.completed = 0
-        self.switched = 0
-        self.service = 0.0
-        self.population = 0.0
-        self.response = 0.0
-        self.throughput = 0.0
+        self.metrics = SimpleNamespace(
+            arrived={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
+            completed={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
+            switched={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
+            service={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
+            population={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
+            response={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
+            response_switched={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
+            throughput={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope}
+        )
 
     def save_csv(self, filename, append=False, skip_header=False):
         """
@@ -31,21 +37,17 @@ class InstantaneousStatistics:
         :param skip_header: (bool) if True, skip the CSV header.
         :return: None
         """
-        header = ["time", "arrived", "completed", "switched", "service", "population", "response", "throughput"]
-        data = []
+        header = ["time"]
+        sample = [self.time]
 
-        sample = [
-            self.time,
-            self.arrived,
-            self.completed,
-            self.switched,
-            self.service,
-            self.population,
-            self.response,
-            self.throughput
-        ]
+        for metric in sorted(self.metrics.__dict__):
+            for sys in SystemScope:
+                for tsk in TaskScope:
+                    header.append("{}_{}_{}".format(metric, sys.name.lower(), tsk.name.lower()))
+                    sample.append(getattr(self.metrics, metric)[sys][tsk])
 
-        data.append(sample)
+        data = [sample]
+
         save(filename, header, data, append, skip_header)
 
 
@@ -59,14 +61,17 @@ class SimulationStatistics:
         Create a new set of statistics.
         """
 
-        # Measures
-        self.arrived = BatchedMeasure()
-        self.completed = BatchedMeasure()
-        self.switched = BatchedMeasure()
-        self.service = BatchedMeasure()
-        self.population = BatchedSampleStatistic()
-        self.response = BatchedMeasure()
-        self.throughput = BatchedMeasure()
+        # Metrics
+        self.metrics = SimpleNamespace(
+            arrived={sys: {tsk: BatchedMeasure() for tsk in TaskScope} for sys in SystemScope},
+            completed={sys: {tsk: BatchedMeasure() for tsk in TaskScope} for sys in SystemScope},
+            switched={sys: {tsk: BatchedMeasure() for tsk in TaskScope} for sys in SystemScope},
+            service={sys: {tsk: BatchedMeasure() for tsk in TaskScope} for sys in SystemScope},
+            population={sys: {tsk: BatchedMeasure() for tsk in TaskScope} for sys in SystemScope},
+            response={sys: {tsk: BatchedMeasure() for tsk in TaskScope} for sys in SystemScope},
+            response_switched={sys: {tsk: BatchedMeasure() for tsk in TaskScope} for sys in SystemScope},
+            throughput={sys: {tsk: BatchedMeasure() for tsk in TaskScope} for sys in SystemScope},
+        )
 
         # Batch management
         self.n_batches = 0
@@ -78,21 +83,21 @@ class SimulationStatistics:
         :return: None
         """
         # Compute derived metrics
-        if self.completed.get_value() > 0:
-            self.response.set_value(self.service.get_value() / self.completed.get_value())
-        else:
-            self.response.set_value(0)
-
-        self.throughput.set_value(self.completed.get_value() / self.t_batch)
+        for sys in SystemScope:
+            for tsk in TaskScope:
+                self.metrics.response[sys][tsk].set_value(
+                    self.metrics.service[sys][tsk].get_value() / self.metrics.completed[sys][tsk].get_value()
+                    if self.metrics.completed[sys][tsk].get_value() > 0 else 0
+                )
+                self.metrics.throughput[sys][tsk].set_value(
+                    self.metrics.completed[sys][tsk].get_value() / self.t_batch
+                )
 
         # Register all metrics
-        self.arrived.register_batch()
-        self.completed.register_batch()
-        self.switched.register_batch()
-        self.service.register_batch()
-        self.population.register_batch()
-        self.response.register_batch()
-        self.throughput.register_batch()
+        for metric in self.metrics.__dict__:
+            for sys in SystemScope:
+                for tsk in TaskScope:
+                    getattr(self.metrics, metric)[sys][tsk].register_batch()
 
         self.n_batches += 1
 
@@ -101,14 +106,10 @@ class SimulationStatistics:
         Discard the current batch statistics.
         :return: None
         """
-        self.arrived.discard_batch()
-        self.completed.discard_batch()
-        self.switched.discard_batch()
-        self.service.discard_batch()
-
-        self.population.discard_batch()
-        self.response.discard_batch()
-        self.throughput.discard_batch()
+        for metric in self.metrics.__dict__:
+            for sys in SystemScope:
+                for tsk in TaskScope:
+                    getattr(self.metrics, metric)[sys][tsk].discard_batch()
 
     def sample(self, t_now):
         """
@@ -116,16 +117,22 @@ class SimulationStatistics:
         :param t_now: (float) the current time.
         :return: the instantaneous statistics.
         """
-        s = InstantaneousStatistics(t_now)
-        s.arrived = self.arrived.sample()
-        s.completed = self.completed.sample()
-        s.switched = self.switched.sample()
-        s.service = self.service.sample()
-        s.population = self.population.sample()
-        s.response = s.service / s.completed if s.completed > 0 else 0.0
-        s.throughput = s.completed / t_now if t_now > 0 else 0.0
+        stat = InstantaneousStatistics(t_now)
 
-        return s
+        for metric in stat.metrics.__dict__:
+            for sys in SystemScope:
+                for tsk in TaskScope:
+                    if metric == "response":
+                        stat.metrics.response[sys][tsk] = \
+                            stat.metrics.service[sys][tsk] / stat.metrics.completed[sys][tsk] \
+                                if stat.metrics.completed[sys][tsk] > 0 else 0.0
+                    elif metric == "throughput":
+                        stat.metrics.throughput[sys][tsk] = \
+                            stat.metrics.completed[sys][tsk] / t_now if t_now > 0 else 0.0
+                    else:
+                        getattr(stat.metrics, metric)[sys][tsk] = getattr(self.metrics, metric)[sys][tsk].sample()
+
+        return stat
 
     def save_csv(self, filename, append=False, skip_header=False, batch=None):
         """
@@ -136,19 +143,16 @@ class SimulationStatistics:
         :param batch: (integer) the batch id. If None, all batches are saved.
         :return: None
         """
-        header = ["batch", "arrived", "completed", "switched", "service", "population", "response", "throughput"]
+        header = ["batch"]
         data = []
         rng_batches = range(self.n_batches) if batch is None else range(batch, batch+1)
         for b in rng_batches:
-            sample = [
-                b,
-                self.arrived.get_value(b),
-                self.completed.get_value(b),
-                self.switched.get_value(b),
-                self.service.get_value(b),
-                self.population.get_value(b),
-                self.response.get_value(b),
-                self.throughput.get_value(b)
-            ]
+            sample = [b]
+            for metric in sorted(self.metrics.__dict__):
+                for sys in SystemScope:
+                    for tsk in TaskScope:
+                        header.append("{}_{}_{}".format(metric, sys.name.lower(), tsk.name.lower()))
+                        sample.append(getattr(self.metrics, metric)[sys][tsk].get_value(b))
             data.append(sample)
+
         save(filename, header, data, append, skip_header)

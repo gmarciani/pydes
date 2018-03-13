@@ -5,9 +5,9 @@
 % =========================================================================
 % DATA
 % =========================================================================
-measures = ["Response Time", "Throughput"];
-entries  = ["response",      "throughput"];
-units    = ["sec/task",      "task/sec"];
+measures = ["Response Time",   "Throughput"];
+entries  = ["response_global", "throughput_global"];
+units    = ["sec/task",        "task/sec"];
 
 seeds = {};
 ls = dir('out');

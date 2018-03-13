@@ -1,8 +1,8 @@
 from enum import Enum, unique
 
-from core.simulation.model.action import Action
-from core.simulation.model.scope import Scope
-from core.simulation.model.task import Task
+from core.simulation.model.scope import ActionScope
+from core.simulation.model.scope import SystemScope
+from core.simulation.model.scope import TaskScope
 
 
 @unique
@@ -21,13 +21,13 @@ class EventType(Enum):
         self.scope = scope
         self.task = task
 
-    ARRIVAL_TASK_1 = Action.ARRIVAL, Scope.SYSTEM, Task.TASK_1  # 0
-    ARRIVAL_TASK_2 = Action.ARRIVAL, Scope.SYSTEM, Task.TASK_2  # 1
-    COMPLETION_CLOUDLET_TASK_1 = Action.COMPLETION, Scope.CLOUDLET, Task.TASK_1  # 2
-    COMPLETION_CLOUDLET_TASK_2 = Action.COMPLETION, Scope.CLOUDLET, Task.TASK_2  # 3
-    COMPLETION_CLOUD_TASK_1 = Action.COMPLETION, Scope.CLOUD, Task.TASK_1  # 4
-    COMPLETION_CLOUD_TASK_2 = Action.COMPLETION, Scope.CLOUD, Task.TASK_2  # 5
-    SWITCH_TASK_2 = Action.SWITCH, Scope.SYSTEM, Task.TASK_2  # 6
+    ARRIVAL_TASK_1 = ActionScope.ARRIVAL, SystemScope.SYSTEM, TaskScope.TASK_1  # 0
+    ARRIVAL_TASK_2 = ActionScope.ARRIVAL, SystemScope.SYSTEM, TaskScope.TASK_2  # 1
+    COMPLETION_CLOUDLET_TASK_1 = ActionScope.COMPLETION, SystemScope.CLOUDLET, TaskScope.TASK_1  # 2
+    COMPLETION_CLOUDLET_TASK_2 = ActionScope.COMPLETION, SystemScope.CLOUDLET, TaskScope.TASK_2  # 3
+    COMPLETION_CLOUD_TASK_1 = ActionScope.COMPLETION, SystemScope.CLOUD, TaskScope.TASK_1  # 4
+    COMPLETION_CLOUD_TASK_2 = ActionScope.COMPLETION, SystemScope.CLOUD, TaskScope.TASK_2  # 5
+    SWITCH_TASK_2 = ActionScope.SWITCH, SystemScope.SYSTEM, TaskScope.TASK_2  # 6
 
     @staticmethod
     def of(action, scope, task):
