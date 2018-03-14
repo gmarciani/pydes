@@ -15,7 +15,7 @@ Results (best jumper and jump size):
 Notes: results are stored in folder 'out'.
 """
 from core.random.inspection import jumper_finder
-from core.simulation.model.report import SimpleReport
+from core.utils.report import SimpleReport
 from os import path
 from core.utils.file_utils import save_list_of_pairs
 

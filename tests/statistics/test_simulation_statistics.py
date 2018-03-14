@@ -20,6 +20,11 @@ class SimulationStatisticsTest(unittest.TestCase):
 
         self.stat.register_batch()
 
+        for metric in self.stat.metrics.__dict__:
+            for sys in SystemScope:
+                for tsk in TaskScope:
+                    getattr(self.stat.metrics, metric)[sys][tsk].set_value(hash(metric), batch=0)
+
         self.file_csv = "out/test_simulation_statistics.csv"
 
     def test_save_csv(self):
@@ -34,14 +39,7 @@ class SimulationStatisticsTest(unittest.TestCase):
             for sys in SystemScope:
                 for tsk in TaskScope:
                     hdr.append("{}_{}_{}".format(metric, sys.name.lower(), tsk.name.lower()))
-                    if metric == "response":
-                        value = self.stat.metrics.service[sys][tsk].get_value(batch=0) / self.stat.metrics.completed[sys][tsk].get_value(batch=0) \
-                            if self.stat.metrics.completed[sys][tsk].get_value(batch=0) > 0 else 0
-                    elif metric == "throughput":
-                        value = self.stat.metrics.completed[sys][tsk].get_value(batch=0) / self.stat.t_batch
-                    else:
-                        value = hash(metric)
-                    row.append(value)
+                    row.append(hash(metric))
         shdr = ",".join(map(str, hdr))
         srow = ",".join(map(str, row))
         expected = "{}\n{}\n".format(shdr, srow)

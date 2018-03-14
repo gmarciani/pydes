@@ -9,7 +9,8 @@ from core.utils.csv_utils import save
 
 
 PREC = 5
-WIDTH = 40
+WIDTH = 58
+PART = 4/6
 
 
 class SimpleReport(object):
@@ -124,7 +125,7 @@ class SimpleReport(object):
 
         fmt_title = '\n{}\n{:^' + str(WIDTH) + '}\n{}\n'
         fmt_section = '\n{:^' + str(WIDTH) + '}\n'
-        fmt_value = '{:.<' + str(int(WIDTH/2)) + '}{:.>' + str(int(WIDTH/2)) + '}\n'
+        fmt_value = '{:.<' + str(int(PART*WIDTH)) + '}{:.>' + str(int((1.0-PART)*WIDTH)) + '}\n'
 
         s = fmt_title.format(title_separator, self.title, title_separator)
 

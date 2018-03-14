@@ -19,7 +19,7 @@ Results:
 """
 from core.random.rndgen import MarcianiSingleStream
 from core.random.randomness import spectral as test
-from core.simulation.model.report import SimpleReport
+from core.utils.report import SimpleReport
 from os import path
 
 

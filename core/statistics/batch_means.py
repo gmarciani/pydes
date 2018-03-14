@@ -163,7 +163,7 @@ class BatchedMeasure(BaseBatchedMeasure):
         return self.global_value
 
 
-class BatchedSampleStatistic(BaseBatchedMeasure):
+class BatchedSampleMeasure(BaseBatchedMeasure):
     """
     A batch mean statistic with the running statistic as simple sample statistic.
     """

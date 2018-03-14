@@ -1,4 +1,7 @@
 from core.simulation.model.event import EventType
+from core.simulation.model.scope import SystemScope
+from core.simulation.model.scope import TaskScope
+from core.simulation.model.scope import ActionScope
 from core.random.rndvar import exponential
 import logging
 
@@ -13,39 +16,30 @@ class SimpleCloud:
     A simple Cloud server, defined by its state.
     """
 
-    def __init__(self, rndgen, service_rate_1, service_rate_2, setup_mean):
+    def __init__(self, rndgen, config, state, statistics):
         """
         Create a new Cloud server.
         :param rndgen: (object) the multi-stream random number generator.
-        :param service_rate_1: (float) the service rate for job of type 1 (tasks/s).
-        :param service_rate_2: (float) the service rate for job of type 2 (tasks/s).
-        :param setup_mean: (float) the mean setup time to restart a task of type 2 in the Cloud (s).
+        :param config: (dict) the configuration.
+        :param state: the system state.
+        :param statistics: the system statistics.
         """
         # Service rates
-        self.rates = {
-            TaskScope.TASK_1: service_rate_1,
-            TaskScope.TASK_2: service_rate_2
-        }
+        self.rates = {tsk: config["service_rate_{}".format(tsk.value)] for tsk in TaskScope.concrete()}
 
         # Setup
-        self.setup_mean = setup_mean
+        self.setup_mean = config["t_setup_mean"]
 
         # Randomization
         self.rndgen = rndgen
-        self.streams = {
-            TaskScope.TASK_1: EventType.COMPLETION_CLOUD_TASK_1.value,
-            TaskScope.TASK_2: EventType.COMPLETION_CLOUD_TASK_2.value,
-            EventType.SWITCH_TASK_2: EventType.SWITCH_TASK_2.value
-        }
+        self.streams = {tsk: EventType.of(ActionScope.COMPLETION, SystemScope.CLOUD, tsk).value for tsk in TaskScope.concrete()}
+        self.streams[EventType.SWITCH_TASK_2] = EventType.SWITCH_TASK_2.value
 
         # State
-        self.n = {task: 0 for task in TaskScope}  # current number of tasks, by task type
+        self.state = state
 
-        # Whole-run Statistics (used in verification)
-        self.arrived = {task: 0 for task in TaskScope}  # total number of arrived tasks, by task type
-        self.completed = {task: 0 for task in TaskScope}  # total number of completed tasks, by task type
-        self.switched = {task: 0 for task in TaskScope}  # total number of restarted tasks, by task type
-        self.service = {task: 0 for task in TaskScope}  # total service time, by task type
+        # Statistics
+        self.statistics = statistics
 
     # ==================================================================================================================
     # EVENT SUBMISSION
@@ -64,14 +58,15 @@ class SimpleCloud:
         :return: (float) the completion time.
         """
         # Update state
-        self.n[task_type] += 1
+        self.state[task_type] += 1
 
         # Generate completion
         t_service = self.get_service_time(task_type)
         t_completion = t_arrival + t_service
 
         # Update statistics
-        self.arrived[task_type] += 1
+        self.statistics.metrics.arrived[SystemScope.CLOUD][task_type].increment(1)
+        #self.statistics.metrics.population[SystemScope.CLOUD][task_type].add_sample(self.state[task_type])
 
         return t_completion
 
@@ -84,7 +79,7 @@ class SimpleCloud:
         :return: (float) the completion time.
         """
         # Update state
-        self.n[task_type] += 1
+        self.state[task_type] += 1
 
         # Generate completion
         t_setup = self.get_setup_time()
@@ -92,27 +87,33 @@ class SimpleCloud:
         t_completion = t_arrival + t_service
 
         # Update statistics
-        self.switched[task_type] += 1
+        self.statistics.metrics.switched[SystemScope.CLOUD][task_type].increment(1)
+        #self.statistics.metrics.population[SystemScope.CLOUD][task_type].add_sample(self.state[task_type])
 
         return t_completion
 
-    def submit_completion(self, task_type, t_completion, t_arrival):
+    def submit_completion(self, task_type, t_completion, t_arrival, switched=False):
         """
         Submit to the Cloud the completion of a task.
         :param task_type: (TaskType) the type of the task.
         :param t_completion: (float) the completion time.
         :param t_arrival: (float) the arrival time.
+        :param switched: (bool) True if the completion is associated to a switched task.
         :return: None
         """
         # Check correctness
-        assert self.n[task_type] > 0
+        assert self.state[task_type] > 0
 
         # Update state
-        self.n[task_type] -= 1
+        self.state[task_type] -= 1
 
         # Update statistics
-        self.completed[task_type] += 1
-        self.service[task_type] += t_completion - t_arrival
+        self.statistics.metrics.completed[SystemScope.CLOUD][task_type].increment(1)
+        self.statistics.metrics.service[SystemScope.CLOUD][task_type].increment(t_completion - t_arrival)
+        if switched:
+            self.statistics.metrics.switched_completed[SystemScope.CLOUD][task_type].increment(1)
+            self.statistics.metrics.switched_service[SystemScope.CLOUD][task_type].increment(t_completion - t_arrival)
+        #self.statistics.metrics.population[SystemScope.CLOUD][task_type].add_sample(self.state[task_type])
 
     # ==================================================================================================================
     # RANDOM TIME GENERATION

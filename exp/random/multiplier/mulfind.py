@@ -13,7 +13,7 @@ Results (largest FP/MC multiplier):
 Notes: results are stored in folder 'out'.
 """
 from core.random.inspection import multiplier_check
-from core.simulation.model.report import SimpleReport
+from core.utils.report import SimpleReport
 from core.utils.file_utils import save_list_of_numbers
 from os import path
 

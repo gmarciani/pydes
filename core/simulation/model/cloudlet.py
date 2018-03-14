@@ -1,5 +1,8 @@
 from core.simulation.model.server import SimpleServer as Server
 from core.simulation.model.event import EventType
+from core.simulation.model.scope import SystemScope
+from core.simulation.model.scope import TaskScope
+from core.simulation.model.scope import ActionScope
 from core.simulation.model.server_selection_rule import SelectionRule
 from core.simulation.model.scope import TaskScope
 import logging
@@ -13,34 +16,26 @@ class SimpleCloudlet:
     A simple Cloudlet, defined by its state.
     """
 
-    def __init__(self, rndgen, n_servers, service_rate_1, service_rate_2, threshold, server_selection_rule=SelectionRule.ORDER):
+    def __init__(self, rndgen, config, state, statistics):
         """
         Create a new Cloudlet.
         :param rndgen: (object) the multi-stream random number generator.
-        :param n_servers: (integer) the number of servers.
-        :param service_rate_1: (float) the service rate for job of type 1 (tasks/s).
-        :param service_rate_2: (float) the service rate for job of type 2 (tasks/s).
-        :param threshold: (int) the occupancy threshold.
-        :param server_selection_rule: (SelectionRule) the adopted server selection rule.
+        :param config: (dict) the configuration.
+        :param state: the system state.
+        :param statistics: the system statistics.
         """
         # Service rates
-        self.rates = {
-            TaskScope.TASK_1: service_rate_1,
-            TaskScope.TASK_2: service_rate_2
-        }
+        self.rates = {tsk: config["service_rate_{}".format(tsk.value)] for tsk in TaskScope.concrete()}
 
         # Randomization
         self.rndgen = rndgen
-        self.streams = {
-            TaskScope.TASK_1: EventType.COMPLETION_CLOUDLET_TASK_1.value,
-            TaskScope.TASK_2: EventType.COMPLETION_CLOUDLET_TASK_2.value
-        }
+        self.streams = {tsk: EventType.of(ActionScope.COMPLETION, SystemScope.CLOUDLET, tsk).value for tsk in TaskScope.concrete()}
 
         # Servers
-        self.n_servers = n_servers
-        self.threshold = threshold
-        self.servers = [Server(rndgen, service_rate_1, service_rate_2) for _ in range(n_servers)]
-        self.server_selector = server_selection_rule.selector(self.servers)
+        self.n_servers = config["n_servers"]
+        self.threshold = config["threshold"]
+        self.servers = [Server(rndgen, self.rates, i) for i in range(self.n_servers)]
+        self.server_selector = SelectionRule[config["server_selection"]].selector(self.servers)
 
         if not (0 <= self.threshold <= self.n_servers):
             raise ValueError(
@@ -48,13 +43,10 @@ class SimpleCloudlet:
                     self.threshold, self.n_servers))
 
         # State
-        self.n = {task: 0 for task in TaskScope}  # current number of tasks, by task type
+        self.state = state
 
-        # Whole-run Statistics (used in verification)
-        self.arrived = {task: 0 for task in TaskScope}  # total number of arrived tasks, by task type
-        self.completed = {task: 0 for task in TaskScope}  # total number of completed tasks, by task type
-        self.switched = {task: 0 for task in TaskScope}  # total number of interrupted tasks, by task type
-        self.service = {task: 0 for task in TaskScope}  # total service time, by task type
+        # Statistics
+        self.statistics = statistics
 
     # ==================================================================================================================
     # EVENT SUBMISSION
@@ -72,17 +64,18 @@ class SimpleCloudlet:
         :return: (float) the completion time.
         """
         # Check correctness
-        assert self.n[TaskScope.TASK_1] + self.n[TaskScope.TASK_2] < self.n_servers
+        assert self.state[TaskScope.TASK_1] + self.state[TaskScope.TASK_2] < self.n_servers
 
         # Update state
         server_idx = self.server_selector.select_idle()
         if server_idx is None:
             raise RuntimeError("Cannot find server for arrival of task {} at time {}".format(task_type, t_arrival))
         t_completion = self.servers[server_idx].submit_arrival(task_type, t_arrival)
-        self.n[task_type] += 1
+        self.state[task_type] += 1
 
         # Update statistics
-        self.arrived[task_type] += 1
+        self.statistics.metrics.arrived[SystemScope.CLOUDLET][task_type].increment(1)
+        #self.statistics.metrics.population[SystemScope.CLOUDLET][task_type].add_sample(self.state[task_type])
 
         return t_completion
 
@@ -97,18 +90,20 @@ class SimpleCloudlet:
         *r* is the remaining service time ratio;
         """
         # Check correctness
-        assert self.n[task_type] > 0
+        assert self.state[task_type] > 0
 
         # Update state
         server_idx = self.server_selector.select_interruption(task_type)
         if server_idx is None:
             raise RuntimeError("Cannot find server for interruption of task {} at time {}".format(task_type, t_interruption))
         t_completion_to_ignore, t_arrival, t_served, r_remaining = self.servers[server_idx].submit_interruption(task_type, t_interruption)
-        self.n[task_type] -= 1
+        self.state[task_type] -= 1
 
         # Update statistics
-        self.switched[task_type] += 1
-        self.service[task_type] += t_served
+        self.statistics.metrics.switched[SystemScope.CLOUDLET][task_type].increment(1)
+        self.statistics.metrics.switched_service[SystemScope.CLOUDLET][task_type].increment(1)
+        self.statistics.metrics.service[SystemScope.CLOUDLET][task_type].increment(t_served)
+        #self.statistics.metrics.population[SystemScope.CLOUDLET][task_type].add_sample(self.state[task_type])
 
         return t_completion_to_ignore, t_arrival, r_remaining
 
@@ -121,18 +116,19 @@ class SimpleCloudlet:
         :return: None
         """
         # Check correctness
-        assert self.n[task_type] > 0
+        assert self.state[task_type] > 0
 
         # Update state
         server_idx = self.find_completion_server_idx(task_type, t_completion)
         if server_idx is None:
             raise RuntimeError("Cannot find server for completion of task {} at time {}".format(task_type, t_completion))
         self.servers[server_idx].submit_completion()
-        self.n[task_type] -= 1
+        self.state[task_type] -= 1
 
         # Update statistics
-        self.completed[task_type] += 1
-        self.service[task_type] += t_completion - t_arrival
+        self.statistics.metrics.completed[SystemScope.CLOUDLET][task_type].increment(1)
+        self.statistics.metrics.service[SystemScope.CLOUDLET][task_type].increment(t_completion - t_arrival)
+        #self.statistics.metrics.population[SystemScope.CLOUDLET][task_type].add_sample(self.state[task_type])
 
     # ==================================================================================================================
     # OTHER

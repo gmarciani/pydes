@@ -1,5 +1,8 @@
 from core.simulation.model.event import SimpleEvent as Event
 from core.simulation.model.event import EventType
+from core.simulation.model.scope import SystemScope
+from core.simulation.model.scope import TaskScope
+from core.simulation.model.scope import ActionScope
 from core.random.rndvar import exponential
 from sys import maxsize
 import logging
@@ -15,55 +18,45 @@ class SimpleTaskgen:
     A simple tasks generator.
     """
 
-    def __init__(self, rndgen, arrival_rate_1, arrival_rate_2, t_stop=maxsize):
+    def __init__(self, rndgen, config, t_stop=maxsize):
         """
         Create a new tasks generator.
         :param rndgen: (object) the multi-stream random number generator.
-        :param arrival_rate_1: (float) the arrival rate for tasks of type 1 (tasks/s).
-        :param arrival_rate_2: (float) the arrival rate for tasks of type 2 (tasks/s).
+        :param config: (dict) the configuration.
         :param t_stop: (float) the final stop time. Events with arrival time greater than stop time are not counted in
         taskgen tate.
         """
-        self._rndgen = rndgen
+        # Arrival rates
+        self.rates = {tsk: config["arrival_rate_{}".format(tsk.value)] for tsk in TaskScope.concrete()}
+
+        # Randomization
+        self.rndgen = rndgen
+        self.streams = {tsk: EventType.of(ActionScope.ARRIVAL, SystemScope.SYSTEM, tsk).value for tsk in TaskScope.concrete()}
+
+        self.event_types = {tsk: EventType.of(ActionScope.ARRIVAL, SystemScope.SYSTEM, tsk) for tsk in TaskScope.concrete()}
+
+        # State
+        self.generated = {tsk: 0 for tsk in TaskScope.concrete()}
+
+        # Generation management
         self.t_stop = t_stop
 
-        self.rates = {
-            TaskScope.TASK_1: arrival_rate_1,
-            TaskScope.TASK_2: arrival_rate_2
-        }
-
-        self.streams = {
-            TaskScope.TASK_1: EventType.ARRIVAL_TASK_1.value,
-            TaskScope.TASK_2: EventType.ARRIVAL_TASK_2.value
-        }
-
-        self.event_types = {
-            TaskScope.TASK_1: EventType.ARRIVAL_TASK_1,
-            TaskScope.TASK_2: EventType.ARRIVAL_TASK_2
-        }
-
-        # state
-        self.generated = {
-            TaskScope.TASK_1: 0,  # total number of generated tasks of type 1
-            TaskScope.TASK_2: 0  # total number of generated tasks of type 2
-        }
-
-    def generate(self, task_type, t_clock):
+    def generate(self, tsk, t_clock):
         """
         Generate a new random task arrival of the specified type.
-        :param task_type: (TaskType) the type of the task.
+        :param tsk: (TaskType) the type of the task.
         :param t_clock: (float) the current time.
         :return: (SimpleEvent) a new random arrival of the specified type.
         """
-        self._rndgen.stream(self.streams.get(task_type))
-        inter_arrival_time = exponential(1.0 / self.rates[task_type], self._rndgen.rnd())
+        self.rndgen.stream(self.streams.get(tsk))
+        inter_arrival_time = exponential(1.0 / self.rates[tsk], self.rndgen.rnd())
         arrival_time = t_clock + inter_arrival_time
-        event_type = self.event_types[task_type]
+        event_type = self.event_types[tsk]
         arrival = Event(event_type, arrival_time)
 
         # state change
         if arrival_time < self.t_stop:
-            self.generated[task_type] += 1
+            self.generated[tsk] += 1
 
         return arrival
 

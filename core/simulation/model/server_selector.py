@@ -78,6 +78,7 @@ class ServerSelectorCyclic(BaseServerSelection):
         if len(candidates) == 0:
             return None
         self._last = selected_server = choice(candidates)[0]
+        return selected_server
 
     def select_interruption(self, task_type):
         """
@@ -89,6 +90,7 @@ class ServerSelectorCyclic(BaseServerSelection):
         if len(candidates) == 0:
             return None
         self._last = selected_server = choice(candidates)[0]
+        return selected_server
 
 
 class ServerSelectorEquity(BaseServerSelection):
@@ -119,7 +121,7 @@ class ServerSelectorEquity(BaseServerSelection):
         candidates = [(idx, server) for idx, server in enumerate(self._servers) if server.task_type is task_type]
         if len(candidates) == 0:
             return None
-        return min(candidates, key=lambda elem: elem.interrupted[task_type])[0]
+        return min(candidates, key=lambda elem: elem.switched[task_type])[0]
 
 
 class ServerSelectorRandom(BaseServerSelection):

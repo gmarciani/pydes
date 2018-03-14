@@ -13,6 +13,14 @@ class SystemScope(Enum):
     CLOUDLET = 1
     CLOUD = 2
 
+    @staticmethod
+    def subsystems():
+        """
+        Return the subsystem scopes only.
+        :return: the subsystems scopes only.
+        """
+        return list(x for x in SystemScope if x is not SystemScope.SYSTEM)
+
 @unique
 class TaskScope(Enum):
     """
@@ -21,9 +29,17 @@ class TaskScope(Enum):
         * TASK_2
         * GLOBAL (special scope used in statistics)
     """
+    GLOBAL = 0
     TASK_1 = 1
     TASK_2 = 2
-    GLOBAL = 3
+
+    @staticmethod
+    def concrete():
+        """
+        Return the concrete task scopes only.
+        :return: the concrete task scopes only.
+        """
+        return list(x for x in TaskScope if x is not TaskScope.GLOBAL)
 
 @unique
 class ActionScope(Enum):

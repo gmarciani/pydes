@@ -1,5 +1,5 @@
 import unittest
-from core.simulation.model.report import SimpleReport
+from core.utils.report import SimpleReport
 
 
 class ReportTest(unittest.TestCase):

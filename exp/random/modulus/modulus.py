@@ -13,7 +13,7 @@ Results:
 Notes: results are stored in folder 'out'.
 """
 from core.random.inspection import modulus_finder
-from core.simulation.model.report import SimpleReport
+from core.utils.report import SimpleReport
 from os import path
 
 DEFAULT_BITS = 32

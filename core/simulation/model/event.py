@@ -3,6 +3,7 @@ from enum import Enum, unique
 from core.simulation.model.scope import ActionScope
 from core.simulation.model.scope import SystemScope
 from core.simulation.model.scope import TaskScope
+from types import SimpleNamespace
 
 
 @unique
@@ -58,8 +59,7 @@ class SimpleEvent:
         """
         self.type = type
         self.time = time
-        for k, v in kwargs.items():
-            setattr(self, k, v)
+        self.meta = SimpleNamespace(**kwargs)
 
     def __str__(self):
         """
@@ -83,18 +83,3 @@ class SimpleEvent:
 
     def __hash__(self):
         return hash((self.type, self.time))
-
-
-if __name__ == "__main__":
-    e = SimpleEvent(EventType.COMPLETION_CLOUDLET_TASK_1, 10, t_service=5)
-    print(e)
-    print(e.type)
-    print(e.type.name)
-    print(e.type.value)
-    print(e.type.action)
-    print(e.type.scope)
-    print(e.type.task)
-
-    etype = EventType.of(e.type.action, e.type.scope, e.type.task)
-
-    print(etype is e.type)

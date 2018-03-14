@@ -21,7 +21,7 @@ Notes: results are stored in folder 'out' and can be visualized by running the M
 """
 from core.random.rndgen import MarcianiMultiStream
 from core.random.randomness import extremes as test
-from core.simulation.model.report import SimpleReport
+from core.utils.report import SimpleReport
 from core.utils.file_utils import save_list_of_pairs
 from os import path
 

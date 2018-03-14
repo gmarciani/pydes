@@ -91,6 +91,27 @@ class MarcianiMultiStream(object):
         """
         return self._iseed
 
+    def get_modulus(self):
+        """
+        Retrieves the modulus.
+        :return: (int) the modulus.
+        """
+        return self._modulus
+
+    def get_multiplier(self):
+        """
+        Retrieves the multiplier.
+        :return: (int) the multiplier.
+        """
+        return self._multiplier
+
+    def get_streams_number(self):
+        """
+        Retrieves the total number of streams.
+        :return: (int) the number of streams.
+        """
+        return self._streams
+
     def get_seed(self):
         """
         Retrieves the seed of the current stream.
@@ -119,13 +140,6 @@ class MarcianiMultiStream(object):
         self._stream = stream_id % self._streams
         if self._init is False and self._stream != 0:
             self.plant_seeds(self._iseed)
-
-    def get_streams_number(self):
-        """
-        Retrieves the total number of streams.
-        :return: (int) the number of streams.
-        """
-        return self._streams
 
     def rnd(self):
         """
@@ -174,6 +188,20 @@ class MarcianiSingleStream:
         :return: (int) the initial seed of 1st stream.
         """
         return self._iseed
+
+    def get_modulus(self):
+        """
+        Retrieves the modulus.
+        :return: (int) the modulus.
+        """
+        return self._modulus
+
+    def get_multiplier(self):
+        """
+        Retrieves the multiplier.
+        :return: (int) the multiplier.
+        """
+        return self._multiplier
     
     def get_seed(self):
         """

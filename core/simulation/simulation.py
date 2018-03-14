@@ -1,7 +1,7 @@
 from core.simulation.model.system import SimpleCloudletCloudSystem as System
 from core.simulation.model.scope import SystemScope
 from core.simulation.model.scope import TaskScope
-from core.simulation.model.report import SimpleReport as Report
+from core.utils.report import SimpleReport as Report
 from core.random import rndgen
 from core.simulation.model.taskgen import SimpleTaskgen as Taskgen
 from core.simulation.model.calendar import NextEventCalendar as Calendar
@@ -46,11 +46,9 @@ class Simulation:
         self.statistics = SimulationStatistics(self.t_batch)
 
         # Configuration - Tasks
-        config_tasks = config["tasks"]
         self.taskgen = Taskgen(
             self.rndgen,
-            config_tasks["arrival_rate_1"],
-            config_tasks["arrival_rate_2"],
+            config["tasks"],
             self.t_stop
         )
 
@@ -58,8 +56,7 @@ class Simulation:
         config_system = config["system"]
         self.system = System(
             self.rndgen,
-            config_system["cloudlet"],
-            config_system["cloud"],
+            config_system,
             self.statistics
         )
 
@@ -181,8 +178,13 @@ class Simulation:
         r.add("general", "t_tran", self.t_tran)
         r.add("general", "n_batch", self.n_batch)
         r.add("general", "t_batch", self.t_batch)
-        r.add("general", "rndgen", self.rndgen.__class__.__name__)
-        r.add("general", "rndseed", self.rndgen.get_initial_seed())
+
+        # Report - Randomization
+        r.add("randomization", "generator", self.rndgen.__class__.__name__)
+        r.add("randomization", "iseed", self.rndgen.get_initial_seed())
+        r.add("randomization", "modulus", self.rndgen.get_modulus())
+        r.add("randomization", "multiplier", self.rndgen.get_multiplier())
+        r.add("randomization", "streams", self.rndgen.get_streams_number())
 
         # Report - Tasks
         r.add("tasks", "arrival_rate_1", self.taskgen.rates[TaskScope.TASK_1])
@@ -201,156 +203,22 @@ class Simulation:
         r.add("system/cloud", "service_rate_2", self.system.cloud.rates[TaskScope.TASK_2])
         r.add("system/cloud", "setup_mean", self.system.cloud.setup_mean)
 
+        # Report - State
+        for sys in sorted(self.system.state, key=lambda x: x.name):
+            for tsk in sorted(self.system.state[sys], key=lambda x: x.name):
+                r.add("state", "{}_{}".format(sys.name.lower(), tsk.name.lower()), self.system.state[sys][tsk])
+
         # Report - Statistics
-
-        # Response Time @ System
         for metric in sorted(self.statistics.metrics.__dict__):
-            for sys in SystemScope:
-                for tsk in TaskScope:
-                    metric_entry = "{}_{}_{}".format(metric, sys, tsk)
-                    r.add("statistics", metric_entry, metric)
-        r.add("statistics/system", "response_global_mean", self.statistics.response.mean())
-        r.add("statistics/system", "response_global_sdev", self.statistics.response.sdev())
-        r.add("statistics/system", "response_global_cint", self.statistics.response.cint(alpha))
-
-        r.add("statistics/system", "response_task1_mean", self.statistics.response.mean())
-        r.add("statistics/system", "response_task1_sdev", self.statistics.response.sdev())
-        r.add("statistics/system", "response_task1_cint", self.statistics.response.cint(alpha))
-
-        r.add("statistics/system", "response_task2_mean", self.statistics.response.mean())
-        r.add("statistics/system", "response_task2_sdev", self.statistics.response.sdev())
-        r.add("statistics/system", "response_task2_cint", self.statistics.response.cint(alpha))
-
-        # Throughput @ System
-        r.add("statistics/system", "throughput_global_mean", self.statistics.throughput.mean())
-        r.add("statistics/system", "throughput_global_sdev", self.statistics.throughput.sdev())
-        r.add("statistics/system", "throughput_global_cint", self.statistics.throughput.cint(alpha))
-
-        r.add("statistics/system", "throughput_task1_mean", self.statistics.throughput.mean())
-        r.add("statistics/system", "throughput_task1_sdev", self.statistics.throughput.sdev())
-        r.add("statistics/system", "throughput_task1_cint", self.statistics.throughput.cint(alpha))
-
-        r.add("statistics/system", "throughput_task2_mean", self.statistics.throughput.mean())
-        r.add("statistics/system", "throughput_task2_sdev", self.statistics.throughput.sdev())
-        r.add("statistics/system", "throughput_task2_cint", self.statistics.throughput.cint(alpha))
-
-        # Switch Ratio @ System
-        r.add("statistics/system", "switch_ratio_global_mean", self.statistics.switched.mean())
-        r.add("statistics/system", "switch_ratio_global_sdev", self.statistics.switched.sdev())
-        r.add("statistics/system", "switch_ratio_global_cint", self.statistics.switched.cint(alpha))
-
-        r.add("statistics/system", "switch_ratio_task1_mean", self.statistics.switched.mean())
-        r.add("statistics/system", "switch_ratio_task1_sdev", self.statistics.switched.sdev())
-        r.add("statistics/system", "switch_ratio_task1_cint", self.statistics.switched.cint(alpha))
-
-        r.add("statistics/system", "switch_ratio_task2_mean", self.statistics.switched.mean())
-        r.add("statistics/system", "switch_ratio_task2_sdev", self.statistics.switched.sdev())
-        r.add("statistics/system", "switch_ratio_task2_cint", self.statistics.switched.cint(alpha))
-
-        # Switched Response Time @ System
-        r.add("statistics/system", "response_switched_global_mean", self.statistics.response.mean())
-        r.add("statistics/system", "response_switched_global_sdev", self.statistics.response.sdev())
-        r.add("statistics/system", "response_switched_global_cint", self.statistics.response.cint(alpha))
-
-        r.add("statistics/system", "response_switched_task1_mean", self.statistics.response.mean())
-        r.add("statistics/system", "response_switched_task1_sdev", self.statistics.response.sdev())
-        r.add("statistics/system", "response_switched_task1_cint", self.statistics.response.cint(alpha))
-
-        r.add("statistics/system", "response_switched_task2_mean", self.statistics.response.mean())
-        r.add("statistics/system", "response_switched_task2_sdev", self.statistics.response.sdev())
-        r.add("statistics/system", "response_switched_task2_cint", self.statistics.response.cint(alpha))
-
-        # Population @ System
-        r.add("statistics/system", "population_global_mean", self.statistics.population.mean())
-        r.add("statistics/system", "population_global_sdev", self.statistics.population.sdev())
-        r.add("statistics/system", "population_global_cint", self.statistics.population.cint(alpha))
-
-        r.add("statistics/system", "population_task1_mean", self.statistics.population.mean())
-        r.add("statistics/system", "population_task1_sdev", self.statistics.population.sdev())
-        r.add("statistics/system", "population_task1_cint", self.statistics.population.cint(alpha))
-
-        r.add("statistics/system", "population_task2_mean", self.statistics.population.mean())
-        r.add("statistics/system", "population_task2_sdev", self.statistics.population.sdev())
-        r.add("statistics/system", "population_task2_cint", self.statistics.population.cint(alpha))
-
-        # Response Time @ Cloudlet
-        r.add("statistics/cloudlet", "response_global_mean", self.statistics.response.mean())
-        r.add("statistics/cloudlet", "response_global_sdev", self.statistics.response.sdev())
-        r.add("statistics/cloudlet", "response_global_cint", self.statistics.response.cint(alpha))
-
-        r.add("statistics/cloudlet", "response_task1_mean", self.statistics.response.mean())
-        r.add("statistics/cloudlet", "response_task1_sdev", self.statistics.response.sdev())
-        r.add("statistics/cloudlet", "response_task1_cint", self.statistics.response.cint(alpha))
-
-        r.add("statistics/cloudlet", "response_task2_mean", self.statistics.response.mean())
-        r.add("statistics/cloudlet", "response_task2_sdev", self.statistics.response.sdev())
-        r.add("statistics/cloudlet", "response_task2_cint", self.statistics.response.cint(alpha))
-
-        # Throughput @ Cloudlet
-        r.add("statistics/cloudlet", "throughput_global_mean", self.statistics.throughput.mean())
-        r.add("statistics/cloudlet", "throughput_global_sdev", self.statistics.throughput.sdev())
-        r.add("statistics/cloudlet", "throughput_global_cint", self.statistics.throughput.cint(alpha))
-
-        r.add("statistics/cloudlet", "throughput_task1_mean", self.statistics.throughput.mean())
-        r.add("statistics/cloudlet", "throughput_task1_sdev", self.statistics.throughput.sdev())
-        r.add("statistics/cloudlet", "throughput_task1_cint", self.statistics.throughput.cint(alpha))
-
-        r.add("statistics/cloudlet", "throughput_task2_mean", self.statistics.throughput.mean())
-        r.add("statistics/cloudlet", "throughput_task2_sdev", self.statistics.throughput.sdev())
-        r.add("statistics/cloudlet", "throughput_task2_cint", self.statistics.throughput.cint(alpha))
-
-        # Population @ Cloudlet
-        r.add("statistics/cloudlet", "population_global_mean", self.statistics.population.mean())
-        r.add("statistics/cloudlet", "population_global_sdev", self.statistics.population.sdev())
-        r.add("statistics/cloudlet", "population_global_cint", self.statistics.population.cint(alpha))
-
-        r.add("statistics/cloudlet", "population_task1_mean", self.statistics.population.mean())
-        r.add("statistics/cloudlet", "population_task1_sdev", self.statistics.population.sdev())
-        r.add("statistics/cloudlet", "population_task1_cint", self.statistics.population.cint(alpha))
-
-        r.add("statistics/cloudlet", "population_task2_mean", self.statistics.population.mean())
-        r.add("statistics/cloudlet", "population_task2_sdev", self.statistics.population.sdev())
-        r.add("statistics/cloudlet", "population_task2_cint", self.statistics.population.cint(alpha))
-
-        # Response Time @ Cloud
-        r.add("statistics/cloud", "response_global_mean", self.statistics.population.mean())
-        r.add("statistics/cloud", "response_global_sdev", self.statistics.population.sdev())
-        r.add("statistics/cloud", "response_global_cint", self.statistics.population.cint(alpha))
-
-        r.add("statistics/cloud", "response_task1_mean", self.statistics.population.mean())
-        r.add("statistics/cloud", "response_task1_sdev", self.statistics.population.sdev())
-        r.add("statistics/cloud", "response_task1_cint", self.statistics.population.cint(alpha))
-
-        r.add("statistics/cloud", "response_task2_mean", self.statistics.population.mean())
-        r.add("statistics/cloud", "response_task2_sdev", self.statistics.population.sdev())
-        r.add("statistics/cloud", "response_task2_cint", self.statistics.population.cint(alpha))
-
-        # Throughput @ Cloud
-        r.add("statistics/cloud", "throughput_global_mean", self.statistics.population.mean())
-        r.add("statistics/cloud", "throughput_global_sdev", self.statistics.population.sdev())
-        r.add("statistics/cloud", "throughput_global_cint", self.statistics.population.cint(alpha))
-
-        r.add("statistics/cloud", "throughput_task1_mean", self.statistics.population.mean())
-        r.add("statistics/cloud", "throughput_task1_sdev", self.statistics.population.sdev())
-        r.add("statistics/cloud", "throughput_task1_cint", self.statistics.population.cint(alpha))
-
-        r.add("statistics/cloud", "throughput_task2_mean", self.statistics.population.mean())
-        r.add("statistics/cloud", "throughput_task2_sdev", self.statistics.population.sdev())
-        r.add("statistics/cloud", "throughput_task2_cint", self.statistics.population.cint(alpha))
-
-        # Population @ Cloud
-        r.add("statistics/cloud", "population_global_mean", self.statistics.population.mean())
-        r.add("statistics/cloud", "population_global_sdev", self.statistics.population.sdev())
-        r.add("statistics/cloud", "population_global_cint", self.statistics.population.cint(alpha))
-
-        r.add("statistics/cloud", "population_task1_mean", self.statistics.population.mean())
-        r.add("statistics/cloud", "population_task1_sdev", self.statistics.population.sdev())
-        r.add("statistics/cloud", "population_task1_cint", self.statistics.population.cint(alpha))
-
-        r.add("statistics/cloud", "population_task2_mean", self.statistics.population.mean())
-        r.add("statistics/cloud", "population_task2_sdev", self.statistics.population.sdev())
-        r.add("statistics/cloud", "population_task2_cint", self.statistics.population.cint(alpha))
-
+            for sys in sorted(SystemScope, key=lambda x: x.name):
+                section = "statistics/{}".format(sys.name.lower())
+                for tsk in sorted(TaskScope, key=lambda x: x.name):
+                    r.add(section, "{}_{}_mean".format(metric, tsk.name.lower()),
+                          getattr(self.statistics.metrics, metric)[sys][tsk].mean())
+                    r.add(section, "{}_{}_sdev".format(metric, tsk.name.lower()),
+                          getattr(self.statistics.metrics, metric)[sys][tsk].sdev())
+                    r.add(section, "{}_{}_cint".format(metric, tsk.name.lower()),
+                          getattr(self.statistics.metrics, metric)[sys][tsk].cint(alpha))
         return r
 
     # ==================================================================================================================
@@ -375,7 +243,7 @@ if __name__ == "__main__":
     config["general"]["t_batch"] = 200
     simulation = Simulation(config)
 
-    simulation.run()
+    simulation.run(show_progress=True)
 
     report = simulation.generate_report()
 
