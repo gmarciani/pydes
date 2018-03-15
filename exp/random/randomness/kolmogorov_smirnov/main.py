@@ -25,6 +25,12 @@ from core.random.randomness import extremes
 from core.utils.report import SimpleReport
 from core.utils.file_utils import save_list_of_pairs
 from os import path
+from core.utils.logutils import ConsoleHandler
+import logging
+
+# Configure logger
+logging.basicConfig(level=logging.INFO, handlers=[ConsoleHandler(logging.INFO)])
+logger = logging.getLogger(__name__)
 
 
 # Directory for results
@@ -117,7 +123,7 @@ if __name__ == "__main__":
         for tst, tst_params in tests.items():
             multiplier = multipliers[i]
             jumper = jumpers[i]
-            print("Kolmogorov-Smirnov Test ({}) for multiplier {}".format(tst, multiplier))
+            logger.info("Kolmogorov-Smirnov Test ({}) for multiplier {}".format(tst, multiplier))
             generator = MarcianiMultiStream(modulus=modulus, multiplier=multiplier, jumper=jumper, streams=streams)
             outdir = path.join("out", "mod{}_mul{}_str{}".format(modulus, multiplier, streams, tst))
             experiment(generator, tst, tst_params, outdir)

@@ -5,6 +5,7 @@ Spectral Test
 DEFAULT_INTERVAL = (0.0, 1.0)
 """
 from core.utils.file_utils import save_list_of_pairs, append_list_of_pairs
+from core.utils.guiutils import print_progress
 
 # Number of observations in memory before flushing into file
 MAX_OBSERVATIONS_BEFORE_FLUSH = 10
@@ -24,7 +25,7 @@ def statistics(filename, rndgen, samsize, interval):
         if low <= u1 <= high and low <= u2 <= high:
             found += 1
             observed.append((u1, u2))
-            print("Found: {} | {}/{}".format(found, i, samsize))
+            print_progress(i, samsize, suffix="Complete | Found {}".format(found))
         u1 = u2
         if len(observed) == MAX_OBSERVATIONS_BEFORE_FLUSH:
             append_list_of_pairs(filename, observed)

@@ -21,6 +21,12 @@ from core.random.rndgen import MarcianiSingleStream
 from core.random.randomness import spectral as test
 from core.utils.report import SimpleReport
 from os import path
+from core.utils.logutils import ConsoleHandler
+import logging
+
+# Configure logger
+logging.basicConfig(level=logging.INFO, handlers=[ConsoleHandler(logging.INFO)])
+logger = logging.getLogger(__name__)
 
 
 # Generator
@@ -66,7 +72,7 @@ if __name__ == "__main__":
 
     for i in range(len(multipliers)):
         multiplier = multipliers[i]
-        print("Spectral Test: {}".format(multiplier))
+        logger.info("Spectral Test: {}".format(multiplier))
         generator = MarcianiSingleStream(modulus=modulus, multiplier=multiplier)
         outdir = path.join(DEFAULT_OUTDIR, "mod{}_mul{}".format(modulus, multiplier))
         experiment(generator, samsize, interval, outdir)
