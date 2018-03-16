@@ -1,7 +1,6 @@
 from core.simulation.model.server import SimpleServer as Server
 from core.simulation.model.event import EventType
 from core.simulation.model.scope import SystemScope
-from core.simulation.model.scope import TaskScope
 from core.simulation.model.scope import ActionScope
 from core.simulation.model.server_selection_rule import SelectionRule
 from core.simulation.model.scope import TaskScope

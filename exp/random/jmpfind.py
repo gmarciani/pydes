@@ -27,7 +27,7 @@ logger = get_logger(__name__)
 DEFAULT_MODULUS = 2147483647
 DEFAULT_MULTIPLIER = 16807  # [16807, 48271, 50812]
 DEFAULT_STREAMS = 256
-DEFAULT_OUTDIR = "out"
+DEFAULT_OUTDIR = "out/jumpfind"
 
 
 def experiment(modulus, multiplier, streams, outdir=DEFAULT_OUTDIR):

@@ -4,10 +4,11 @@ from core.simulation.model.scope import SystemScope
 from core.simulation.model.scope import TaskScope
 from core.simulation.model.scope import ActionScope
 from core.random.rndvar import exponential
-import logging
+from core.utils.logutils import get_logger
 
-# Configure logger
-logger = logging.getLogger(__name__)
+
+# Logging
+logger = get_logger(__name__)
 
 
 @unique

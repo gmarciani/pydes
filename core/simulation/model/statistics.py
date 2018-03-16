@@ -1,5 +1,4 @@
 from core.statistics.batch_means import BatchedMeasure
-from core.statistics.batch_means import BatchedSampleMeasure
 from types import SimpleNamespace
 from core.utils.csv_utils import save_csv
 from core.simulation.model.scope import SystemScope

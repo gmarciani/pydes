@@ -2,7 +2,6 @@ from core.statistics.sample_path_statistics import SimpleSamplePathStatistic
 from core.statistics.sample_statistics import SimpleSampleStatistic
 from core.statistics.interval_estimation import get_interval_estimation
 from statistics import mean, stdev
-from abc import ABCMeta
 
 
 class BaseBatchedMeasure:

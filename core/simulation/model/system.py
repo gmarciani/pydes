@@ -1,14 +1,14 @@
 from core.simulation.model.cloudlet import SimpleCloudlet as Cloudlet
 from core.simulation.model.cloud import SimpleCloud as Cloud
 from core.simulation.model.event import SimpleEvent as Event, EventType
-from core.simulation.model.server_selection_rule import SelectionRule
 from core.simulation.model.scope import SystemScope
 from core.simulation.model.scope import TaskScope
 from core.simulation.model.scope import ActionScope
-import logging
+from core.utils.logutils import get_logger
 
-# Configure logger
-logger = logging.getLogger(__name__)
+
+# Logging
+logger = get_logger(__name__)
 
 
 class SimpleCloudletCloudSystem:

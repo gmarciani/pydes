@@ -8,15 +8,13 @@ from core.simulation.model.calendar import NextEventCalendar as Calendar
 from core.simulation.model.event import EventType, ActionScope
 from core.utils.guiutils import print_progress
 from core.simulation.model.statistics import SimulationStatistics
-from core.utils.logutils import ConsoleHandler
 from core.utils.file_utils import empty_file
 import os
-import logging
+from core.utils.logutils import get_logger
 
 
-# Configure logger
-logging.basicConfig(level=logging.INFO, handlers=[ConsoleHandler(logging.INFO)])
-logger = logging.getLogger(__name__)
+# Logging
+logger = get_logger(__name__)
 
 
 class Simulation:
@@ -235,7 +233,7 @@ class Simulation:
 
 
 if __name__ == "__main__":
-    from core.simulation.config.configuration import get_default_configuration
+    from core.simulation.model.config import get_default_configuration
 
     config = get_default_configuration()
     config["general"]["n_batch"] = 10

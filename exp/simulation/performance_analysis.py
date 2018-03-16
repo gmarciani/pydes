@@ -4,7 +4,7 @@ Results are stored in 'result.csv' and can be visualized running the Matlab scri
 """
 
 from core.simulation.simulation import Simulation as Simulation
-from core.simulation.config.configuration import load_configuration
+from core.simulation.model.config import load_configuration
 from core.utils.logutils import ConsoleHandler
 import os
 import logging

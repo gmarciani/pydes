@@ -22,7 +22,7 @@ logger = get_logger(__name__)
 
 # Parameters (Default)
 DEFAULT_BITS = 32
-DEFAULT_OUTDIR = "out"
+DEFAULT_OUTDIR = "out/modulus"
 
 
 def experiment(bits, outdir=DEFAULT_OUTDIR):

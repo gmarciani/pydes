@@ -1,6 +1,11 @@
-from random import choice
+import random
 from core.simulation.model.server import ServerState
-from core.simulation.model.scope import TaskScope
+from core.utils.logutils import get_logger
+from itertools import cycle, islice, dropwhile
+
+
+# Logging
+logger = get_logger(__name__)
 
 
 class BaseServerSelection:
@@ -42,10 +47,10 @@ class ServerSelectorOrder(BaseServerSelection):
         Select an idle server, according to the adopted server selection rule.
         :return: (int) the index of the selected server, if present; None, otherwise.
         """
-        candidates = [(idx, server) for idx, server in enumerate(self._servers) if server.state is ServerState.IDLE]
-        if len(candidates) == 0:
-            return None
-        return candidates[0][0]
+        for (idx, srv) in enumerate(self._servers):
+            if srv.state is ServerState.IDLE:
+                return idx
+        return None
 
     def select_interruption(self, task_type):
         """
@@ -53,10 +58,10 @@ class ServerSelectorOrder(BaseServerSelection):
         :param task_type: (TaskType) the type of the task.
         :return: (int) the index of the selected server, if present; None, otherwise.
         """
-        candidates = [(idx, server) for idx, server in enumerate(self._servers) if server.task_type is task_type]
-        if len(candidates) == 0:
-            return None
-        return candidates[0][0]
+        for (idx, srv) in enumerate(self._servers):
+            if srv.task_type is task_type:
+                return idx
+        return None
 
 
 class ServerSelectorCyclic(BaseServerSelection):
@@ -74,11 +79,13 @@ class ServerSelectorCyclic(BaseServerSelection):
         Select an idle server, according to the adopted server selection rule.
         :return: (int) the index of the selected server, if present; None, otherwise.
         """
-        candidates = [(idx, server) for idx, server in enumerate(self._servers[self._last:]) if server.state is ServerState.IDLE]
-        if len(candidates) == 0:
-            return None
-        self._last = selected_server = choice(candidates)[0]
-        return selected_server
+        for i in range(1, len(self._servers)+1):
+            idx = (self._last + i) % len(self._servers)
+            srv = self._servers[idx]
+            if srv.state is ServerState.IDLE:
+                self._last = idx
+                return idx
+        return None
 
     def select_interruption(self, task_type):
         """
@@ -86,11 +93,13 @@ class ServerSelectorCyclic(BaseServerSelection):
         :param task_type: (TaskType) the type of the task.
         :return: (int) the index of the selected server, if present; None, otherwise.
         """
-        candidates = [(idx, server) for idx, server in enumerate(self._servers[self._last:]) if server.task_type is task_type]
-        if len(candidates) == 0:
-            return None
-        self._last = selected_server = choice(candidates)[0]
-        return selected_server
+        for i in range(1, len(self._servers)+1):
+            idx = (self._last + i) % len(self._servers)
+            srv = self._servers[idx]
+            if srv.task_type is task_type:
+                self._last = idx
+                return idx
+        return None
 
 
 class ServerSelectorEquity(BaseServerSelection):
@@ -110,18 +119,18 @@ class ServerSelectorEquity(BaseServerSelection):
         candidates = [(idx, server) for idx, server in enumerate(self._servers) if server.state is ServerState.IDLE]
         if len(candidates) == 0:
             return None
-        return max(candidates, key=lambda elem: elem.idle_time)[0]
+        return max(candidates, key=lambda x: x[1].t_idle)[0]
 
-    def select_interruption(self, task_type):
+    def select_interruption(self, tsk):
         """
         Select an interruption server, according to the adopted server selection rule.
-        :param task_type: (TaskType) the type of the task.
+        :param tsk: (TaskType) the type of the task.
         :return: (int) the index of the selected server, if present; None, otherwise.
         """
-        candidates = [(idx, server) for idx, server in enumerate(self._servers) if server.task_type is task_type]
+        candidates = [(idx, server) for idx, server in enumerate(self._servers) if server.task_type is tsk]
         if len(candidates) == 0:
             return None
-        return min(candidates, key=lambda elem: elem.switched[task_type])[0]
+        return min(candidates, key=lambda x: x[1].switched[tsk])[0]
 
 
 class ServerSelectorRandom(BaseServerSelection):
@@ -141,15 +150,15 @@ class ServerSelectorRandom(BaseServerSelection):
         candidates = [(idx, server) for idx, server in enumerate(self._servers) if server.state is ServerState.IDLE]
         if len(candidates) == 0:
             return None
-        return choice(candidates)[0]
+        return random.choice(candidates)[0]
 
-    def select_interruption(self, task_type):
+    def select_interruption(self, tsk):
         """
         Select an interruption server, according to the adopted server selection rule.
-        :param task_type: (TaskType) the type of the task.
+        :param tsk: (TaskType) the type of the task.
         :return: (int) the index of the selected server, if present; None, otherwise.
         """
-        candidates = [(idx, server) for idx, server in enumerate(self._servers) if server.task_type is task_type]
+        candidates = [(idx, server) for idx, server in enumerate(self._servers) if server.task_type is tsk]
         if len(candidates) == 0:
             return None
-        return choice(candidates)[0]
+        return random.choice(candidates)[0]
