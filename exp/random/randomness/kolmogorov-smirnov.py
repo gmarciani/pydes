@@ -23,23 +23,24 @@ from core.random.rndgen import MarcianiMultiStream
 from core.random.randomness import kolmogorov_smirnov as test
 from core.random.randomness import extremes
 from core.utils.report import SimpleReport
-from core.utils.file_utils import save_list_of_pairs
+from core.utils.csv_utils import save_csv
 from os import path
-from core.utils.logutils import ConsoleHandler
-import logging
+from core.utils.logutils import get_logger
 
-# Configure logger
-logging.basicConfig(level=logging.INFO, handlers=[ConsoleHandler(logging.INFO)])
-logger = logging.getLogger(__name__)
+# Logging
+logger = get_logger(__name__)
 
-
-# Directory for results
-DEFAULT_OUTDIR = "out"
+# Parameters (Default)
+DEFAULT_OUTDIR = "out/kolmogorov-smirnov"
 
 
-def experiment(generator, test_name, test_params, outdir=DEFAULT_OUTDIR):
+def experiment(g, test_name, test_params, outdir=DEFAULT_OUTDIR):
 
-    filename = path.join(outdir, "ks_{}".format(tst))
+    logger.info("Kolmogorov-Smirnov Test ({}) for Modulus {} Multiplier {} Streams {} Jumper {}".
+                format(tst, g.get_modulus(), g.get_multiplier(), g.get_nstreams(), g.get_jumper()))
+
+    filename = path.join(outdir, "mod{}_mul{}"
+                         .format(g.get_modulus(), g.get_multiplier(), g.get_nstreams(), g.get_jumper()))
 
     if test_name is "uniformity_u":
         raise NotImplementedError("Kolmogorov-Smirnov on {} is not yet implemented".format(test_name))
@@ -48,7 +49,7 @@ def experiment(generator, test_name, test_params, outdir=DEFAULT_OUTDIR):
         raise NotImplementedError("Kolmogorov-Smirnov on {} is not yet implemented".format(test_name))
         #data = uniformity_bivariate.statistics(generator, streams, samsize, bins)
     elif test_name is "extremes":
-        chi_square_statistics = extremes.statistics(generator, test_params["samsize"], test_params["bins"], test_params["d"])
+        chi_square_statistics = extremes.statistics(g, test_params["samsize"], test_params["bins"], test_params["d"])
     elif test_name is "runsup":
         raise NotImplementedError("Kolmogorov-Smirnov on {} is not yet implemented".format(test_name))
         #data = runsup.statistics(generator, streams, samsize, bins)
@@ -61,7 +62,7 @@ def experiment(generator, test_name, test_params, outdir=DEFAULT_OUTDIR):
     else:
         raise ValueError("{} is not a valid testname".format(test_name))
 
-    save_list_of_pairs(filename + "_chi.csv", chi_square_statistics)
+    save_csv(filename + ".csv", ["stream", "value"], chi_square_statistics, empty=True)
 
     # KS Statistic
     ks_distances = test.compute_ks_distances(chi_square_statistics, test_params["bins"])
@@ -76,12 +77,12 @@ def experiment(generator, test_name, test_params, outdir=DEFAULT_OUTDIR):
 
     # Report
     r = SimpleReport("TEST OF KOLMOGOROV-SMIRNOV")
-    r.add("Generator", "Class", generator.__class__.__name__)
-    r.add("Generator", "Streams", generator._streams)
-    r.add("Generator", "Modulus", generator._modulus)
-    r.add("Generator", "Multiplier", generator._multiplier)
-    r.add("Generator", "Seed", generator._iseed)
-    r.add("Test Parameters", "Chi-Square Test", test_name)
+    r.add("Generator", "Class", g.__class__.__name__)
+    r.add("Generator", "Streams", g.get_nstreams())
+    r.add("Generator", "Modulus", g.get_modulus())
+    r.add("Generator", "Multiplier", g.get_multiplier())
+    r.add("Generator", "Seed", g.get_initial_seed())
+    r.add("Test Parameters", "ChiSquare Test", test_name)
     r.add("Test Parameters", "Sample Size", test_params["samsize"])
     r.add("Test Parameters", "Bins", test_params["bins"])
     r.add("Test Parameters", "Confidence", round(test_params["confidence"] * 100, 3))
@@ -100,14 +101,14 @@ def experiment(generator, test_name, test_params, outdir=DEFAULT_OUTDIR):
     r.save_txt(filename + "_report.txt")
     r.save_csv(filename + "_report.csv")
 
-    print(r)
+    logger.info("Report:\n{}".format(r))
 
 
 if __name__ == "__main__":
     # Generator
     modulus = 2147483647
-    multipliers = [50812]  #[50812, 48271, 16807]
-    jumpers = [29872]
+    multipliers = [50812, 48271, 16807]
+    jumpers = [29872, 22925, 62091]
     streams = 256
 
     tests = {
@@ -123,7 +124,5 @@ if __name__ == "__main__":
         for tst, tst_params in tests.items():
             multiplier = multipliers[i]
             jumper = jumpers[i]
-            logger.info("Kolmogorov-Smirnov Test ({}) for multiplier {}".format(tst, multiplier))
             generator = MarcianiMultiStream(modulus=modulus, multiplier=multiplier, jumper=jumper, streams=streams)
-            outdir = path.join("out", "mod{}_mul{}_str{}".format(modulus, multiplier, streams, tst))
-            experiment(generator, tst, tst_params, outdir)
+            experiment(generator, tst, tst_params, path.join(DEFAULT_OUTDIR, tst))

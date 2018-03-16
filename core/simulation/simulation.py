@@ -184,7 +184,7 @@ class Simulation:
         r.add("randomization", "iseed", self.rndgen.get_initial_seed())
         r.add("randomization", "modulus", self.rndgen.get_modulus())
         r.add("randomization", "multiplier", self.rndgen.get_multiplier())
-        r.add("randomization", "streams", self.rndgen.get_streams_number())
+        r.add("randomization", "streams", self.rndgen.get_nstreams())
 
         # Report - Tasks
         r.add("tasks", "arrival_rate_1", self.taskgen.rates[TaskScope.TASK_1])

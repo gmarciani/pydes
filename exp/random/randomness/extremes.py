@@ -22,35 +22,34 @@ Notes: results are stored in folder 'out' and can be visualized by running the M
 from core.random.rndgen import MarcianiMultiStream
 from core.random.randomness import extremes as test
 from core.utils.report import SimpleReport
-from core.utils.file_utils import save_list_of_pairs
 from os import path
-from core.utils.logutils import ConsoleHandler
-import logging
+from core.utils.logutils import get_logger
+from core.utils.csv_utils import save_csv
 
-# Configure logger
-logging.basicConfig(level=logging.INFO, handlers=[ConsoleHandler(logging.INFO)])
-logger = logging.getLogger(__name__)
+# Logging
+logger = get_logger(__name__)
 
-# Generator
+# Parameters (Default)
 DEFAULT_GENERATOR = MarcianiMultiStream()
-
-# Test Parameters
 DEFAULT_SAMSIZE = 10000  # >=  10*BINS
 DEFAULT_BINS = 1000  # >= 1000
 DEFAULT_D = 5  # >= 2
 DEFAULT_CONFIDENCE = 0.95  # >= 0.95
-
-# Directory for results
-DEFAULT_OUTDIR = "out"
+DEFAULT_OUTDIR = "out/extremes"
 
 
-def experiment(generator, samsize, bins, confidence, d, outdir):
+def experiment(g, samsize, bins, confidence, d, outdir):
 
-    filename = path.join(outdir, "extremes_sms{}_d{}".format(samsize, d))
+    logger.info(
+        "Extremes Test for Modulus {} Multiplier {} Streams {} Jumper {} Bins {} Samsize {} D {} Confidence {}"
+        .format(g.get_modulus(), g.get_multiplier(), g.get_nstreams(), g.get_jumper(), bins, samsize, d, confidence))
+
+    filename = path.join(outdir, "mod{}_mul{}"
+                         .format(g.get_modulus(), g.get_multiplier(), g.get_nstreams(), g.get_jumper()))
 
     # Statistics: [(stream_1, chi_1),(stream_2,chi_2),...,(stream_n,chi_n)]
-    data = test.statistics(generator, samsize, bins, d)
-    save_list_of_pairs(filename + ".csv", data)
+    data = test.statistics(g, samsize, bins, d)
+    save_csv(filename + ".csv", ["stream", "value"], data, empty=True)
 
     # Critical Bounds
     mn = test.critical_min(bins, confidence)
@@ -65,11 +64,11 @@ def experiment(generator, samsize, bins, confidence, d, outdir):
 
     # Report
     r = SimpleReport("TEST OF EXTREMES")
-    r.add("Generator", "Class", generator.__class__.__name__)
-    r.add("Generator", "Streams", generator._streams)
-    r.add("Generator", "Modulus", generator._modulus)
-    r.add("Generator", "Multiplier", generator._multiplier)
-    r.add("Generator", "Seed", generator._iseed)
+    r.add("Generator", "Class", g.__class__.__name__)
+    r.add("Generator", "Streams", g.get_nstreams())
+    r.add("Generator", "Modulus", g.get_modulus())
+    r.add("Generator", "Multiplier", g.get_multiplier())
+    r.add("Generator", "Seed", g.get_initial_seed())
     r.add("Test Parameters", "Sample Size", samsize)
     r.add("Test Parameters", "Bins", bins)
     r.add("Test Parameters", "Confidence", round(confidence * 100, 3))
@@ -90,13 +89,13 @@ def experiment(generator, samsize, bins, confidence, d, outdir):
     r.save_txt(filename + "_report.txt")
     r.save_csv(filename + "_report.csv")
 
-    print(r)
+    logger.info("Report:\n{}".format(r))
 
 
 if __name__ == "__main__":
     modulus = 2147483647
-    multipliers = [50812]  #[50812, 48271, 16807]
-    jumpers = [29872]
+    multipliers = [50812, 48271, 16807]
+    jumpers = [29872, 22925, 62091]
     streams = 256
     bins = 1000
     samsize = 10 * bins
@@ -106,7 +105,5 @@ if __name__ == "__main__":
     for i in range(len(multipliers)):
         multiplier = multipliers[i]
         jumper = jumpers[i]
-        logger.info("Extremes Test for multiplier {}".format(multiplier))
         generator = MarcianiMultiStream(modulus=modulus, multiplier=multiplier, jumper=jumper, streams=256)
-        outdir = path.join("out", "mod{}_mul{}_str{}".format(modulus, multiplier, streams))
-        experiment(generator, samsize, bins, confidence, d, outdir)
+        experiment(generator, samsize, bins, confidence, d, DEFAULT_OUTDIR)

@@ -16,33 +16,36 @@ from core.random.inspection import multiplier_check
 from core.utils.report import SimpleReport
 from core.utils.file_utils import save_list_of_numbers
 from os import path
+from core.utils.logutils import ConsoleHandler
+from core.utils.logutils import get_logger
+
+# Logging
+logger = get_logger(__name__)
 
 
-# Default parameters
+# Parameters (Default)
 DEFAULT_MODULUS = 2147483647
 DEFAULT_MULTIPLIER = 50812
-
-# Directory for results
-DEFAULT_OUTDIR = "out"
+DEFAULT_OUTDIR = "out/mulfind"
 
 
 def experiment(modulus, outdir=DEFAULT_OUTDIR):
 
-    filename = path.join(outdir, "mulfind_mod{}".format(modulus))
+    filename = path.join(outdir, "mod{}".format(modulus))
 
-    print("Computing MC Multipliers for modulus {}".format(modulus))
+    logger.info("Computing MC Multipliers for Modulus {}".format(modulus))
     mc_multipliers = multiplier_check.get_mc_multipliers(modulus)
 
-    print("Computing FP Multipliers for modulus {}".format(modulus))
+    logger.info("Computing FP Multipliers for Modulus {}".format(modulus))
     fp_multipliers = multiplier_check.get_fp_multipliers(modulus)
 
-    print("Computing FP/MC Multipliers for modulus {}".format(modulus))
+    logger.info("Computing FP/MC Multipliers for Modulus {}".format(modulus))
     fpmc_multipliers = []
     for candidate in fp_multipliers:
         if candidate in mc_multipliers:
             fpmc_multipliers.append(candidate)
 
-    print("Computing largest/smallest FP/MC Multipliers for modulus {}".format(modulus))
+    logger.info("Computing largest/smallest FP/MC Multipliers for Modulus {}".format(modulus))
     largest_fpmc_multiplier = max(fpmc_multipliers, default=None)
     smallest_fpmc_multiplier = min(fpmc_multipliers, default=None)
 
@@ -72,5 +75,4 @@ if __name__ == "__main__":
     moduli = [401, 2147483647]
 
     for modulus in moduli:
-        outdir = path.join(DEFAULT_OUTDIR, "mulfind", "mod{}".format(modulus))
-        experiment(modulus=modulus, outdir=outdir)
+        experiment(modulus=modulus, outdir=DEFAULT_OUTDIR)

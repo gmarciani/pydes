@@ -51,9 +51,4 @@ def get_logger(name):
     logging.basicConfig(level=logging.INFO, handlers=[ConsoleHandler(logging.INFO, FORMATTER)])
     logger = logging.getLogger(name)
 
-    for h in logger.handlers:
-        logger.removeHandler(h)
-
-    logger.addHandler(ConsoleHandler(logging.INFO, FORMATTER))
-
     return logger

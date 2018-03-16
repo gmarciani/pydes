@@ -15,10 +15,10 @@ logging.basicConfig(level=logging.INFO, handlers=[ConsoleHandler(logging.INFO)])
 logger = logging.getLogger(__name__)
 
 # Configuration
-CONFIG_PATH = "config.yaml"
+CONFIG_PATH = "performance_analysis.yaml"
 
 # Results
-OUTDIR = "out"
+OUTDIR = "out/performance_analysis"
 
 # Parameters
 THRESHOLDS = range(20, 21, 1)
@@ -46,15 +46,15 @@ def run(config_path=CONFIG_PATH):
     for threshold in THRESHOLDS:
         simulation_counter += 1
         config["system"]["cloudlet"]["threshold"] = threshold
-        logger.info("Simulating {}/{} with threshold {}".format(simulation_counter, simulation_max, threshold))
+        logger.info("Simulation {}/{} with threshold {}".format(simulation_counter, simulation_max, threshold))
         outdir = "{}/{}".format(OUTDIR, threshold) if threshold == THRESHOLD_FOR_DISTRIBUTION else None
         simulation = Simulation(config, "SIMULATION-THRESHOLD-{}".format(threshold))
         simulation.run(outdir=outdir, show_progress=True)
         reportfilecsv = os.path.join(OUTDIR, "result.csv")
         reportfiletxt = os.path.join(OUTDIR, "result.txt")
         report = simulation.generate_report()
-        report.save_csv(reportfilecsv, append=(simulation_counter > 1))
-        report.save_txt(reportfiletxt, append=(simulation_counter > 1))
+        report.save_txt(reportfiletxt, append=True, empty=(simulation_counter == 1))
+        report.save_csv(reportfilecsv, append=True, empty=(simulation_counter == 1))
 
 
 if __name__ == "__main__":

@@ -18,23 +18,24 @@ from core.random.inspection import jumper_finder
 from core.utils.report import SimpleReport
 from os import path
 from core.utils.file_utils import save_list_of_pairs
+from core.utils.logutils import get_logger
 
+# Logging
+logger = get_logger(__name__)
 
-# Default parameters
+# Parameters (Default)
 DEFAULT_MODULUS = 2147483647
-DEFAULT_MULTIPLIER = 50812
+DEFAULT_MULTIPLIER = 16807  # [16807, 48271, 50812]
 DEFAULT_STREAMS = 256
-
-# Directory for results
 DEFAULT_OUTDIR = "out"
 
 
 def experiment(modulus, multiplier, streams, outdir=DEFAULT_OUTDIR):
 
-    filename = path.join(outdir, "jmpfind_mod{}_mul{}_str{}".format(modulus, multiplier, streams))
+    logger.info("Computing Jumpers for Modulus {} Multiplier {} Streams {}".format(modulus, multiplier, streams))
 
-    print("Computing Jumpers for Multiplier {} on Modulus {} for {} streams".format(multiplier, modulus, streams))
-    #jumper, jumpsize = jumper_finder.find_jumper_2(modulus, multiplier, streams)
+    filename = path.join(outdir, "mod{}_mul{}_str{}".format(modulus, multiplier, streams))
+
     jumpers = jumper_finder.find_jumpers(modulus, multiplier, streams)
 
     jmax = max(jumpers, key=lambda item:item[1])
@@ -59,9 +60,8 @@ def experiment(modulus, multiplier, streams, outdir=DEFAULT_OUTDIR):
 if __name__ == "__main__":
     modulus = 2147483647
     multipliers = [50812, 48271, 16087]
-    nstreams = [1024, 512, 256, 128, 64, 32]
+    nstreams = [256]
 
     for multiplier in multipliers:
         for streams in nstreams:
-            outdir = path.join(DEFAULT_OUTDIR, "jmpfind", "mod{}_mul{}_str{}".format(modulus, multiplier, streams))
-            experiment(modulus=modulus, multiplier=multiplier, streams=streams, outdir=outdir)
+            experiment(modulus=modulus, multiplier=multiplier, streams=streams, outdir=DEFAULT_OUTDIR)

@@ -14,10 +14,10 @@ logging.basicConfig(level=logging.INFO, handlers=[ConsoleHandler(logging.INFO)])
 logger = logging.getLogger(__name__)
 
 # Configuration
-CONFIG_PATH = "config.yaml"
+CONFIG_PATH = "transient_analysis.yaml"
 
 # Results
-OUTDIR = "out"
+OUTDIR = "out/transient_analysis"
 
 # Parameters
 REPLICATIONS = 5
@@ -40,7 +40,7 @@ def run(config_path=CONFIG_PATH, replications=REPLICATIONS):
     for replication in range(0, replications):
         config["general"]["random"]["seed"] = seed
         logger.info("Launching replication {}/{} with seed {}".format(replication+1, replications, seed))
-        outdir = "{}/{}".format(OUTDIR, seed)
+        outdir = "{}/ssed_{}".format(OUTDIR, seed)
         simulation = Simulation(config, "SIMULATION-TRANSIENT-ANALYSIS")
         simulation.run(outdir=outdir, show_progress=True)
         seed = simulation.rndgen.get_seed()

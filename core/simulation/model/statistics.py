@@ -1,7 +1,7 @@
 from core.statistics.batch_means import BatchedMeasure
 from core.statistics.batch_means import BatchedSampleMeasure
 from types import SimpleNamespace
-from core.utils.csv_utils import save
+from core.utils.csv_utils import save_csv
 from core.simulation.model.scope import SystemScope
 from core.simulation.model.scope import TaskScope
 
@@ -20,15 +20,21 @@ class InstantaneousStatistics:
         """
         self.time = t_now
         self.metrics = SimpleNamespace(
+            # Counters
             arrived={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
             completed={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
-            switched={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
-            switched_ratio={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
             service={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
+            switched={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
+            switched_completed={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
+            switched_service={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
             population={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
+
+            # Derived
             response={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
-            response_switched={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
-            throughput={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope}
+            throughput={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
+            switched_ratio={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
+            switched_response={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
+            switched_throughput={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope}
         )
 
     def save_csv(self, filename, append=False, skip_header=False):
@@ -50,7 +56,7 @@ class InstantaneousStatistics:
 
         data = [sample]
 
-        save(filename, header, data, append, skip_header)
+        save_csv(filename, header, data, append, skip_header)
 
 
 class SimulationStatistics:
@@ -232,4 +238,4 @@ class SimulationStatistics:
                         sample.append(getattr(self.metrics, metric)[sys][tsk].get_value(b))
             data.append(sample)
 
-        save(filename, header, data, append, skip_header)
+        save_csv(filename, header, data, append, skip_header)

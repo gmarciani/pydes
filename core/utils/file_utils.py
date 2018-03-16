@@ -33,9 +33,6 @@ def empty_file(filename):
     :param filename: (string) the filename.
     :return: None
     """
-    #dirname = os.path.dirname(filename)
-    #dirname = dirname if len(dirname) != 0 else os.path.curdir
-    #filepath = os.path.join(dirname, filename)
     create_dir_tree(filename)
     with open(filename, "w"):
         pass

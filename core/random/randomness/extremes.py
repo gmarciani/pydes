@@ -15,7 +15,7 @@ from core.utils.guiutils import print_progress
 
 def statistics(generator, samsize, bins, d):
     data = []
-    streams = generator.get_streams_number()
+    streams = generator.get_nstreams()
     for stream in range(streams):
         generator.stream(stream)
         observed = observations(generator, samsize, bins, d)

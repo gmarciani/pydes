@@ -4,8 +4,8 @@ Utility classes that realize reports for experiments.
 
 
 from collections import OrderedDict
-from core.utils.file_utils import create_dir_tree
-from core.utils.csv_utils import save
+from core.utils.file_utils import create_dir_tree, empty_file
+from core.utils.csv_utils import save_csv
 
 
 PREC = 5
@@ -84,26 +84,31 @@ class SimpleReport(object):
                 return elem[1]
         return None
 
-    def save_txt(self, filename, append=False, ):
+    def save_txt(self, filename, append=False, empty=False):
         """
         Save the report onto a file.
         :param filename: (string) the absolute file path.
         :param append: (bool) if True, append to an existing file.
+        :param empty: (bool) if True, the file is emptied.
         :return: (void)
         """
         create_dir_tree(filename)
+
+        if empty:
+            empty_file(filename)
 
         mode = "a+" if append else "w+"
 
         with open(filename, mode) as f:
             f.write(str(self))
 
-    def save_csv(self, filename, append=False, skip_header=False):
+    def save_csv(self, filename, append=False, skip_header=False, empty=False):
         """
         Save the current statistics as CSV.
         :param filename: (string) the filename.
         :param append: (bool) if True, append to an existing file.
         :param skip_header: (bool) if True, skip the CSV header.
+        :param empty: (bool) if True, the file is emptied.
         :return: None
         """
         header = ["name"]
@@ -111,10 +116,10 @@ class SimpleReport(object):
 
         for section in self.params:
             for p in self.params[section]:
-                header.append("{}.{}".format(section, p[0]))
+                header.append("{}_{}".format(section, p[0]))
                 row.append(p[1])
         data = [row]
-        save(filename, header, data, append, skip_header)
+        save_csv(filename, header, data, append, skip_header, empty)
 
     def __str__(self):
         """

@@ -2,10 +2,10 @@
 Utilities for CSV file management.
 """
 
-from core.utils.file_utils import create_dir_tree, is_empty_file
+from core.utils.file_utils import create_dir_tree, is_empty_file, empty_file
 
 
-def save(filename, names, data, append=False, skip_header=False):
+def save_csv(filename, names, data, append=False, skip_header=False, empty=False):
     """
     Save data as CSV.
     :param filename: (string) the filename.
@@ -13,9 +13,13 @@ def save(filename, names, data, append=False, skip_header=False):
     :param data: (list(tuple)) the data.
     :param append: (bool) if True, append to an existing file.
     :param skip_header: (bool) if True, skip the CSV header.
+    :param empty: (bool) if True, the file is emptied.
     :return: None
     """
     create_dir_tree(filename)
+
+    if empty:
+        empty_file(filename)
 
     mode = "a+" if append else "w+"
 

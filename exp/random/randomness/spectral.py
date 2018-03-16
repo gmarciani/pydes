@@ -22,11 +22,10 @@ from core.random.randomness import spectral as test
 from core.utils.report import SimpleReport
 from os import path
 from core.utils.logutils import ConsoleHandler
-import logging
+from core.utils.logutils import get_logger
 
-# Configure logger
-logging.basicConfig(level=logging.INFO, handlers=[ConsoleHandler(logging.INFO)])
-logger = logging.getLogger(__name__)
+# Logging
+logger = get_logger(__name__)
 
 
 # Generator
@@ -39,40 +38,41 @@ DEFAULT_SAMSIZE = 100000
 DEFAULT_INTERVAL = (0.0, 1.0)
 
 # Directory for results
-DEFAULT_OUTDIR = "out"
+DEFAULT_OUTDIR = "out/spectral"
 
 
-def experiment(generator, samsize, interval, outdir):
+def experiment(g, samsize, interval, outdir):
 
-    filename = path.join(outdir, "spectral_{}".format(samsize))
+    logger.info("Spectral Test for Modulus {} Multiplier {} Samsize {} Interval {}"
+                .format(g.get_modulus(), g.get_multiplier(), samsize, interval))
+
+    filename = path.join(outdir, "mod{}_mul{}".format(g.get_modulus(), g.get_multiplier()))
 
     # Statistics: [(u1, u2),(u2,u3)...,(un-1,un)]
-    test.statistics(filename + ".csv", generator, samsize, interval)
+    test.statistics(filename + ".csv", g, samsize, interval)
 
     # Report
     r = SimpleReport("SPECTRAL TEST")
-    r.add("Generator", "Class", generator.__class__.__name__)
-    r.add("Generator", "Modulus", generator._modulus)
-    r.add("Generator", "Multiplier", generator._multiplier)
-    r.add("Generator", "Seed", generator._iseed)
+    r.add("Generator", "Class", g.__class__.__name__)
+    r.add("Generator", "Modulus", g.get_modulus())
+    r.add("Generator", "Multiplier", g.get_multiplier())
+    r.add("Generator", "Seed", g.get_initial_seed())
     r.add("Test Parameters", "Sample Size", samsize)
     r.add("Test Parameters", "Interval", interval)
 
     r.save_txt(filename + "_report.txt")
     r.save_csv(filename + "_report.csv")
 
-    print(r)
+    logger.info("Report:\n{}".format(r))
 
 
 if __name__ == "__main__":
     modulus = 2147483647
-    multipliers = [16807, 48271, 50812]
+    multipliers = [50812, 48271, 16807]
     samsize = modulus - 1
     interval = (0.0, 0.001)
 
     for i in range(len(multipliers)):
         multiplier = multipliers[i]
-        logger.info("Spectral Test: {}".format(multiplier))
         generator = MarcianiSingleStream(modulus=modulus, multiplier=multiplier)
-        outdir = path.join(DEFAULT_OUTDIR, "mod{}_mul{}".format(modulus, multiplier))
-        experiment(generator, samsize, interval, outdir)
+        experiment(generator, samsize, interval, DEFAULT_OUTDIR)

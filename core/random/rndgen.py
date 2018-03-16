@@ -105,12 +105,19 @@ class MarcianiMultiStream(object):
         """
         return self._multiplier
 
-    def get_streams_number(self):
+    def get_nstreams(self):
         """
         Retrieves the total number of streams.
         :return: (int) the number of streams.
         """
         return self._streams
+
+    def get_jumper(self):
+        """
+        Retrieves the jumper.
+        :return: (int) the jumper.
+        """
+        return self._jumper
 
     def get_seed(self):
         """
