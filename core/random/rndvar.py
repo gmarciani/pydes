@@ -2,6 +2,8 @@
 Random variates.
 """
 
+
+from enum import Enum, unique
 from math import log
 
 
@@ -47,3 +49,46 @@ def uniform(a, b, u):
     :return: (float) the Uniform(a,b) random variate.
     """
     return a + (b - a) * u
+
+
+class VariateGenerator:
+    """
+    A simple generator of random variates.
+    """
+
+    def __init__(self, f):
+        """
+        Create a new instance of a VariateGenerator.
+        :param f: (function) the function used to generate the random variate.
+        """
+        self.f = f
+
+    def generate(self, u, **kwargs):
+        """
+        Generate a random variate value.
+        :param u: a random generator.
+        :param kwargs: distribution parameters.
+        :return: the random value.
+        """
+        return self.f(**kwargs, u=u.rnd())
+
+
+@unique
+class Variate(Enum):
+    """
+    Enumerate random variates.
+    """
+
+    def __new__(cls, *args, **kwds):
+        value = len(cls.__members__) + 1
+        obj = object.__new__(cls)
+        obj._value_ = value
+        return obj
+
+    def __init__(self, vargen):
+        self.vargen = vargen
+
+    EQUILIKELY = VariateGenerator(equilikely)  # 0  equilikely
+    EXPONENTIAL = VariateGenerator(exponential)  # 1 exponential
+    GEOMETRIC = VariateGenerator(geometric)  # 2 geometric
+    UNIFORM = VariateGenerator(uniform)  # 3 uniform
