@@ -40,7 +40,7 @@ def run(config_path=CONFIG_PATH, replications=REPLICATIONS):
     for replication in range(0, replications):
         config["general"]["random"]["seed"] = seed
         logger.info("Launching replication {}/{} with seed {}".format(replication+1, replications, seed))
-        outdir = "{}/ssed_{}".format(OUTDIR, seed)
+        outdir = "{}/seed_{}".format(OUTDIR, seed)
         simulation = Simulation(config, "SIMULATION-TRANSIENT-ANALYSIS")
         simulation.run(outdir=outdir, show_progress=True)
         seed = simulation.rndgen.get_seed()

@@ -5,6 +5,9 @@ Utilities for CSV file management.
 from core.utils.file_utils import create_dir_tree, is_empty_file, empty_file
 
 
+CHAR_TO_REPLACE = [" ", "/"]
+
+
 def save_csv(filename, names, data, append=False, skip_header=False, empty=False):
     """
     Save data as CSV.
@@ -34,4 +37,11 @@ def save_csv(filename, names, data, append=False, skip_header=False, empty=False
 
 
 def str_csv(s):
-    return s.lower().replace(" ", "_")
+    """
+    Make the string compatible with the CSV format.
+    :param s: (str) the string.
+    :return: the compatible string with the CSV format.
+    """
+    for c in CHAR_TO_REPLACE:
+        s = s.replace(c, "_")
+    return s.lower()

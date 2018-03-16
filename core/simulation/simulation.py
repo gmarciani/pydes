@@ -211,13 +211,12 @@ class Simulation:
         # Report - Statistics
         for metric in sorted(self.statistics.metrics.__dict__):
             for sys in sorted(SystemScope, key=lambda x: x.name):
-                section = "statistics/{}".format(sys.name.lower())
                 for tsk in sorted(TaskScope, key=lambda x: x.name):
-                    r.add(section, "{}_{}_mean".format(metric, tsk.name.lower()),
+                    r.add("statistics", "{}_{}_{}_mean".format(metric, sys.name.lower(), tsk.name.lower()),
                           getattr(self.statistics.metrics, metric)[sys][tsk].mean())
-                    r.add(section, "{}_{}_sdev".format(metric, tsk.name.lower()),
+                    r.add("statistics", "{}_{}_{}_sdev".format(metric, sys.name.lower(), tsk.name.lower()),
                           getattr(self.statistics.metrics, metric)[sys][tsk].sdev())
-                    r.add(section, "{}_{}_cint".format(metric, tsk.name.lower()),
+                    r.add("statistics", "{}_{}_{}_cint".format(metric, sys.name.lower(), tsk.name.lower()),
                           getattr(self.statistics.metrics, metric)[sys][tsk].cint(alpha))
         return r
 

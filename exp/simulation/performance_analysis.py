@@ -21,7 +21,7 @@ CONFIG_PATH = "performance_analysis.yaml"
 OUTDIR = "out/performance_analysis"
 
 # Parameters
-THRESHOLDS = range(20, 21, 1)
+THRESHOLDS = range(0, 21, 1)
 THRESHOLD_FOR_DISTRIBUTION = 20
 
 
