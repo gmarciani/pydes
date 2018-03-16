@@ -3,7 +3,7 @@ from core.simulation.model.event import EventType
 from core.simulation.model.scope import SystemScope
 from core.simulation.model.scope import ActionScope
 from core.simulation.model.scope import TaskScope
-from core.random.rndvar import exponential
+from core.random.rndvar import exponential, Variate
 from sys import maxsize
 from core.utils.logutils import get_logger
 
@@ -26,12 +26,15 @@ class SimpleTaskgen:
         taskgen tate.
         """
         # Arrival rates
-        self.rates = {tsk: config["arrival_rate_{}".format(tsk.value)] for tsk in TaskScope.concrete()}
+        #self.rates = {tsk: config["arrival_rate_{}".format(tsk.value)] for tsk in TaskScope.concrete()}
 
         # Randomization
         self.rndgen = rndgen
         self.streams = {tsk: EventType.of(ActionScope.ARRIVAL, SystemScope.SYSTEM, tsk).value for tsk in TaskScope.concrete()}
+        self.rndvar = {tsk: Variate[config[tsk]["distribution"]] for tsk in TaskScope.concrete()}
+        self.rndpar = {tsk: config[tsk]["parameters"] for tsk in TaskScope.concrete()}
 
+        # Events
         self.event_types = {tsk: EventType.of(ActionScope.ARRIVAL, SystemScope.SYSTEM, tsk) for tsk in TaskScope.concrete()}
 
         # State
@@ -48,7 +51,8 @@ class SimpleTaskgen:
         :return: (SimpleEvent) a new random arrival of the specified type.
         """
         self.rndgen.stream(self.streams.get(tsk))
-        inter_arrival_time = exponential(1.0 / self.rates[tsk], self.rndgen.rnd())
+        #inter_arrival_time = exponential(1.0 / self.rates[tsk], self.rndgen.rnd())
+        inter_arrival_time = self.rndvar[tsk](u=self.rndgen.rnd(), **self.rndpar[tsk])
         arrival_time = t_clock + inter_arrival_time
         event_type = self.event_types[tsk]
         arrival = Event(event_type, arrival_time)

@@ -25,10 +25,10 @@ class SimpleCloud:
         :param statistics: the system statistics.
         """
         # Service rates
-        self.rates = {tsk: config["service_rate_{}".format(tsk.value)] for tsk in TaskScope.concrete()}
+        #self.rates = {tsk: config["service_rate_{}".format(tsk.value)] for tsk in TaskScope.concrete()}
 
         # Setup
-        self.setup_mean = config["t_setup_mean"]
+        #self.setup_mean = config["t_setup_mean"]
 
         # Randomization
         self.rndgen = rndgen

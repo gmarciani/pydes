@@ -15,9 +15,19 @@ default_configuration = {
         }
     },
 
-    "tasks": {
-        "arrival_rate_1": 6.00,  # the arrival rate for tasks of type 1 (tasks/s)
-        "arrival_rate_2": 6.25  # the arrival rate for tasks of type 2 (tasks/s)
+    "arrival": {
+        "TASK_1": {
+            "distribution": "EXPONENTIAL",
+            "parameters": {
+                "m": 1/6.00  # the arrival rate for tasks of type 1 (tasks/s)
+            }
+        },
+        "TASK_2": {
+            "distribution": "EXPONENTIAL",
+            "parameters": {
+                "m": 1/6.25  # the arrival rate for tasks of type 2 (tasks/s)
+            }
+        }
     },
 
     "system": {
@@ -26,13 +36,44 @@ default_configuration = {
             "service_rate_1": 0.45,  # the service rate for tasks of type 1 (tasks/s)
             "service_rate_2": 0.27,  # the service rate for tasks of type 2 (tasks/s)
             "threshold": 20,  # the occupancy threshold
-            "server_selection": "ORDER"  # the server-selection rule
+            "server_selection": "ORDER",  # the server-selection rule
+            "service": {
+                "TASK_1": {
+                    "distribution": "EXPONENTIAL",
+                    "parameters": {
+                        "m": 1/0.45  # the service rate for tasks of type 1 (tasks/s)
+                    }
+                },
+                "TASK_2": {
+                    "distribution": "EXPONENTIAL",
+                    "parameters": {
+                        "m": 1/0.27  # the service rate for tasks of type 2 (tasks/s)
+                    }
+                }
+            }
         },
 
         "cloud": {
-            "service_rate_1": 0.25,  # the service rate for tasks of type 1 (tasks/s).
-            "service_rate_2": 0.22,  # the service rate for tasks of type 2 (tasks/s).
-            "t_setup_mean": 0.8  # the mean setup time to restart a task in the Cloud (s).
+            "service": {
+                "TASK_1": {
+                    "distribution": "EXPONENTIAL",
+                    "parameters": {
+                        "m": 1/0.25  # the service rate for tasks of type 1 (tasks/s)
+                    }
+                },
+                "TASK_2": {
+                    "distribution": "EXPONENTIAL",
+                    "parameters": {
+                        "m": 1/0.22  # the service rate for tasks of type 2 (tasks/s)
+                    }
+                }
+            },
+            "setup": {
+                "distribution": "EXPONENTIAL",
+                "parameters": {
+                    "m": 0.8  # the mean setup time to restart a task in the Cloud (s).
+                }
+            }
         }
     }
 }

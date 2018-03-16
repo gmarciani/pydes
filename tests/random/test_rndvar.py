@@ -2,6 +2,7 @@ import unittest
 from core.random.rndgen import MarcianiMultiStream
 from core.random.rndvar import Variate
 from statistics import mean, variance
+from math import exp
 
 
 class RndvarTest(unittest.TestCase):
@@ -12,9 +13,9 @@ class RndvarTest(unittest.TestCase):
         :return: None.
         """
         self.rndgen = MarcianiMultiStream()
-        self.samsize = 100000
-        self.err = 0.01
-        self.makeAssertion = True
+        self.samsize = 10000
+        self.err = 0.05
+        self.makeAssertion = False
 
     def test_parametric_variates(self):
         """
@@ -23,24 +24,51 @@ class RndvarTest(unittest.TestCase):
         """
         rndgen = MarcianiMultiStream()
         varparams = {
+            Variate.BERNOULLI: dict(p=0.8),
+            Variate.BINOMIAL: dict(n=5, p=0.8),
+            Variate.CHISQUARE: dict(n=5),
             Variate.EQUILIKELY: dict(a=10.0, b=20.0),
+            Variate.ERLANG: dict(n=5, b=0.8),
             Variate.EXPONENTIAL: dict(m=0.8),
             Variate.GEOMETRIC: dict(p=0.8),
-            Variate.UNIFORM: dict(a=10.0, b= 20.0)
+            Variate.LOGNORMAL: dict(a=5, b=0.8),
+            Variate.NORMAL: dict(m=1.0, s=0.5),
+            Variate.PASCAL: dict(n=5, p=0.8),
+            Variate.POISSON: dict(m=5),
+            Variate.STUDENT: dict(n=5),
+            Variate.UNIFORM: dict(a=10.0, b=20.0)
         }
 
         check_mean = {
-            Variate.EQUILIKELY: lambda a, b: (a + b) / 2,
+            Variate.BERNOULLI: lambda p: p,
+            Variate.BINOMIAL: lambda n, p: n*p,
+            Variate.CHISQUARE: lambda n: n,
+            Variate.EQUILIKELY: lambda a, b: (a + b) / 2.0,
+            Variate.ERLANG: lambda n, b: n*b,
             Variate.EXPONENTIAL: lambda m: m,
-            Variate.GEOMETRIC: lambda p: p / (1 - p),
-            Variate.UNIFORM: lambda a, b: (a + b) / 2
+            Variate.GEOMETRIC: lambda p: p / (1.0 - p),
+            Variate.LOGNORMAL: lambda a, b: exp(a + 0.5*b*b),
+            Variate.NORMAL: lambda m, s: m,
+            Variate.PASCAL: lambda n, p: n*p/(1.0-p),
+            Variate.POISSON: lambda m: m,
+            Variate.STUDENT: lambda n: 0.0,
+            Variate.UNIFORM: lambda a, b: (a + b) / 2.0
         }
 
         check_variance = {
-            Variate.EQUILIKELY: lambda a, b: (pow(b - a + 1, 2) - 1) / 12,
-            Variate.EXPONENTIAL: lambda m: pow(m, 2),
-            Variate.GEOMETRIC: lambda p: p / pow(1 - p, 2),
-            Variate.UNIFORM: lambda a, b: pow(b - a, 2) / 12
+            Variate.BERNOULLI: lambda p: p*(1.0-p),
+            Variate.BINOMIAL: lambda n, p: n*p*(1.0-p),
+            Variate.CHISQUARE: lambda n: 2.0*n,
+            Variate.EQUILIKELY: lambda a, b: (pow(b - a + 1.0, 2) - 1.0) / 12.0,
+            Variate.ERLANG: lambda n, b: n*b*b,
+            Variate.EXPONENTIAL: lambda m: pow(m, 2.0),
+            Variate.GEOMETRIC: lambda p: p / pow(1.0 - p, 2.0),
+            Variate.LOGNORMAL: lambda a, b: exp(b*b) - exp(2.0*a + b*b),
+            Variate.NORMAL: lambda m, s: s*s,
+            Variate.PASCAL: lambda n, p: n*p/((1.0-p)*(1.0-p)),
+            Variate.POISSON: lambda m: m,
+            Variate.STUDENT: lambda n: n/(n-2.0),
+            Variate.UNIFORM: lambda a, b: pow(b - a, 2.0) / 12.0
         }
 
         for variate in Variate:
