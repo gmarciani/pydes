@@ -33,8 +33,6 @@ default_configuration = {
     "system": {
         "cloudlet": {
             "n_servers": 20,  # the number of servers
-            "service_rate_1": 0.45,  # the service rate for tasks of type 1 (tasks/s)
-            "service_rate_2": 0.27,  # the service rate for tasks of type 2 (tasks/s)
             "threshold": 20,  # the occupancy threshold
             "server_selection": "ORDER",  # the server-selection rule
             "service": {
@@ -69,9 +67,17 @@ default_configuration = {
                 }
             },
             "setup": {
-                "distribution": "EXPONENTIAL",
-                "parameters": {
-                    "m": 0.8  # the mean setup time to restart a task in the Cloud (s).
+                "TASK_1": {
+                    "distribution": "DETERMINISTIC",
+                    "parameters": {
+                        "v": 0  # the value of the setup time to restart a task of type 1 in the Cloud (s).
+                    }
+                },
+                "TASK_2": {
+                    "distribution": "EXPONENTIAL",
+                    "parameters": {
+                        "m": 0.8  # the mean value of the setup time to restart a task 2 in the Cloud (s).
+                    }
                 }
             }
         }

@@ -13,7 +13,7 @@ logger = get_logger(__name__)
 
 class SimpleCloudletCloudSystem:
     """
-    A simple system, made of a Cloudlet and a Cloud.
+    A system composed by a Cloudlet and a Cloud.
     """
 
     def __init__(self, rndgen, config, statistics):

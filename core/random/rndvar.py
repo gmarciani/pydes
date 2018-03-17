@@ -189,7 +189,7 @@ def uniform(a, b, u):
 
 class VariateGenerator:
     """
-    A simple generator of random variates.
+    A generator of random variates.
     """
 
     def __init__(self, f):
@@ -209,6 +209,21 @@ class VariateGenerator:
         return self.f(u=u.rnd(), **kwargs)
 
 
+class DeterministicGenerator:
+    """
+    A generator of deterministic number.
+    """
+
+    def generate(self, **kwargs):
+        """
+        Generate a random variate value.
+        :param u: a random generator.
+        :param kwargs: distribution parameters.
+        :return: the random value.
+        """
+        return kwargs["v"]
+
+
 @unique
 class Variate(Enum):
     """
@@ -221,12 +236,13 @@ class Variate(Enum):
         obj._value_ = value
         return obj
 
-    def __init__(self, vargen):
-        self.vargen = vargen
+    def __init__(self, generator):
+        self.generator = generator
 
     BERNOULLI = VariateGenerator(bernoulli)
     BINOMIAL = VariateGenerator(binomial)
     CHISQUARE = VariateGenerator(chisquare)
+    DETERMINISTIC = DeterministicGenerator
     EQUILIKELY = VariateGenerator(equilikely)
     ERLANG = VariateGenerator(erlang)
     EXPONENTIAL = VariateGenerator(exponential)

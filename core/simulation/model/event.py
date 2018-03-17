@@ -28,7 +28,8 @@ class EventType(Enum):
     COMPLETION_CLOUDLET_TASK_2 = ActionScope.COMPLETION, SystemScope.CLOUDLET, TaskScope.TASK_2  # 3
     COMPLETION_CLOUD_TASK_1 = ActionScope.COMPLETION, SystemScope.CLOUD, TaskScope.TASK_1  # 4
     COMPLETION_CLOUD_TASK_2 = ActionScope.COMPLETION, SystemScope.CLOUD, TaskScope.TASK_2  # 5
-    SWITCH_TASK_2 = ActionScope.SWITCH, SystemScope.SYSTEM, TaskScope.TASK_2  # 6
+    SWITCH_TASK_1 = ActionScope.SWITCH, SystemScope.SYSTEM, TaskScope.TASK_1  # 6
+    SWITCH_TASK_2 = ActionScope.SWITCH, SystemScope.SYSTEM, TaskScope.TASK_2  # 7
 
     @staticmethod
     def of(action, scope, task):

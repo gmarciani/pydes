@@ -1,10 +1,13 @@
 from enum import Enum, unique
+
+from core.random.rndcmp import RandomComponent
 from core.simulation.model.event import EventType
 from core.simulation.model.scope import SystemScope
 from core.simulation.model.scope import TaskScope
 from core.simulation.model.scope import ActionScope
-from core.random.rndvar import exponential
+from core.random.rndvar import Variate
 from core.utils.logutils import get_logger
+from copy import deepcopy
 
 
 # Logging
@@ -22,25 +25,22 @@ class ServerState(Enum):
 
 class SimpleServer:
     """
-    A simple Server.
+    A Server resource.
     """
 
-    def __init__(self, rndgen, rates, idx):
+    def __init__(self, rndservice, idx):
         """
         Create a new Server.
-        :param rndgen: (object) the multi-stream random number generator.
-        :param rates: (dict) the service rates by task type {tsk: srv} (task/sec).
+        :param rndservice: (RandomComponent) random component for service.
         :param idx: (int) the server index.
         """
         # Server Index (used in randomization)
         self.idx = idx
 
-        # Service rates
-        self.rates = {tsk: rates[tsk] for tsk in TaskScope.concrete()}
-
         # Randomization
-        self.rndgen = rndgen
-        self.streams = {tsk: EventType.of(ActionScope.COMPLETION, SystemScope.CLOUDLET, tsk).value + self.idx for tsk in TaskScope.concrete()}
+        self.rndservice = deepcopy(rndservice)
+        for tsk in self.rndservice.str:
+            self.rndservice.str[tsk] += self.idx
 
         # State and important variables
         self.state = ServerState.IDLE  # the state of the server (ServerState)
@@ -79,7 +79,7 @@ class SimpleServer:
         self.state = ServerState.BUSY
         self.task_type = tsk
         self.t_arrival = t_clock
-        self.t_service = self.get_service_time(tsk)
+        self.t_service = self.rndservice.generate(tsk)
         self.t_completion = self.t_arrival + self.t_service
 
         # Update statistics
@@ -133,19 +133,6 @@ class SimpleServer:
         self.task_type = None
 
         return self.t_service
-
-    # ==================================================================================================================
-    # RANDOM TIME GENERATION
-    # ==================================================================================================================
-
-    def get_service_time(self, tsk):
-        """
-        Generate a random service time for the specified task type.
-        :param tsk: (TaskType) the task type.
-        :return: (float) a random service time for the specified task type.
-        """
-        self.rndgen.stream(self.streams[tsk])
-        return exponential(1.0 / self.rates[tsk], self.rndgen.rnd())
 
     # ==================================================================================================================
     # OTHER

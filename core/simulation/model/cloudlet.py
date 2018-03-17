@@ -4,6 +4,8 @@ from core.simulation.model.scope import SystemScope
 from core.simulation.model.scope import ActionScope
 from core.simulation.model.server_selection_rule import SelectionRule
 from core.simulation.model.scope import TaskScope
+from core.random.rndcmp import RandomComponent
+from core.random.rndvar import Variate
 import logging
 
 # Configure logger
@@ -12,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class SimpleCloudlet:
     """
-    A simple Cloudlet, defined by its state.
+    A Cloudlet subsystem.
     """
 
     def __init__(self, rndgen, config, state, statistics):
@@ -23,17 +25,19 @@ class SimpleCloudlet:
         :param state: the system state.
         :param statistics: the system statistics.
         """
-        # Service rates
-        self.rates = {tsk: config["service_rate_{}".format(tsk.value)] for tsk in TaskScope.concrete()}
-
-        # Randomization
-        self.rndgen = rndgen
-        self.streams = {tsk: EventType.of(ActionScope.COMPLETION, SystemScope.CLOUDLET, tsk).value for tsk in TaskScope.concrete()}
+        # Randomization - Service
+        self.rndservice = RandomComponent(
+            gen=rndgen,
+            str={tsk: EventType.of(ActionScope.COMPLETION, SystemScope.CLOUDLET, tsk).value for tsk in
+                 TaskScope.concrete()},
+            var={tsk: Variate[config["service"][tsk.name]["distribution"]] for tsk in TaskScope.concrete()},
+            par={tsk: config["service"][tsk.name]["parameters"] for tsk in TaskScope.concrete()}
+        )
 
         # Servers
         self.n_servers = config["n_servers"]
         self.threshold = config["threshold"]
-        self.servers = [Server(rndgen, self.rates, i) for i in range(self.n_servers)]
+        self.servers = [Server(self.rndservice, i) for i in range(self.n_servers)]
         self.server_selector = SelectionRule[config["server_selection"]].selector(self.servers)
 
         if not (0 <= self.threshold <= self.n_servers):

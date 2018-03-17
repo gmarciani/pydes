@@ -186,9 +186,9 @@ class Simulation:
 
         # Report - Arrivals
         for tsk in TaskScope.concrete():
-            r.add("arrival", "arrival_{}_dist".format(tsk.name.lower()), self.taskgen.rndvar[tsk].name.lower())
-            for p in self.taskgen.rndpar[tsk]:
-                r.add("arrival", "arrival_{}_param_{}".format(tsk.name.lower(), p), self.taskgen.rndpar[tsk][p])
+            r.add("arrival", "arrival_{}_dist".format(tsk.name.lower()), self.taskgen.rndarrival.var[tsk].name.lower())
+            for p in self.taskgen.rndarrival.par[tsk]:
+                r.add("arrival", "arrival_{}_param_{}".format(tsk.name.lower(), p), self.taskgen.rndarrival.par[tsk][p])
         for tsk in TaskScope.concrete():
             r.add("arrival", "generated_{}".format(tsk.name.lower()), self.taskgen.generated[tsk])
 
@@ -196,22 +196,20 @@ class Simulation:
         r.add("system/cloudlet", "n_servers", self.system.cloudlet.n_servers)
         r.add("system/cloudlet", "threshold", self.system.cloudlet.threshold)
         for tsk in TaskScope.concrete():
-            r.add("system/cloudlet", "service_{}_dist".format(tsk.name.lower()), self.system.cloudlet.rndvar[tsk].name.lower())
-            for p in self.system.cloudlet.rndpar[tsk]:
-                r.add("system/cloudlet", "service_{}_param_{}".format(tsk.name.lower(), p), self.system.cloudlet.rndpar[tsk][p])
+            r.add("system/cloudlet", "service_{}_dist".format(tsk.name.lower()), self.system.cloudlet.rndservice.var[tsk].name.lower())
+            for p in self.system.cloudlet.rndservice.par[tsk]:
+                r.add("system/cloudlet", "service_{}_param_{}".format(tsk.name.lower(), p), self.system.cloudlet.rndservice.par[tsk][p])
 
         # Report - System/Cloud
-        r.add("system/cloud", "service_rate_1", self.system.cloud.rates[TaskScope.TASK_1])
-        r.add("system/cloud", "service_rate_2", self.system.cloud.rates[TaskScope.TASK_2])
-        r.add("system/cloud", "setup_mean", self.system.cloud.setup_mean)
+        for tsk in TaskScope.concrete():
+            r.add("system/cloud", "service_{}_dist".format(tsk.name.lower()), self.system.cloud.rndservice.var[tsk].name.lower())
+            for p in self.system.cloud.rndservice.par[tsk]:
+                r.add("system/cloud", "service_{}_param_{}".format(tsk.name.lower(), p), self.system.cloud.rndservice.par[tsk][p])
 
         for tsk in TaskScope.concrete():
-            r.add("system/cloud", "service_{}_dist".format(tsk.name.lower()), self.system.cloud.rndvar[tsk].name.lower())
-            for p in self.taskgen.rndpar[tsk]:
-                r.add("system/cloud", "service_{}_param_{}".format(tsk.name.lower(), p), self.system.cloud.rndpar[tsk][p])
-        r.add("system/cloud", "setup_dist", self.system.cloud.rndvar_setup.name.lower())
-        for p in self.system.cloud.rndpar_setup:
-            r.add("system/cloud", "setup_param_{}".format(p), self.system.cloud.rndpar_setup[p])
+            r.add("system/cloud", "setup_{}_dist".format(tsk.name.lower()), self.system.cloud.rndsetup.var[tsk].name.lower())
+            for p in self.system.cloud.rndsetup.par[tsk]:
+                r.add("system/cloud", "service_{}_param_{}".format(tsk.name.lower(), p), self.system.cloud.rndsetup.par[tsk][p])
 
         # Report - State
         for sys in sorted(self.system.state, key=lambda x: x.name):
