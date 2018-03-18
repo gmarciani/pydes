@@ -1,5 +1,6 @@
 import unittest
 from core.random.rndgen import MarcianiMultiStream
+from core.random.rndcmp import RandomComponent
 from core.random.rndvar import Variate
 from statistics import mean, variance
 from math import exp
@@ -17,13 +18,7 @@ class RndvarTest(unittest.TestCase):
         self.err = 0.05
         self.makeAssertion = False
 
-    def test_parametric_variates(self):
-        """
-        Verify the correctness of the random variates generation.
-        :return: None
-        """
-        rndgen = MarcianiMultiStream()
-        varparams = {
+        self.varparams = {
             Variate.BERNOULLI: dict(p=0.8),
             Variate.BINOMIAL: dict(n=5, p=0.8),
             Variate.CHISQUARE: dict(n=5),
@@ -39,46 +34,51 @@ class RndvarTest(unittest.TestCase):
             Variate.UNIFORM: dict(a=10.0, b=20.0)
         }
 
-        check_mean = {
+        self.check_mean = {
             Variate.BERNOULLI: lambda p: p,
-            Variate.BINOMIAL: lambda n, p: n*p,
+            Variate.BINOMIAL: lambda n, p: n * p,
             Variate.CHISQUARE: lambda n: n,
             Variate.EQUILIKELY: lambda a, b: (a + b) / 2.0,
-            Variate.ERLANG: lambda n, b: n*b,
+            Variate.ERLANG: lambda n, b: n * b,
             Variate.EXPONENTIAL: lambda m: m,
             Variate.GEOMETRIC: lambda p: p / (1.0 - p),
-            Variate.LOGNORMAL: lambda a, b: exp(a + 0.5*b*b),
+            Variate.LOGNORMAL: lambda a, b: exp(a + 0.5 * b * b),
             Variate.NORMAL: lambda m, s: m,
-            Variate.PASCAL: lambda n, p: n*p/(1.0-p),
+            Variate.PASCAL: lambda n, p: n * p / (1.0 - p),
             Variate.POISSON: lambda m: m,
             Variate.STUDENT: lambda n: 0.0,
             Variate.UNIFORM: lambda a, b: (a + b) / 2.0
         }
 
-        check_variance = {
-            Variate.BERNOULLI: lambda p: p*(1.0-p),
-            Variate.BINOMIAL: lambda n, p: n*p*(1.0-p),
-            Variate.CHISQUARE: lambda n: 2.0*n,
+        self.check_variance = {
+            Variate.BERNOULLI: lambda p: p * (1.0 - p),
+            Variate.BINOMIAL: lambda n, p: n * p * (1.0 - p),
+            Variate.CHISQUARE: lambda n: 2.0 * n,
             Variate.EQUILIKELY: lambda a, b: (pow(b - a + 1.0, 2) - 1.0) / 12.0,
-            Variate.ERLANG: lambda n, b: n*b*b,
+            Variate.ERLANG: lambda n, b: n * b * b,
             Variate.EXPONENTIAL: lambda m: pow(m, 2.0),
             Variate.GEOMETRIC: lambda p: p / pow(1.0 - p, 2.0),
-            Variate.LOGNORMAL: lambda a, b: exp(b*b) - exp(2.0*a + b*b),
-            Variate.NORMAL: lambda m, s: s*s,
-            Variate.PASCAL: lambda n, p: n*p/((1.0-p)*(1.0-p)),
+            Variate.LOGNORMAL: lambda a, b: exp(b * b) - exp(2.0 * a + b * b),
+            Variate.NORMAL: lambda m, s: s * s,
+            Variate.PASCAL: lambda n, p: n * p / ((1.0 - p) * (1.0 - p)),
             Variate.POISSON: lambda m: m,
-            Variate.STUDENT: lambda n: n/(n-2.0),
+            Variate.STUDENT: lambda n: n / (n - 2.0),
             Variate.UNIFORM: lambda a, b: pow(b - a, 2.0) / 12.0
         }
 
+    def test_parametric_variates(self):
+        """
+        Verify the correctness of the random variates generation.
+        :return: None
+        """
         for variate in Variate:
-            params = varparams[variate]
+            params = self.varparams[variate]
             sample = list()
             for i in range(self.samsize):
-                rndvalue = Variate[variate.name].vargen.generate(u=rndgen, **params)
+                rndvalue = Variate[variate.name].vargen.generate(u=self.rndgen, **params)
                 sample.append(rndvalue)
 
-            expected_mean = check_mean[variate](**params)
+            expected_mean = self.check_mean[variate](**params)
             actual_mean = mean(sample)
             print("{}: expected mean {}, got {}".format(variate.name, expected_mean, actual_mean))
 
@@ -88,7 +88,7 @@ class RndvarTest(unittest.TestCase):
                                      "Mean error for variate {}: expected {} got {}"
                                      .format(variate.name, expected_mean, actual_mean))
 
-            expected_variance = check_variance[variate](**params)
+            expected_variance = self.check_variance[variate](**params)
             actual_variance = variance(sample)
             print("{}: expected variance {}, got {}".format(variate.name, expected_variance, actual_variance))
 

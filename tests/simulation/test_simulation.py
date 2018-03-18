@@ -12,8 +12,8 @@ class SimulationCloudTest(unittest.TestCase):
         The test setup.
         :return: None
         """
-        self.n_batch = 1
-        self.t_batch = 200
+        self.n_batch = 3
+        self.t_batch = 50
 
     def test_run(self):
         """
