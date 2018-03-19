@@ -1,5 +1,5 @@
 import unittest
-from core.statistics.sample_path_statistics import SimpleSamplePathStatistic
+from core.stats.sample_path_statistics import SimpleSamplePathStatistic
 from core.random.rndgen import MarcianiMultiStream as RandomGenerator
 from core.random.rndvar import uniform, equilikely, exponential, geometric
 from math import sqrt

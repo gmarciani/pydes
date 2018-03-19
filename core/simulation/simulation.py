@@ -7,7 +7,7 @@ from core.simulation.model.taskgen import SimpleTaskgen as Taskgen
 from core.simulation.model.calendar import NextEventCalendar as Calendar
 from core.simulation.model.event import EventType, ActionScope
 from core.utils.guiutils import print_progress
-from core.simulation.model.statistics import SimulationStatistics
+from core.simulation.model.stats import SimulationStatistics
 from core.utils.file_utils import empty_file
 import os
 from core.utils.logutils import get_logger
@@ -65,7 +65,7 @@ class Simulation:
         #   (ii.i) possible arrivals, i.e. arrivals with occurrence time lower than stop time.
         #   (ii.ii) departures of possible arrivals.
         # (iii) unscheduling of events to ignore, e.g. completion in Cloudlet of interrupted tasks of type 2.
-        self.calendar = Calendar(0.0, self.t_stop, [EventType.ARRIVAL_TASK_1, EventType.ARRIVAL_TASK_2])
+        self.calendar = Calendar(0.0, self.t_stop, EventType.arrivals())
 
         # Sampling management
         self.t_last_sample = 0
@@ -99,14 +99,10 @@ class Simulation:
         # Initialize first arrivals
         # Schedule the first events, i.e. task of type 1 and 2.
         # Notice that the event order by arrival time is managed internally by the Calendar.
-        self.calendar.schedule(self.taskgen.generate(TaskScope.TASK_1, self.calendar.get_clock()))
-        self.calendar.schedule(self.taskgen.generate(TaskScope.TASK_2, self.calendar.get_clock()))
+        self.calendar.schedule(self.taskgen.generate(self.calendar.get_clock()))
 
         # Run the simulation while the calendar clock is less than the stop time.
         while self.calendar.get_clock() < self.t_stop:
-
-            # Run the simulation for the current batch
-            #while self.curr_batch < self.n_batch and self.calendar.get_clock() < self.t_batch * (self.curr_batch+1):
 
             # Get the next event and update the calendar clock.
             # Notice that the Calendar clock is automatically updated.
@@ -127,8 +123,7 @@ class Simulation:
             # Notice that the next arrival generation is not managed by the system, because it is an event that
             # is related to the simulation paradigm, not to the internal mechanism of the system.
             if event.type.action is ActionScope.ARRIVAL:
-                next_arrival = self.taskgen.generate(event.type.task, self.calendar.get_clock())
-                self.calendar.schedule(next_arrival)
+                self.calendar.schedule(self.taskgen.generate(self.calendar.get_clock()))
 
             # Simulation progress
             if show_progress:
@@ -150,8 +145,6 @@ class Simulation:
                 # Record batch data
                 if self.calendar.get_clock() >= self.t_last_batch + self.t_batch:
                     self.statistics.register_batch()
-                    # if batchmeansfile is not None:
-                    #    self.statistics.save_csv(batchmeansfile, append=True, batch=(self.curr_batch))
                     self.curr_batch += 1
                     self.t_last_batch = self.calendar.get_clock()
 

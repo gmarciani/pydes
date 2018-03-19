@@ -9,7 +9,7 @@ from core.utils.csv_utils import save_csv
 
 
 PREC = 5
-WIDTH = 58
+WIDTH = 60
 PART = 4/6
 
 

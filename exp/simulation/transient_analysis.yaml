@@ -1,18 +1,18 @@
 general:
-  t_stop: 1000  # the stop time for the simulation (sec) 1hour=3600, 1day=86400, 1week=604800, 1month=2.628e+6 (suggested: 100000)
+  t_stop: 100000  # the stop time for the simulation (sec) 1hour=3600, 1day=86400, 1week=604800, 1month=2.628e+6 (suggested: 100000)
   t_tran: 0  # the transient time (sec) (must be: 0)
   n_batch: 1  # the number of batches (must be: 1)
-  t_sample: 50  # the sampling interval (sec) (suggested: 100)
+  t_sample: 100  # the sampling interval (sec) (suggested: 100)
   confidence: 0.95  # the level of confidence (suggested: 0.95)
   random:
     generator: "MarcianiMultiStream"  # the class name of the random generator
     seed: 123456789  # the initial seed for the random generator
 
 arrival:
-  TASK_1:  # the arrival process for tasks of type 2 (exponential with rate 6 tasks/sec)
+  TASK_1:  # the arrival process for tasks of type 1 (exponential with rate 6 tasks/sec)
     distribution: "EXPONENTIAL"
     parameters:
-      r: 6
+      r: 6.00
   TASK_2:  # the arrival process for tasks of type 2 (exponential with rate 6.25 tasks/sec)
     distribution: "EXPONENTIAL"
     parameters:
@@ -24,7 +24,7 @@ system:
     threshold: 20  # the occupancy threshold
     server_selection: "ORDER"  # the server-selection rule
     service:
-      TASK_1:  # the service process for tasks of type 2 (exponential with rate 0.45 tasks/sec)
+      TASK_1:  # the service process for tasks of type 1 (exponential with rate 0.45 tasks/sec)
         distribution: "EXPONENTIAL"
         parameters:
           r: 0.45

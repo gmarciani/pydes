@@ -5,7 +5,7 @@ from core.random.rndvar import Variate
 from core.random.rndcmp import RandomComponent
 import logging
 
-# Configure logger
+# Logging
 from core.simulation.model.scope import TaskScope
 
 logger = logging.getLogger(__name__)
@@ -72,7 +72,7 @@ class SimpleCloud:
 
         # Update statistics
         self.statistics.metrics.arrived[SystemScope.CLOUD][tsk].increment(1)
-        #self.statistics.metrics.population[SystemScope.CLOUD][task_type].add_sample(self.state[task_type])
+        self.sample_mean_population()
 
         return t_completion
 
@@ -94,7 +94,7 @@ class SimpleCloud:
 
         # Update statistics
         self.statistics.metrics.switched[SystemScope.CLOUD][tsk].increment(1)
-        #self.statistics.metrics.population[SystemScope.CLOUD][task_type].add_sample(self.state[task_type])
+        self.sample_mean_population()
 
         return t_completion
 
@@ -113,17 +113,28 @@ class SimpleCloud:
         # Update state
         self.state[tsk] -= 1
 
+        t_served = t_completion - t_arrival
+
         # Update statistics
         self.statistics.metrics.completed[SystemScope.CLOUD][tsk].increment(1)
-        self.statistics.metrics.service[SystemScope.CLOUD][tsk].increment(t_completion - t_arrival)
+        self.statistics.metrics.service[SystemScope.CLOUD][tsk].increment(t_served)
         if switched:
             self.statistics.metrics.switched_completed[SystemScope.CLOUD][tsk].increment(1)
-            self.statistics.metrics.switched_service[SystemScope.CLOUD][tsk].increment(t_completion - t_arrival)
-        #self.statistics.metrics.population[SystemScope.CLOUD][task_type].add_sample(self.state[task_type])
+            self.statistics.metrics.switched_service[SystemScope.CLOUD][tsk].increment(t_served)
+        self.sample_mean_population()
 
     # ==================================================================================================================
     # OTHER
     # ==================================================================================================================
+    def sample_mean_population(self):
+        """
+        Register the sample for the mean population.
+        :return: None.
+        """
+        for tsk in TaskScope.concrete():
+            self.statistics.metrics.population[SystemScope.CLOUD][tsk].add_sample(self.state[tsk])
+        self.statistics.metrics.population[SystemScope.CLOUD][TaskScope.GLOBAL].add_sample(
+            sum(self.state[tsk] for tsk in TaskScope.concrete()))
 
     def __str__(self):
         """

@@ -2,7 +2,7 @@ import unittest
 from core.simulation.model.config import get_default_configuration
 from core.simulation.model.scope import TaskScope
 from core.simulation.simulation import Simulation as Simulation
-from core.simulation.model.server_selection_rule import SelectionRule
+from core.simulation.model.server_selection import SelectionRule
 
 
 class SimulationCloudTest(unittest.TestCase):

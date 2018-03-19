@@ -1,7 +1,6 @@
 from core.random.rndgen import MarcianiMultiStream
 from core.random.rndvar import Variate
 from core.simulation.model.scope import TaskScope
-from core.simulation.model.server_selection_rule import SelectionRule
 
 rndgen = MarcianiMultiStream()
 

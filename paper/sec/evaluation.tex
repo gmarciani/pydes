@@ -2,8 +2,8 @@
 \label{sec:evaluation}
 
 In this Section, we present our experimental results.
-First, we show the results about the randomness of the adopted random number generator.
-Then, we show the results about the performance recorded by the simulation of the Cloud system.
+First, we show the results about the randomness degree of the adopted pseudo-random number generator.
+Then, we show the results about the performance recorded by the simulation of the target system.
 
 % %
 % EXPERIMENTAL ENVIRONMENT
@@ -14,33 +14,34 @@ It runs Debian 8.3 (Jessie), Python 3.5.2, and the Python-ported version of the 
 Our solution has been developed in Python, following the de-facto standard best-practices, stated in \cite{reitz2016,GooglePythonStyleguide}.
 
 % %
-% EXPERIMENTS: RANDOMNESS
+% RANDOMNESS ANALYSIS
 % %
-\subsection{Randomness}
-Let us now consider the results about the randomness of the adopted generator.
+\subsection{Randomness Analysis}
+\label{sec:evaluation-randomness-analysis}
+Let us now consider the results about the randomness degree of the adopted generator.
 The randomness has been assessed by the following tests:
 
 \begin{itemize}
 	\item \textbf{Spectral Test:} this test is considered one of the most powerful tests to assess the quality of linear congruential generators \cite{knuth1981art}. It relies on the fact that the output of such generators form lines or hyperplanes when plotted on 2 or more dimensions. The less the distance between these lines or planes, the better the generator is. In fact, a smaller distance between lines or planes highlights a better uniform distribution.
 	
-	In Figure \ref{fig:experimental-analysis-randomness-spectral-16807,fig:experimental-analysis-randomness-spectral-48271,fig:experimental-analysis-randomness-spectral-58012} we show the test results for generators $(16807,2^{31}-1)$, $(48271,2^{31}-1)$ and $(58012,2^{31}-1)$, respectively.
+	In Figure~\ref{fig:experimental-analysis-randomness-spectral-16807,fig:experimental-analysis-randomness-spectral-48271,fig:experimental-analysis-randomness-spectral-58012} we show the test results for generators $(16807,2^{31}-1)$, $(48271,2^{31}-1)$ and $(50812,2^{31}-1)$, respectively.
 	
-	The results show that our generator $(58012,2^{31}-1)$ is much better than $(16807, 2^{31}-1)$, which was a past de-facto standard, and really similar to $(48271,2^{31}-1)$, which is the current de-facto standard, according to \cite{leemis2006discrete}.
+	The results show that our generator $(50812,2^{31}-1)$ is much better than $(16807, 2^{31}-1)$, which was a past de-facto standard, and it is really similar to $(48271,2^{31}-1)$, which is the current de-facto standard, according to \cite{leemis2006discrete}.
 	
-	\item \textbf{Test of Extremes:} this test relies on the fact that if $U=U_{0},...,U_{d-1}$ is an iid sequence of Uniform(0,1) random variables, then $\max(U)^{d}$ is also a Uniform(0,1). The test leverages this property to measures, for every stream, how much the generated random values differ from the theoretical uniform distribution.
+	\item \textbf{Test of Extremes:} this test relies on the fact that if $U=U_{0},...,U_{d-1}$ is an independent identically distributed sequence of $Uniform(0,1)$ random variables, then $\max(U)^{d}$ is also a $Uniform(0,1)$. The test leverages this property to measures, for every stream, how much the generated random values differ from the theoretical uniform distribution.
 	
-	The more the total number of fails is close to the expected value, i.e. $streams \cdot confidence$, the better the generator is.
+	Given a number of streams $s$ and a level of confidence $c=1-\alpha$, the more the total number of fails is close to the expected value, i.e. $s \cdot c$, the better the generator is.
 	
-	In Figure~\ref{fig:experimental-analysis-randomness-extremes-508012} we show the test results for the proposed generator $(508012,2^{31}-1, 256)$ with sample size $n=10000$, $k=1000$ bins, sequence size $d=5$ and $95\%$ level of confidence.
+	In Figure~\ref{fig:experimental-analysis-randomness-extremes-50812} we show the test results for the proposed generator $(508012,2^{31}-1, 256)$ with sample size $n=10000$, $k=1000$ bins, sequence size $d=5$ and $95\%$ level of confidence.
 	%	
 	The proposed generator shows critical values $v_{min}=913$ and $v_{max}=1088$ and 14 total fails (7 lower fails and 7 upper fails), that is not far from the theoretical accepted number of fails, i.e. $256*0.05=13$.
 	The proposed generator successfully passed the test with a $94.531\%$ level of confidence.
 	
-	\item \textbf{Kolmogorov-Smirnov Analysis:} the test measures, at a certain confidence level, the biggest vertical distance between the theoretical cumulative distribution function and the empirical cumulative distribution function.
+	\item \textbf{Kolmogorov-Smirnov Analysis:} the test measures, at a given level of confidence, the biggest vertical distance between the theoretical cumulative distribution function and the empirical cumulative distribution function.
 	The more the recorded distance $d$ is less than the critical value $d*$ for the considered level of confidence, the better the generator is.
-	As the Kolmogorov-Smirnov analysis relies on pre-calculated randomness statistics, we have chosen to take into account the statistics obtained by the previous text of extremes.
+	As the Kolmogorov-Smirnov analysis relies on pre-calculated randomness statistics, we have chosen to take into account the statistics obtained by the previous test.
 	
-	In Figure~\ref{fig:evaluation-randomness-kolmogorov-smirnov-50812} we show the test results for the proposed generator $(508012,2^{31}-1, 256)$ with a $95\%$ level of confidence.
+	In Figure~\ref{fig:evaluation-randomness-kolmogorov-smirnov-50812} we show the test results for the proposed generator $(50812,2^{31}-1, 256)$ with a $95\%$ level of confidence.
 	%
 	The proposed generator successfully passed the test, as $d=0.041<0.081=d*$.
 	
@@ -78,29 +79,88 @@ The randomness has been assessed by the following tests:
 
 
 % %
-% EXPERIMENTS: RESPONSE-TIME, THROUGHPUT
+% PERFORMANCE ANALYSIS
 % %
 \subsection{Performance Analysis}
 Let us now consider the results about the performance recorded during the simulation of the target system.
 In all the experiments we have considered the following parameters:
 
 \begin{itemize}
-	\item \textbf{arrivals:} exponential with rate $\lambda_{1}=3.25 task/s$ and $\lambda_{2}=6.25 task/s$.
-	\item \textbf{services:} exponential with rate $\mu_{clt,1} = 0.45 task/s$, $\mu_{clt,2} = 0.30 task/s$, $\mu_{cld,1} = 0.25 task/s$ and $\mu_{cld,2} = 0.22 task/s$.
-	\item \textbf{setup:} exponential with mean $E[T_{setup}]=0.8s$.
+	\item \textbf{arrivals:} exponential with rate $\lambda_{1}=6.00\;task/sec$ and $\lambda_{2}=6.25\;task/sec$.
+	\item \textbf{services:} exponential with rate $\mu_{clt,1}=0.45\;task/sec$, $\mu_{clt,2}=0.27\;task/sec$, $\mu_{cld,1}=0.25\;task/sec$ and $\mu_{cld,2}=0.22\;task/sec$.
+	\item \textbf{setup:} exponential with mean $E[T_{setup}]=0.8\;sec$.
 \end{itemize}
+
+\subsection{Transient Analysis}
+\label{sec:evaluation-transient-analysis}
+First, we conduct a \textit{transient analysis} to evaluate the stationary of the system and to estimate the duration of the transient period.
+%
+In fact, given a system that converges to stationary, the knowledge of the duration of the transient period is really important to conduct an effective performance evaluation. In particular, it allows the analyst to focus performance evaluation on a system in its stationary conditions.
+%
+In the transient analysis we focus on the following global metrics for the whole system: response time, throughout, mean population, ratio of switched tasks, response time for switched tasks. 
+%
+We assess the transient period of the aforementioned metrics because they are also the performance metrics that will be taken into account in the final performance evaluation, thus it is really important to study their stationary.
+
+The following results have been produced by considering an ensemble of $5$ replications, where the $i+1$-th replication is initialized with the last seed of the $i$-th replication, so as to achieve the best decoupling between random sequences of different replications.
+
+In Figure \ref{fig:evaluation-transient-analysis-response-time} we show the transient analysis of the global response time in the whole system.
+%
+In Figure \ref{fig:evaluation-transient-analysis-throughput} we show the transient analysis of the global throughput in the whole system.
+%
+In Figure \ref{fig:evaluation-transient-analysis-mean-population} we show the transient analysis of the global mean population in the whole system.
+%
+In Figure \ref{fig:evaluation-transient-analysis-switched-ratio} we show the transient analysis of the global switch ratio in the whole system.
+%
+In Figure \ref{fig:evaluation-transient-analysis-switched-response-time} we show the transient analysis of the response time for switched tasks in the whole system.
+
+The results show that 
+(i) the system is stationary,
+(ii) the response time, the throughput, the mean population and the ratio of switched tasks loose their dependence on the starting conditions, whilst 
+(iii) the response time for switched tasks maintains its dependence on starting conditions, regardless of the termination of the transient period.
+
+As we could image, each metric exposes a distinct transient period, e.g. the ratio of switched tasks converges faster than the mean population. Thus, we consider $\tau*=8\cdot 10^{4}\;sec$ as the final instant of the transient period, as in $\tau*$ we are sure that all metrics loosed their dependence on starting conditions.
 
 \begin{figure}
 	\includegraphics[width=\columnwidth]{fig/evaluation-transient-analysis-response-time}
-	\caption{Transient analysis for response time.}
+	\caption{Transient analysis for global response time in the whole system.}
 	\label{fig:evaluation-transient-analysis-response-time}
 \end{figure}
 
 \begin{figure}
 	\includegraphics[width=\columnwidth]{fig/evaluation-transient-analysis-throughput}
-	\caption{Transient analysis for throughput.}
+	\caption{Transient analysis for global throughput in the whole system.}
 	\label{fig:evaluation-transient-analysis-throughput}
 \end{figure}
+
+\begin{figure}
+	\includegraphics[width=\columnwidth]{fig/evaluation-transient-analysis-mean-population}
+	\caption{Transient analysis for global mean population in the whole system.}
+	\label{fig:evaluation-transient-analysis-mean-population}
+\end{figure}
+
+\begin{figure}
+	\includegraphics[width=\columnwidth]{fig/evaluation-transient-analysis-switched-ratio}
+	\caption{Transient analysis for the ratio of switched tasks of type 2.}
+	\label{fig:evaluation-transient-analysis-switched-ratio}
+\end{figure}
+
+\begin{figure}
+	\includegraphics[width=\columnwidth]{fig/evaluation-transient-analysis-switched-response-time}
+	\caption{Transient analysis for response time for switched tasks of type 2.}
+	\label{fig:evaluation-transient-analysis-switched-response-time}
+\end{figure}
+
+
+\subsection{Performance Evaluation}
+Let us now focus on the \textit{performance evaluation}, taking into account the following metrics:
+
+\begin{enumerate}
+	\item response time both global and per-class, both for the system as a whole and for each subsystem;
+	\item throughput both global and per-class, both for the system as a whole and for each subsystem;
+	\item mean population both global and per-class, both for the system as a whole and for each subsystem;
+	\item ratio of switched tasks of type 2;
+	\item response time for switched tasks of type 2.
+\end{enumerate}
 
 \begin{figure}
 	\includegraphics[width=\columnwidth]{fig/evaluation-performance-analysis-response-time}
@@ -163,3 +223,9 @@ In all the experiments we have considered the following parameters:
 	\caption{Distribution analysis for response time with threshold $S=20$. The binnign rule is Freedman-Diaconis Rule. The best fitting is the Weibull with parameters $A\approx4.357$ and $B\approx3546.917$.}
 	\label{fig:evaluation-distribution-analysis-response-time}
 \end{figure}
+
+%%
+% DISTRIBUTION ANALYSIS
+%%
+\subsection{Distribution Analysis}
+\label{sec:evaluation-distribution-analysis}

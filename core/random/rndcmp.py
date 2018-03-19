@@ -26,3 +26,12 @@ class RandomComponent:
         """
         self.gen.stream(self.str[key])
         return self.var[key].generator.generate(u=self.gen, **self.par[key])
+
+    def __str__(self):
+        """
+        String representation.
+        :return: the string representation.
+        """
+        sb = ["{attr}={value}".format(attr=attr, value=self.__dict__[attr]) for attr in self.__dict__ if
+              not attr.startswith("__") and not callable(getattr(self, attr))]
+        return "RandomComponent({}:{})".format(id(self), ", ".join(sb))

@@ -29,7 +29,7 @@ def statistics(filename, rndgen, samsize, interval):
         if low <= u1 <= high and low <= u2 <= high:
             found += 1
             observed.append((u1, u2))
-            print_progress(i, samsize, suffix="Complete | Found {}".format(found))
+            print_progress(i, samsize, suffix="Complete | Found {}\n".format(found))
         u1 = u2
 
         if len(observed) == MAX_OBSERVATIONS_BEFORE_FLUSH:

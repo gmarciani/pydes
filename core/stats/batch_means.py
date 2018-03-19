@@ -1,12 +1,13 @@
-from core.statistics.sample_path_statistics import SimpleSamplePathStatistic
-from core.statistics.sample_statistics import SimpleSampleStatistic
-from core.statistics.interval_estimation import get_interval_estimation
-from statistics import mean, stdev
+from core.stats.sample_path_statistics import SimpleSamplePathStatistic
+from core.stats.sample_statistics import SimpleSampleStatistic
+from core.stats.interval_estimation import get_interval_estimation
+from statistics import mean
+from statistics import stdev
 
 
 class BaseBatchedMeasure:
     """
-    The base class for batched measures and sampe statistics.
+    The base class for batched measures and sample statistics.
     """
 
     def __init__(self):
@@ -47,7 +48,7 @@ class BaseBatchedMeasure:
 
     def set_value(self, value, batch=None):
         """
-        Set the value for the specified batch.
+        Set the value for the specified or current batch.
         :param value: the value.
         :param batch: (int) the batch index (Default: current batch).
         :return: None
@@ -120,7 +121,7 @@ class BatchedMeasure(BaseBatchedMeasure):
         Initialize the value.
         :return: the initialized value.
         """
-        return 0
+        return 0.0
 
     def compute_batch_value(self):
         """
@@ -134,7 +135,20 @@ class BatchedMeasure(BaseBatchedMeasure):
         Reset the current value.
         :return: None
         """
-        self.curr_value = 0
+        self.curr_value = 0.0
+
+    def set_value(self, value, batch=None):
+        """
+        Set the value for the specified or current batch.
+        :param value: the value.
+        :param batch: (int) the batch index (Default: current batch).
+        :return: None
+        """
+        if batch is not None:
+            self.batch_values[batch] = value
+        else:
+            self.curr_value = value
+            self.global_value = value
 
     def increment(self, value=1):
         """
@@ -172,7 +186,7 @@ class BatchedSampleMeasure(BaseBatchedMeasure):
         Create a new batch mean statistic.
         """
         BaseBatchedMeasure.__init__(self)
-        self.global_value = 0
+        self.global_value = 0.0
 
     def init_value(self):
         """
@@ -209,7 +223,7 @@ class BatchedSampleMeasure(BaseBatchedMeasure):
         Return the global value.
         :return: the global value.
         """
-        return self.global_value
+        return self.curr_value.mean()
 
 
 class BatchedSamplePathStatistic(BaseBatchedMeasure):

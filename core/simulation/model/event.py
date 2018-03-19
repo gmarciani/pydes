@@ -32,6 +32,14 @@ class EventType(Enum):
     SWITCH_TASK_2 = ActionScope.SWITCH, SystemScope.SYSTEM, TaskScope.TASK_2  # 7
 
     @staticmethod
+    def arrivals():
+        """
+        Return the list of events representing an arrival.
+        :return: the list of events representing an arrival.
+        """
+        return [EventType.ARRIVAL_TASK_1, EventType.ARRIVAL_TASK_2]
+
+    @staticmethod
     def of(action, scope, task):
         """
         Return the event type from action, scope and task.

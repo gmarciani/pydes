@@ -83,6 +83,9 @@ class SimpleCloudletCloudSystem:
         else:
             raise ValueError("Unrecognized event: {}".format(event))
 
+        # Update statistics (only population)
+        self.sample_mean_population()
+
         return response_events_to_schedule, response_events_to_unschedule
 
     def submit_arrival(self, tsk, t_event):
@@ -121,7 +124,7 @@ class SimpleCloudletCloudSystem:
 
                 logger.debug("{} restarted in CLOUD at {}".format(task_to_interrupt, t_event))
                 t_completion = self.cloud.submit_restart(task_to_interrupt, t_event, r_remaining_1)
-                e_completion = Event(EventType.of(ActionScope.COMPLETION, SystemScope.CLOUD, task_to_interrupt), t_completion, t_arrival=t_arrival_1, switched=True)
+                e_completion = Event(EventType.of(ActionScope.COMPLETION, SystemScope.CLOUD, task_to_interrupt), t_completion, t_arrival=t_event, t_arrival_before_switch=t_arrival_1, switched=True)
                 e_to_schedule.append(e_completion)
 
                 logger.debug("{} sent to CLOUDLET at {}".format(tsk, t_event))
@@ -186,6 +189,17 @@ class SimpleCloudletCloudSystem:
         :return: True, if the system is empty; False, otherwise.
         """
         return sum(self.state[SystemScope.CLOUDLET]) + sum(self.state[SystemScope.CLOUD]) == 0
+
+    def sample_mean_population(self):
+        """
+        Register the sample for the mean population.
+        :return: None.
+        """
+        for tsk in TaskScope.concrete():
+            self.statistics.metrics.population[SystemScope.SYSTEM][tsk].add_sample(
+                sum(self.state[sys][tsk] for sys in SystemScope.subsystems()))
+        self.statistics.metrics.population[SystemScope.SYSTEM][TaskScope.GLOBAL].add_sample(
+            sum(x for sys in SystemScope.subsystems() for x in self.state[sys].values()))
 
     def __str__(self):
         """

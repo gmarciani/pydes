@@ -5,12 +5,17 @@ from core.simulation.model.scope import SystemScope
 from core.simulation.model.scope import ActionScope
 from core.simulation.model.scope import TaskScope
 from core.random.rndcmp import RandomComponent
+from core.random.rndvar import exponential
 from sys import maxsize
 from core.utils.logutils import get_logger
 
 
 # Logging
 logger = get_logger(__name__)
+
+
+STREAM_ARRIVAL_TYPE = 100
+STREAM_ARRIVAL_TIME = 101
 
 
 class SimpleTaskgen:
@@ -26,8 +31,8 @@ class SimpleTaskgen:
         :param t_stop: (float) the final stop time. Events with arrival time greater than stop time are not counted in
         taskgen tate.
         """
-
         # Randomization
+        self.rndgen = rndgen
         self.rndarrival = RandomComponent(
             gen=rndgen,
             str={tsk: EventType.of(ActionScope.ARRIVAL, SystemScope.SYSTEM, tsk).value for tsk in TaskScope.concrete()},
@@ -43,23 +48,55 @@ class SimpleTaskgen:
 
         # Generation management
         self.t_stop = t_stop
+        if all(var is Variate.EXPONENTIAL for var in self.rndarrival.var.values()):
+            self.r_tot = sum(1.0/self.rndarrival.par[tsk]["m"] for tsk in TaskScope.concrete())
+            self.p1 = (1.0/self.rndarrival.par[TaskScope.TASK_1]["m"]) / self.r_tot
+            self._generate = self._generate_exponential
+        else:
+            raise NotImplementedError("The type selection for general arrival process has not been implemented, yet.")
 
-    def generate(self, tsk, t_clock):
+    def generate(self, t_clock, tsk=None):
         """
-        Generate a new random task arrival of the specified type.
-        :param tsk: (TaskType) the type of the task.
+        Generate a new random arrival.
         :param t_clock: (float) the current time.
-        :return: (SimpleEvent) a new random arrival of the specified type.
+        :param tsk: (TaskType) the type of the task. Default: None
+        :return: (SimpleEvent) a new random arrival.
         """
-        arrival_time = t_clock + self.rndarrival.generate(tsk)
-        event_type = self.event_types[tsk]
-        arrival = Event(event_type, arrival_time)
+        # Select the type of arrival and the corresponding arrival time
+        if tsk is not None:
+            t_event = t_clock + self.rndarrival.generate(tsk)
+        else:
+            tsk, t_event = self._generate(t_clock)
 
-        # state change
-        if arrival_time < self.t_stop:
+        # Generate the arrival event
+        arrival = Event(self.event_types[tsk], t_event)
+
+        # Update state
+        if t_event < self.t_stop:
             self.generated[tsk] += 1
 
         return arrival
+
+    def _generate_exponential(self, t_clock):
+        """
+        Generate random arrival event for exponential arrival process.
+        :param t_clock: (float) the current time.
+        :return: tsk, t_event
+        """
+        self.rndgen.stream(STREAM_ARRIVAL_TYPE)
+        u = self.rndgen.rnd()
+        tsk = TaskScope.TASK_1 if u <= self.p1 else TaskScope.TASK_2
+        t_event = t_clock + exponential(m=(1.0/self.r_tot), u=self.rndgen.rnd())
+        return tsk, t_event
+
+    def _generate_general(self, t_clock):
+        """
+        Generate random arrival event for general arrival process.
+        :param t_clock: (float) the current time.
+        :return: tsk, t_event
+        """
+        #TODO
+        raise NotImplementedError("The type selection for general arrival process has not been implemented, yet.")
 
     def __str__(self):
         """

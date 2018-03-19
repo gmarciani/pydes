@@ -1,5 +1,5 @@
 import unittest
-from core.statistics.batch_means import BatchedMeasure
+from core.stats.batch_means import BatchedMeasure
 
 
 class BatchedStatistics(unittest.TestCase):
