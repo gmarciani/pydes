@@ -28,17 +28,16 @@ class SimpleCloudlet:
         # Randomization - Service
         self.rndservice = RandomComponent(
             gen=rndgen,
-            str={tsk: EventType.of(ActionScope.COMPLETION, SystemScope.CLOUDLET, tsk).value for tsk in
-                 TaskScope.concrete()},
-            var={tsk: Variate[config["service"][tsk.name]["distribution"]] for tsk in TaskScope.concrete()},
-            par={tsk: config["service"][tsk.name]["parameters"] for tsk in TaskScope.concrete()}
+            str={tsk: EventType.of(ActionScope.COMPLETION, SystemScope.CLOUDLET, tsk).value for tsk in TaskScope.concrete()},
+            var={tsk: config["service"][tsk]["distribution"] for tsk in TaskScope.concrete()},
+            par={tsk: config["service"][tsk]["parameters"] for tsk in TaskScope.concrete()}
         )
 
         # Servers
         self.n_servers = config["n_servers"]
         self.threshold = config["threshold"]
         self.servers = [Server(self.rndservice, i) for i in range(self.n_servers)]
-        self.server_selector = SelectionRule[config["server_selection"]].selector(self.servers)
+        self.server_selector = config["server_selection"].selector(self.servers)
 
         if not (0 <= self.threshold <= self.n_servers):
             raise ValueError(

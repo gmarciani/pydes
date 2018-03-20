@@ -210,19 +210,23 @@ class SimulationStatistics:
         #   * switched_throughput = switched_completed / t_batch
         for sys in SystemScope:
             for tsk in TaskScope:
+                # TODO FARE CON WELFORD
                 self.metrics.response[sys][tsk].set_value(
                     (self.metrics.service[sys][tsk].get_value() /
                     self.metrics.completed[sys][tsk].get_value())
                     if self.metrics.completed[sys][tsk].get_value() > 0 else 0)
 
+                # TODO FARE CON completati / t_current
                 self.metrics.throughput[sys][tsk].set_value(
                     self.metrics.completed[sys][tsk].get_value() / self.t_batch)
 
+                # TODO INTERROTTI SU TUTTI GLI ARRIVATI
                 self.metrics.switched_ratio[sys][tsk].set_value(
                     (self.metrics.switched[sys][tsk].get_value() /
                     self.metrics.arrived[sys][tsk].get_value())
                     if self.metrics.arrived[sys][tsk].get_value() > 0 else 0)
 
+                # TODO fare con WELFORD
                 self.metrics.switched_response[sys][tsk].set_value(
                     (self.metrics.switched_service[sys][tsk].get_value() /
                     self.metrics.switched_completed[sys][tsk].get_value())

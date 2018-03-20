@@ -18,7 +18,74 @@ STREAM_ARRIVAL_TYPE = 100
 STREAM_ARRIVAL_TIME = 101
 
 
-class SimpleTaskgen:
+class ExponentialTaskgen:
+    """
+    A tasks generator for exponential inter-arrivals.
+    """
+
+    def __init__(self, rndgen, config, t_stop=maxsize):
+        """
+        Create a new tasks generator.
+        :param rndgen: (object) the multi-stream random number generator.
+        :param config: (dict) the arrival rates configuration.
+        :param t_stop: (float) the final stop time. Events with arrival time greater than stop time are not counted in
+        taskgen tate.
+        """
+        # Arrival rates
+        self.rates = {tsk: 1.0 / config[tsk]["parameters"]["m"] for tsk in TaskScope.concrete()}
+
+        # Randomization
+        self.rndgen = rndgen
+        self.stream = STREAM_ARRIVAL_TIME
+        self.lambda_tot = sum(self.rates[tsk] for tsk in TaskScope.concrete())
+        self.p1 = self.rates[TaskScope.TASK_1] / self.lambda_tot
+
+        # Events
+        self.event_types = {tsk: EventType.of(ActionScope.ARRIVAL, SystemScope.SYSTEM, tsk) for tsk in TaskScope.concrete()}
+
+        # State
+        self.generated = {tsk: 0 for tsk in TaskScope.concrete()}
+
+        # Generation management
+        self.t_stop = t_stop
+
+    def generate(self, t_clock):
+        """
+        Generate a new random arrival.
+        :param t_clock: (float) the current time.
+        :param tsk: (TaskType) the type of the task. Default: None
+        :return: (SimpleEvent) a new random arrival.
+        """
+        # Select the type of arrival and the corresponding arrival time
+        self.rndgen.stream(STREAM_ARRIVAL_TYPE)
+        u = self.rndgen.rnd()
+        tsk = TaskScope.TASK_1 if u <= self.p1 else TaskScope.TASK_2
+        t_event = t_clock + exponential(m=(1.0 / self.lambda_tot), u=self.rndgen.rnd())
+
+        # Generate the arrival event
+        arrival = Event(self.event_types[tsk], t_event)
+
+        # Update state
+        if t_event < self.t_stop:
+            self.generated[tsk] += 1
+
+        return arrival
+
+    # ==================================================================================================================
+    # OTHER
+    # ==================================================================================================================
+
+    def __str__(self):
+        """
+        String representation.
+        :return: the string representation.
+        """
+        sb = ["{attr}={value}".format(attr=attr, value=self.__dict__[attr]) for attr in self.__dict__ if
+              not attr.startswith("__") and not callable(getattr(self, attr))]
+        return "Taskgen({}:{})".format(id(self), ", ".join(sb))
+
+
+class GeneralTaskgen:
     """
     A simple tasks generator.
     """
@@ -36,7 +103,7 @@ class SimpleTaskgen:
         self.rndarrival = RandomComponent(
             gen=rndgen,
             str={tsk: EventType.of(ActionScope.ARRIVAL, SystemScope.SYSTEM, tsk).value for tsk in TaskScope.concrete()},
-            var={tsk: Variate[config[tsk.name]["distribution"]] for tsk in TaskScope.concrete()},
+            var={tsk: config[tsk.name]["distribution"] for tsk in TaskScope.concrete()},
             par={tsk: config[tsk.name]["parameters"] for tsk in TaskScope.concrete()}
         )
 
@@ -49,8 +116,8 @@ class SimpleTaskgen:
         # Generation management
         self.t_stop = t_stop
         if all(var is Variate.EXPONENTIAL for var in self.rndarrival.var.values()):
-            self.r_tot = sum(1.0/self.rndarrival.par[tsk]["m"] for tsk in TaskScope.concrete())
-            self.p1 = (1.0/self.rndarrival.par[TaskScope.TASK_1]["m"]) / self.r_tot
+            self.lambda_tot = sum(1.0 / self.rndarrival.par[tsk]["m"] for tsk in TaskScope.concrete())
+            self.p1 = (1.0/self.rndarrival.par[TaskScope.TASK_1]["m"]) / self.lambda_tot
             self._generate = self._generate_exponential
         else:
             raise NotImplementedError("The type selection for general arrival process has not been implemented, yet.")
@@ -86,7 +153,7 @@ class SimpleTaskgen:
         self.rndgen.stream(STREAM_ARRIVAL_TYPE)
         u = self.rndgen.rnd()
         tsk = TaskScope.TASK_1 if u <= self.p1 else TaskScope.TASK_2
-        t_event = t_clock + exponential(m=(1.0/self.r_tot), u=self.rndgen.rnd())
+        t_event = t_clock + exponential(m=(1.0 / self.lambda_tot), u=self.rndgen.rnd())
         return tsk, t_event
 
     def _generate_general(self, t_clock):
@@ -97,6 +164,10 @@ class SimpleTaskgen:
         """
         #TODO
         raise NotImplementedError("The type selection for general arrival process has not been implemented, yet.")
+
+    # ==================================================================================================================
+    # OTHER
+    # ==================================================================================================================
 
     def __str__(self):
         """

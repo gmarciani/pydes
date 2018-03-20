@@ -2,6 +2,8 @@ from queue import PriorityQueue
 import logging
 
 # Configure logger
+from core.simulation.model.event import EventType
+
 logger = logging.getLogger(__name__)
 
 
@@ -16,16 +18,14 @@ class NextEventCalendar:
         (iii) unscheduling of events to ignore.
     """
 
-    def __init__(self, t_clock=0.0, t_stop=float("inf"), arrival_types=set()):
+    def __init__(self, t_clock=0.0, t_stop=float("inf")):
         """
         Create a new *NextEventCalendar*.
         :param t_clock: (float) optional, initialization time for the simulation clock.
         :param t_stop: (float) optional, initialization time for the simulation clock. Default is infinite.
-        :param arrival_types: ([EventType]) optional, arrival event types. Default is the empty set.
         """
         self._clock = t_clock  # the simulation clock
         self._stop = t_stop  # the stop time
-        self._arrival_types = arrival_types  # the set of arrival event types
 
         self._events = PriorityQueue()  # the event list, implemented as a priority queue
         self._ignore = set()  # the set of events to ignore (unscheduled events), processed lazily
@@ -51,8 +51,8 @@ class NextEventCalendar:
         :return: (boolean) True, if all the events has been scheduled; False, otherwise.
         """
         for e in events:
-            if e.type in self._arrival_types and e.time >= self._stop:
-                logger.debug("Not scheduled (impossibile): {}".format(e))
+            if EventType.is_arrival(e.type) and e.time >= self._stop:
+                logger.debug("Not scheduled (impossible): {}".format(e))
                 return False
             else:
                 try:

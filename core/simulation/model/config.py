@@ -1,7 +1,9 @@
 import copy
 import yaml
 
+from core.simulation.model.scope import TaskScope
 from core.random.rndvar import Variate
+from core.simulation.model.server_selection import SelectionRule
 
 default_configuration = {
 
@@ -111,39 +113,29 @@ def load_configuration(filename):
 
 def normalize(config):
     """
-    Normaliza the format of the configuration.
+    Normalize the format of the configuration.
     :param config: the configuration.
     :return: None
     """
-    # Normalize - Arrival
-    for tsk in config["arrival"]:
-        distribution = config["arrival"][tsk]["distribution"]
-        parameters = config["arrival"][tsk]["parameters"]
-        if distribution == Variate.EXPONENTIAL.name and "r" in parameters:
-            parameters["m"] = 1/parameters["r"]
-            del parameters["r"]
+    _normalize_random_config(config["arrival"])
+    _normalize_random_config(config["system"]["cloudlet"]["service"])
+    _normalize_random_config(config["system"]["cloud"]["service"])
+    _normalize_random_config(config["system"]["cloud"]["setup"])
+    config["system"]["cloudlet"]["server_selection"] = SelectionRule[config["system"]["cloudlet"]["server_selection"]]
 
-    # Normalize - Cloudlet
-    for tsk in config["system"]["cloudlet"]["service"]:
-        distribution = config["system"]["cloudlet"]["service"][tsk]["distribution"]
-        parameters = config["system"]["cloudlet"]["service"][tsk]["parameters"]
-        if distribution == Variate.EXPONENTIAL.name and "r" in parameters:
-            parameters["m"] = 1 / parameters["r"]
-            del parameters["r"]
 
-    # Normalize - Cloud
-    for tsk in config["system"]["cloud"]["service"]:
-        distribution = config["system"]["cloud"]["service"][tsk]["distribution"]
-        parameters = config["system"]["cloud"]["service"][tsk]["parameters"]
-        if distribution == Variate.EXPONENTIAL.name and "r" in parameters:
-            parameters["m"] = 1 / parameters["r"]
-            del parameters["r"]
-    for tsk in config["system"]["cloud"]["setup"]:
-        distribution = config["system"]["cloud"]["setup"][tsk]["distribution"]
-        parameters = config["system"]["cloud"]["setup"][tsk]["parameters"]
-        if distribution == Variate.EXPONENTIAL.name and "r" in parameters:
-            parameters["m"] = 1 / parameters["r"]
-            del parameters["r"]
+def _normalize_random_config(entry):
+    """
+    Normalize the random entry.
+    :param entry: the random entry.
+    :return: None
+    """
+    for tsk in entry.keys():
+        entry[tsk]["distribution"] = Variate[entry[tsk]["distribution"]]
+        if entry[tsk]["distribution"] is Variate.EXPONENTIAL and "r" in entry[tsk]["parameters"]:
+            entry[tsk]["parameters"]["m"] = 1.0/entry[tsk]["parameters"]["r"]
+            del entry[tsk]["parameters"]["r"]
+        entry[TaskScope[tsk]] = entry.pop(tsk)
 
 
 if __name__ == "__main__":
@@ -157,6 +149,5 @@ if __name__ == "__main__":
     print("Config 1 equals Config 2 (after editing): {}".format(config_1 == config_2))
 
     config_3 = get_default_configuration()
-    normalize(config_3)
     print(config_3)
 

@@ -40,18 +40,27 @@ class EventType(Enum):
         return [EventType.ARRIVAL_TASK_1, EventType.ARRIVAL_TASK_2]
 
     @staticmethod
-    def of(action, scope, task):
+    def is_arrival(etype):
+        """
+        Check whether a event type is an arrival.
+        :param etype: (EventType) the type of event.
+        :return: the list of events representing an arrival.
+        """
+        return etype is EventType.ARRIVAL_TASK_1 or etype is EventType.ARRIVAL_TASK_2
+
+    @staticmethod
+    def of(action, sys, tsk):
         """
         Return the event type from action, scope and task.
         :param action: (Action) the action.
-        :param scope: (Scope) the scope.
-        :param task:  (TaskType) the task type.
+        :param sys: (Scope) the scope.
+        :param tsk:  (TaskType) the task type.
         :return: (EventType) the event type.
         """
         for event_type in EventType:
-            if event_type.action is action and event_type.scope is scope and event_type.task is task:
+            if event_type.action is action and event_type.scope is sys and event_type.task is tsk:
                 return event_type
-        raise KeyError("Cannot find event type for action={}, scope={}, task={}".format(action, scope, task))
+        raise KeyError("Cannot find event type for action={}, scope={}, task={}".format(action, sys, tsk))
 
 
 class SimpleEvent:

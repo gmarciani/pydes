@@ -1,11 +1,12 @@
+from core.random.rndvar import Variate
 from core.simulation.model.system import SimpleCloudletCloudSystem as System
 from core.simulation.model.scope import SystemScope
 from core.simulation.model.scope import TaskScope
 from core.utils.report import SimpleReport as Report
 from core.random import rndgen
-from core.simulation.model.taskgen import SimpleTaskgen as Taskgen
+from core.simulation.model.taskgen import ExponentialTaskgen as Taskgen
 from core.simulation.model.calendar import NextEventCalendar as Calendar
-from core.simulation.model.event import EventType, ActionScope
+from core.simulation.model.event import ActionScope
 from core.utils.guiutils import print_progress
 from core.simulation.model.stats import SimulationStatistics
 from core.utils.file_utils import empty_file
@@ -44,19 +45,14 @@ class Simulation:
         self.statistics = SimulationStatistics(self.t_batch)
 
         # Configuration - Tasks
-        self.taskgen = Taskgen(
-            self.rndgen,
-            config["arrival"],
-            self.t_stop
-        )
+        # Checks that the arrival process is Markovian (currently, the only one supported)
+        if not all(variate is Variate.EXPONENTIAL for variate in [config["arrival"][tsk]["distribution"] for tsk in TaskScope.concrete()]):
+            raise NotImplementedError("The current version supports only exponential arrivals")
+        self.taskgen = Taskgen(rndgen=self.rndgen, config=config["arrival"], t_stop=self.t_stop)
 
         # Configuration - System (Cloudlet and Cloud)
         config_system = config["system"]
-        self.system = System(
-            self.rndgen,
-            config_system,
-            self.statistics
-        )
+        self.system = System(rndgen=self.rndgen, config=config_system, statistics=self.statistics)
 
         # Configuration - Calendar
         # Notice that the calendar internally manages:
@@ -65,7 +61,7 @@ class Simulation:
         #   (ii.i) possible arrivals, i.e. arrivals with occurrence time lower than stop time.
         #   (ii.ii) departures of possible arrivals.
         # (iii) unscheduling of events to ignore, e.g. completion in Cloudlet of interrupted tasks of type 2.
-        self.calendar = Calendar(0.0, self.t_stop, EventType.arrivals())
+        self.calendar = Calendar(t_clock=0.0, t_stop=self.t_stop)
 
         # Sampling management
         self.t_last_sample = 0
@@ -179,9 +175,11 @@ class Simulation:
 
         # Report - Arrivals
         for tsk in TaskScope.concrete():
-            r.add("arrival", "arrival_{}_dist".format(tsk.name.lower()), self.taskgen.rndarrival.var[tsk].name.lower())
-            for p in self.taskgen.rndarrival.par[tsk]:
-                r.add("arrival", "arrival_{}_param_{}".format(tsk.name.lower(), p), self.taskgen.rndarrival.par[tsk][p])
+            r.add("arrival", "arrival_{}_dist".format(tsk.name.lower()), Variate.EXPONENTIAL.name)
+            r.add("arrival", "arrival_{}_rate".format(tsk.name.lower()), self.taskgen.rates[tsk])
+            #r.add("arrival", "arrival_{}_dist".format(tsk.name.lower()), self.taskgen.rndarrival.var[tsk].name.lower())
+            #for p in self.taskgen.rndarrival.par[tsk]:
+            #    r.add("arrival", "arrival_{}_param_{}".format(tsk.name.lower(), p), self.taskgen.rndarrival.par[tsk][p])
         for tsk in TaskScope.concrete():
             r.add("arrival", "generated_{}".format(tsk.name.lower()), self.taskgen.generated[tsk])
 

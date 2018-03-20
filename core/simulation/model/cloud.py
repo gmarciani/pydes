@@ -29,16 +29,16 @@ class SimpleCloud:
         self.rndservice = RandomComponent(
             gen=rndgen,
             str={tsk: EventType.of(ActionScope.COMPLETION, SystemScope.CLOUD, tsk).value for tsk in TaskScope.concrete()},
-            var={tsk: Variate[config["service"][tsk.name]["distribution"]] for tsk in TaskScope.concrete()},
-            par={tsk: config["service"][tsk.name]["parameters"] for tsk in TaskScope.concrete()}
+            var={tsk: config["service"][tsk]["distribution"] for tsk in TaskScope.concrete()},
+            par={tsk: config["service"][tsk]["parameters"] for tsk in TaskScope.concrete()}
         )
 
         # Randomization - Setup
         self.rndsetup = RandomComponent(
             gen=rndgen,
             str={tsk: EventType.of(ActionScope.SWITCH, SystemScope.SYSTEM, tsk).value for tsk in TaskScope.concrete()},
-            var={tsk: Variate[config["setup"][tsk.name]["distribution"]] for tsk in TaskScope.concrete()},
-            par={tsk: config["setup"][tsk.name]["parameters"] for tsk in TaskScope.concrete()}
+            var={tsk: config["setup"][tsk]["distribution"] for tsk in TaskScope.concrete()},
+            par={tsk: config["setup"][tsk]["parameters"] for tsk in TaskScope.concrete()}
         )
 
         # State
