@@ -31,7 +31,7 @@ class SimpleServer:
     def __init__(self, rndservice, idx):
         """
         Create a new Server.
-        :param rndservice: (RandomComponent) random component for service.
+        :param rndservice: (RandomComponent) random component for the service process.
         :param idx: (int) the server index.
         """
         # Server Index (used in randomization)
@@ -40,7 +40,7 @@ class SimpleServer:
         # Randomization
         self.rndservice = deepcopy(rndservice)
         for tsk in self.rndservice.str:
-            self.rndservice.str[tsk] += self.idx
+            self.rndservice.str[tsk] += self.idx  # decoupling of each server randomness
 
         # State and important variables
         self.state = ServerState.IDLE  # the state of the server (ServerState)
@@ -66,11 +66,11 @@ class SimpleServer:
     #   * INTERRUPTION_TASK_2
     # ==================================================================================================================
 
-    def submit_arrival(self, tsk, t_clock):
+    def submit_arrival(self, tsk, t_now):
         """
         Submit a task.
         :param tsk: (TaskType) the type of the task.
-        :param t_clock: (float) the current time.
+        :param t_now: (float) the current time.
         :return: (float) the completion time;
         """
         assert self.state is ServerState.IDLE
@@ -78,21 +78,21 @@ class SimpleServer:
         # Update state
         self.state = ServerState.BUSY
         self.task_type = tsk
-        self.t_arrival = t_clock
+        self.t_arrival = t_now
         self.t_service = self.rndservice.generate(tsk)
         self.t_completion = self.t_arrival + self.t_service
 
         # Update statistics
         self.arrived[tsk] += 1
-        self.t_idle += (t_clock - self.t_completion)
+        self.t_idle += (t_now - self.t_completion)
 
         return self.t_completion
 
-    def submit_interruption(self, tsk, t_clock):
+    def submit_interruption(self, tsk, t_now):
         """
         Interrupt a task.
         :param tsk: (TaskType) the type of the task.
-        :param t_clock: (float) the current time.
+        :param t_now: (float) the current time.
         :return: (c,a,s,r) where
         *c* is the scheduled completion time of the interrupted task;
         *a* is the arrival time of the interrupted task;
@@ -100,14 +100,14 @@ class SimpleServer:
         *r* is the remaining service time ratio of the interrupted task.
         """
         assert self.state is ServerState.BUSY and self.task_type is tsk
-        assert self.t_completion >= t_clock
+        assert self.t_completion >= t_now
 
-        t_served = t_clock - self.t_arrival
+        t_served = t_now - self.t_arrival
 
         # Update state
         self.state = ServerState.IDLE
         self.task_type = None
-        self.t_interruption = t_clock
+        self.t_interruption = t_now
 
         # Update statistics
         self.switched[tsk] += 1
@@ -146,13 +146,6 @@ class SimpleServer:
         sb = ["{attr}={value}".format(attr=attr, value=self.__dict__[attr]) for attr in self.__dict__ if
               not attr.startswith("__") and not attr.startswith("_") and not callable(getattr(self, attr))]
         return "Server({}:{})".format(id(self), ", ".join(sb))
-
-    def __repr__(self):
-        """
-        String representation.
-        :return: the string representation.
-        """
-        return self.__str__()
 
     def __eq__(self, other):
         if not isinstance(other, SimpleServer):

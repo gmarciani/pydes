@@ -3,6 +3,7 @@ general:
   t_tran: 80000  # the transient time (sec) (suggested: 80000)
   # il batch si chiude quando raggiunge 512 campioni
   # il numero di batch suggerito è 64
+  #n_batchdim: 512  # the number of samples within each batch (suggested: 512)
   n_batch: 64  # the number of batches (suggested: 64)
   t_sample: 100  # the sampling interval (sec) (suggested: 100)
   confidence: 0.95  # the level of confidence (suggested: 0.95)

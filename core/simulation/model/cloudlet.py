@@ -52,26 +52,26 @@ class SimpleCloudlet:
 
     # ==================================================================================================================
     # EVENT SUBMISSION
-    #   * ARRIVAL (TASK_1 | TASK_2)
-    #   * INTERRUPTION (TASK_1 | TASK_2)
-    #   * COMPLETION (TASK_1 | TASK_2)
+    #   * ARRIVAL
+    #   * INTERRUPTION
+    #   * COMPLETION
     # ==================================================================================================================
 
-    def submit_arrival(self, tsk, t_arrival):
+    def submit_arrival(self, tsk, t_now):
         """
         Submit the arrival of a task.
         :param tsk: (TaskType) the type of the task.
-        :param t_arrival: (float) the arrival time.
+        :param t_now: (float) the current time.
         :return: (float) the completion time.
         """
         # Check correctness
-        assert self.state[TaskScope.TASK_1] + self.state[TaskScope.TASK_2] < self.n_servers
+        assert sum(self.state[tsk] for tsk in TaskScope.concrete()) < self.n_servers
 
         # Update state
         server_idx = self.server_selector.select_idle()
         if server_idx is None:
-            raise RuntimeError("Cannot find server for arrival of task {} at time {}".format(tsk, t_arrival))
-        t_completion = self.servers[server_idx].submit_arrival(tsk, t_arrival)
+            raise RuntimeError("Cannot find server for arrival of task {} at time {}".format(tsk, t_now))
+        t_completion = self.servers[server_idx].submit_arrival(tsk, t_now)
         self.state[tsk] += 1
 
         # Update statistics
@@ -80,11 +80,11 @@ class SimpleCloudlet:
 
         return t_completion
 
-    def submit_interruption(self, tsk, t_interruption):
+    def submit_interruption(self, tsk, t_now):
         """
         Submit the interruption of a task.
         :param tsk: (TaskType) the type of the task.
-        :param t_interruption: (float) the interruption time.
+        :param t_now: (float) the current time.
         :return: (c,w,s,r) where
         *c* is the completion time to ignore;
         *a* is the arrival time;
@@ -96,8 +96,8 @@ class SimpleCloudlet:
         # Update state
         server_idx = self.server_selector.select_interruption(tsk)
         if server_idx is None:
-            raise RuntimeError("Cannot find server for interruption of task {} at time {}".format(tsk, t_interruption))
-        t_completion_to_ignore, t_arrival, t_served, r_remaining = self.servers[server_idx].submit_interruption(tsk, t_interruption)
+            raise RuntimeError("Cannot find server for interruption of task {} at time {}".format(tsk, t_now))
+        t_completion_to_ignore, t_arrival, t_served, r_remaining = self.servers[server_idx].submit_interruption(tsk, t_now)
         self.state[tsk] -= 1
 
         # Update statistics
@@ -108,11 +108,11 @@ class SimpleCloudlet:
 
         return t_completion_to_ignore, t_arrival, r_remaining
 
-    def submit_completion(self, tsk, t_completion, t_arrival):
+    def submit_completion(self, tsk, t_now, t_arrival):
         """
         Submit the completion of a task.
         :param tsk: (TaskType) the type of the task.
-        :param t_completion: (float) the completion time.
+        :param t_now: (float) the completion time.
         :param t_arrival: (float) the arrival time.
         :return: None
         """
@@ -120,13 +120,13 @@ class SimpleCloudlet:
         assert self.state[tsk] > 0
 
         # Update state
-        server_idx = self.find_completion_server_idx(tsk, t_completion)
+        server_idx = self.find_completion_server_idx(tsk, t_now)
         if server_idx is None:
-            raise RuntimeError("Cannot find server for completion of task {} at time {}".format(tsk, t_completion))
+            raise RuntimeError("Cannot find server for completion of task {} at time {}".format(tsk, t_now))
         self.servers[server_idx].submit_completion()
         self.state[tsk] -= 1
 
-        t_served = t_completion - t_arrival
+        t_served = t_now - t_arrival
 
         # Update statistics
         self.statistics.metrics.completed[SystemScope.CLOUDLET][tsk].increment(1)
@@ -136,6 +136,13 @@ class SimpleCloudlet:
     # ==================================================================================================================
     # OTHER
     # ==================================================================================================================
+
+    def is_idle(self):
+        """
+        Check weather the Cloudlet is idle or not.
+        :return: True, if the Cloudlet is idle; False, otherwise.
+        """
+        return sum(self.state[tsk] for tsk in TaskScope.concrete()) == 0
 
     def find_completion_server_idx(self, task_type, t_completion):
         """

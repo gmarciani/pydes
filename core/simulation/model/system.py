@@ -65,9 +65,9 @@ class SimpleCloudletCloudSystem:
         response_events_to_schedule = []
         response_events_to_unschedule = []
 
-        if event.type.action is ActionScope.ARRIVAL:
+        if event.type.act is ActionScope.ARRIVAL:
             # Submit the arrival
-            e_completions_to_schedule, e_completions_to_unschedule = self.submit_arrival(event.type.task, event.time)
+            e_completions_to_schedule, e_completions_to_unschedule = self.submit_arrival(event.type.tsk, event.time)
 
             # Add completions to schedule
             response_events_to_schedule.extend(e_completions_to_schedule)
@@ -75,10 +75,15 @@ class SimpleCloudletCloudSystem:
             # Add completions to unschedule
             response_events_to_unschedule.extend(e_completions_to_unschedule)
 
-        elif event.type.action is ActionScope.COMPLETION:
+            assert len(response_events_to_schedule) != 0  # TODO eliminare
+            assert all(rets.type.act is ActionScope.COMPLETION for rets in response_events_to_schedule)  # TODO eliminare
+            assert all(e.type is EventType.COMPLETION_CLOUDLET_TASK_2 for e in response_events_to_unschedule)  # TODO eliminare
+            assert not any(rets in response_events_to_unschedule for rets in response_events_to_schedule)  # TODO eliminare
+
+        elif event.type.act is ActionScope.COMPLETION:
 
             # Submit the completion
-            self.submit_completion(event.type.task, event.type.scope, event.time, event.meta)
+            self.submit_completion(event.type.tsk, event.type.sys, event.time, event.meta)
 
         else:
             raise ValueError("Unrecognized event: {}".format(event))
@@ -183,12 +188,12 @@ class SimpleCloudletCloudSystem:
     # OTHER
     # ==================================================================================================================
 
-    def empty(self):
+    def is_idle(self):
         """
-        Check weather the system is empty or not.
-        :return: True, if the system is empty; False, otherwise.
+        Check weather the system is idle or not.
+        :return: True, if the system is idle; False, otherwise.
         """
-        return sum(self.state[SystemScope.CLOUDLET]) + sum(self.state[SystemScope.CLOUD]) == 0
+        return self.cloudlet.is_idle() and self.cloud.is_idle()
 
     def sample_mean_population(self):
         """

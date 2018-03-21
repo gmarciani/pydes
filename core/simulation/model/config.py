@@ -5,12 +5,13 @@ from core.simulation.model.scope import TaskScope
 from core.random.rndvar import Variate
 from core.simulation.model.server_selection import SelectionRule
 
+
 default_configuration = {
 
     "general": {
         "t_stop": 1000,  # the stop time for the simulation (s) 1hour=3600, 1day=86400, 1week=604800, 1month=2.628e+6
         "t_tran": 0,  # the transient time
-        "n_batch": 0,  # the number of batches
+        "n_batch": 1,  # the number of batches
         "t_sample": 1,  # the sampling interval (sec)
         "confidence": 0.95,  # the level of confidence
         "random": {
@@ -133,7 +134,7 @@ def _normalize_random_config(entry):
     for tsk in entry.keys():
         entry[tsk]["distribution"] = Variate[entry[tsk]["distribution"]]
         if entry[tsk]["distribution"] is Variate.EXPONENTIAL and "r" in entry[tsk]["parameters"]:
-            entry[tsk]["parameters"]["m"] = 1.0/entry[tsk]["parameters"]["r"]
+            entry[tsk]["parameters"]["m"] = 1.0 / entry[tsk]["parameters"]["r"]
             del entry[tsk]["parameters"]["r"]
         entry[TaskScope[tsk]] = entry.pop(tsk)
 

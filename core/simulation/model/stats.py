@@ -90,8 +90,7 @@ class SimulationStatistics:
             response={sys: {tsk: BatchedMeasure() for tsk in TaskScope} for sys in SystemScope},
             throughput={sys: {tsk: BatchedMeasure() for tsk in TaskScope} for sys in SystemScope},
             switched_ratio={sys: {tsk: BatchedMeasure() for tsk in TaskScope} for sys in SystemScope},
-            switched_response={sys: {tsk: BatchedMeasure() for tsk in TaskScope} for sys in SystemScope},
-            switched_throughput={sys: {tsk: BatchedMeasure() for tsk in TaskScope} for sys in SystemScope}
+            switched_response={sys: {tsk: BatchedMeasure() for tsk in TaskScope} for sys in SystemScope}
         )
 
         # Batch management
@@ -104,7 +103,7 @@ class SimulationStatistics:
         :return: None
         """
         # Compute counters and derived metrics
-        self.compute_metrics()
+        self.compute_metrics(self.t_batch)
 
         # Register all metrics
         for metric in self.metrics.__dict__:
@@ -133,7 +132,7 @@ class SimulationStatistics:
         stat = InstantaneousStatistics(t_now)
         
         # Compute counters and derived metrics
-        self.compute_metrics()
+        self.compute_metrics(t_now)
         
         # Sampling
         for metric in stat.metrics.__dict__:
@@ -145,9 +144,10 @@ class SimulationStatistics:
 
         return stat
     
-    def compute_metrics(self):
+    def compute_metrics(self, t_now):
         """
         Compute counters and derived metrics.
+        :param t_now (float) the current time,
         :return: None
         """
         # Compute counters for SystemScope.SYSTEM
@@ -204,10 +204,9 @@ class SimulationStatistics:
 
         # Compute derived metrics:
         #   * response = service / completed
-        #   * throughput = completed / t_batch
+        #   * throughput = completed / t
         #   * switched_ratio = switched / arrived
         #   * switched_response = switched_service / switched_completed
-        #   * switched_throughput = switched_completed / t_batch
         for sys in SystemScope:
             for tsk in TaskScope:
                 # TODO FARE CON WELFORD
@@ -216,24 +215,19 @@ class SimulationStatistics:
                     self.metrics.completed[sys][tsk].get_value())
                     if self.metrics.completed[sys][tsk].get_value() > 0 else 0)
 
-                # TODO FARE CON completati / t_current
                 self.metrics.throughput[sys][tsk].set_value(
-                    self.metrics.completed[sys][tsk].get_value() / self.t_batch)
+                    self.metrics.completed[sys][tsk].get_value() / t_now)
 
-                # TODO INTERROTTI SU TUTTI GLI ARRIVATI
+                arrived_all = sum(self.metrics.arrived[sys][tsk].get_value() for tsk in TaskScope.concrete() for sys in SystemScope.subsystems())
                 self.metrics.switched_ratio[sys][tsk].set_value(
-                    (self.metrics.switched[sys][tsk].get_value() /
-                    self.metrics.arrived[sys][tsk].get_value())
-                    if self.metrics.arrived[sys][tsk].get_value() > 0 else 0)
+                    (self.metrics.switched[sys][tsk].get_value() / arrived_all)
+                    if arrived_all > 0 else 0)
 
                 # TODO fare con WELFORD
                 self.metrics.switched_response[sys][tsk].set_value(
                     (self.metrics.switched_service[sys][tsk].get_value() /
                     self.metrics.switched_completed[sys][tsk].get_value())
                     if self.metrics.switched_completed[sys][tsk].get_value() > 0 else 0)
-
-                self.metrics.switched_throughput[sys][tsk].set_value(
-                    self.metrics.switched_completed[sys][tsk].get_value() / self.t_batch)
 
     def save_csv(self, filename, append=False, skip_header=False, batch=None):
         """

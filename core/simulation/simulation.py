@@ -60,7 +60,7 @@ class Simulation:
         # (ii) scheduling of only possible events, that are:
         #   (ii.i) possible arrivals, i.e. arrivals with occurrence time lower than stop time.
         #   (ii.ii) departures of possible arrivals.
-        # (iii) unscheduling of events to ignore, e.g. completion in Cloudlet of interrupted tasks of type 2.
+        # (iii) unscheduling of events to ignore, e.g. completion in Cloudlet of interrupted tasks.
         self.calendar = Calendar(t_clock=0.0, t_stop=self.t_stop)
 
         # Sampling management
@@ -71,6 +71,9 @@ class Simulation:
         self.curr_batch = 0
         self.transient_mark = False
         self.t_last_batch = self.t_tran
+
+        # Simulation management
+        self.closed_door = False
 
     # ==================================================================================================================
     # SIMULATION PROCESS
@@ -97,14 +100,22 @@ class Simulation:
         # Notice that the event order by arrival time is managed internally by the Calendar.
         self.calendar.schedule(self.taskgen.generate(self.calendar.get_clock()))
 
-        # Run the simulation while the calendar clock is less than the stop time.
-        while self.calendar.get_clock() < self.t_stop:
+        # Run the simulation while the stop condition does not hold.
+        # The stop condition depends on the simulation scope:
+        #   * transient analysis: the simulation stops
+        while self.calendar.get_clock() < self.t_stop or not self.system.is_idle():
 
             # Get the next event and update the calendar clock.
             # Notice that the Calendar clock is automatically updated.
             # Notice that the next event is always a possible event.
             event = self.calendar.get_next_event()
+            logger.debug("State: %s", self.system.state)
             logger.debug("Next: %s", event)
+
+            assert self.closed_door is False or event.type.act is ActionScope.COMPLETION  # TODO eliminare
+
+            # Update the closed-door condition
+            self.closed_door = self.calendar.get_clock() >= self.t_stop
 
             # Submit the event to the system.
             # Notice that every submission generates some other events to be scheduled/unscheduled,
@@ -115,30 +126,28 @@ class Simulation:
             self.calendar.schedule(*events_to_schedule)
             self.calendar.unschedule(*events_to_unschedule)
 
-            # If the event is an arrival, schedule a new arrival of the same type
-            # Notice that the next arrival generation is not managed by the system, because it is an event that
-            # is related to the simulation paradigm, not to the internal mechanism of the system.
-            if event.type.action is ActionScope.ARRIVAL:
+            # If the last event was an arrival and the closed-door condition does not hold, schedule a new arrival
+            if event.type.act is ActionScope.ARRIVAL and not self.closed_door:
                 self.calendar.schedule(self.taskgen.generate(self.calendar.get_clock()))
 
             # Simulation progress
             if show_progress:
-                print_progress(self.calendar.get_clock(), self.t_stop)
+                print_progress(min(self.calendar.get_clock(), self.t_stop), self.t_stop)
 
             # If transient period has been passed...
             if self.calendar.get_clock() > self.t_tran:
 
-                # Write sampling data
+                # If sampling data must be written, do it
                 if self.sampling_file is not None and self.calendar.get_clock() >= self.t_last_sample + self.t_sample:
                     self.statistics.sample(self.calendar.get_clock()).save_csv(self.sampling_file, append=True)
                     self.t_last_sample = self.calendar.get_clock()
 
-                # Discard batch data collected during the transient period
+                # If not previously done, discard batch data collected during the transient period
                 if not self.transient_mark:
                     self.statistics.discard_batch()
                     self.transient_mark = True
 
-                # Record batch data
+                # If batch timing dimension has been reached, record batch data
                 if self.calendar.get_clock() >= self.t_last_batch + self.t_batch:
                     self.statistics.register_batch()
                     self.curr_batch += 1
@@ -177,9 +186,6 @@ class Simulation:
         for tsk in TaskScope.concrete():
             r.add("arrival", "arrival_{}_dist".format(tsk.name.lower()), Variate.EXPONENTIAL.name)
             r.add("arrival", "arrival_{}_rate".format(tsk.name.lower()), self.taskgen.rates[tsk])
-            #r.add("arrival", "arrival_{}_dist".format(tsk.name.lower()), self.taskgen.rndarrival.var[tsk].name.lower())
-            #for p in self.taskgen.rndarrival.par[tsk]:
-            #    r.add("arrival", "arrival_{}_param_{}".format(tsk.name.lower(), p), self.taskgen.rndarrival.par[tsk][p])
         for tsk in TaskScope.concrete():
             r.add("arrival", "generated_{}".format(tsk.name.lower()), self.taskgen.generated[tsk])
 
@@ -237,11 +243,12 @@ if __name__ == "__main__":
     from core.simulation.model.config import get_default_configuration
 
     config = get_default_configuration()
+    config["general"]["t_stop"] = 5
     config["general"]["n_batch"] = 10
-    config["general"]["t_batch"] = 200
+
     simulation = Simulation(config)
 
-    simulation.run(show_progress=True)
+    simulation.run(show_progress=False)
 
     report = simulation.generate_report()
 

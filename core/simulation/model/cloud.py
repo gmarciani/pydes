@@ -1,7 +1,6 @@
 from core.simulation.model.event import EventType
 from core.simulation.model.scope import SystemScope
 from core.simulation.model.scope import ActionScope
-from core.random.rndvar import Variate
 from core.random.rndcmp import RandomComponent
 import logging
 
@@ -36,7 +35,7 @@ class SimpleCloud:
         # Randomization - Setup
         self.rndsetup = RandomComponent(
             gen=rndgen,
-            str={tsk: EventType.of(ActionScope.SWITCH, SystemScope.SYSTEM, tsk).value for tsk in TaskScope.concrete()},
+            str={tsk: EventType.of(ActionScope.RESTART, SystemScope.CLOUD, tsk).value for tsk in TaskScope.concrete()},
             var={tsk: config["setup"][tsk]["distribution"] for tsk in TaskScope.concrete()},
             par={tsk: config["setup"][tsk]["parameters"] for tsk in TaskScope.concrete()}
         )
@@ -49,18 +48,16 @@ class SimpleCloud:
 
     # ==================================================================================================================
     # EVENT SUBMISSION
-    #   * ARRIVAL_TASK_1
-    #   * ARRIVAL_TASK_2
-    #   * RESTART_CLOUD_TASK_2
-    #   * COMPLETION_CLOUD_TASK_1
-    #   * COMPLETION_CLOUD_TASK_2
+    #   * ARRIVAL
+    #   * RESTART
+    #   * COMPLETION
     # ==================================================================================================================
 
-    def submit_arrival(self, tsk, t_arrival):
+    def submit_arrival(self, tsk, t_now):
         """
         Submit to the Cloud the arrival of a task.
         :param tsk: (TaskType) the type of the task.
-        :param t_arrival: (float) the arrival time.
+        :param t_now: (float) the current time.
         :return: (float) the completion time.
         """
         # Update state
@@ -68,7 +65,7 @@ class SimpleCloud:
 
         # Generate completion
         t_service = self.rndservice.generate(tsk)
-        t_completion = t_arrival + t_service
+        t_completion = t_now + t_service
 
         # Update statistics
         self.statistics.metrics.arrived[SystemScope.CLOUD][tsk].increment(1)
@@ -76,11 +73,11 @@ class SimpleCloud:
 
         return t_completion
 
-    def submit_restart(self, tsk, t_arrival, ratio_remaining):
+    def submit_restart(self, tsk, t_now, ratio_remaining):
         """
         Submit to the Cloud the restart of a task.
         :param tsk: (TaskType) the type of the task.
-        :param t_arrival: (float) the arrival time.
+        :param t_now: (float) the current time.
         :param ratio_remaining: (float) the remaining ratio.
         :return: (float) the completion time.
         """
@@ -90,7 +87,7 @@ class SimpleCloud:
         # Generate completion
         t_setup = self.rndsetup.generate(tsk)
         t_service = t_setup + ratio_remaining * self.rndservice.generate(tsk)
-        t_completion = t_arrival + t_service
+        t_completion = t_now + t_service
 
         # Update statistics
         self.statistics.metrics.switched[SystemScope.CLOUD][tsk].increment(1)
@@ -98,11 +95,11 @@ class SimpleCloud:
 
         return t_completion
 
-    def submit_completion(self, tsk, t_completion, t_arrival, switched=False):
+    def submit_completion(self, tsk, t_now, t_arrival, switched=False):
         """
         Submit to the Cloud the completion of a task.
         :param tsk: (TaskType) the type of the task.
-        :param t_completion: (float) the completion time.
+        :param t_now: (float) the completion time.
         :param t_arrival: (float) the arrival time.
         :param switched: (bool) True if the completion is associated to a switched task.
         :return: None
@@ -113,7 +110,7 @@ class SimpleCloud:
         # Update state
         self.state[tsk] -= 1
 
-        t_served = t_completion - t_arrival
+        t_served = t_now - t_arrival
 
         # Update statistics
         self.statistics.metrics.completed[SystemScope.CLOUD][tsk].increment(1)
@@ -126,6 +123,13 @@ class SimpleCloud:
     # ==================================================================================================================
     # OTHER
     # ==================================================================================================================
+    def is_idle(self):
+        """
+        Check weather the Cloud is idle or not.
+        :return: True, if the Cloud is idle; False, otherwise.
+        """
+        return sum(self.state[tsk] for tsk in TaskScope.concrete()) == 0
+
     def sample_mean_population(self):
         """
         Register the sample for the mean population.

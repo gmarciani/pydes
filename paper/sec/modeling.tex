@@ -56,7 +56,11 @@ The conceptual model is depicted in Figure~\ref{fig:modeling-conceptual-model}.
 % SPECIFICATION MODEL
 % %
 \paragraph{Specification Model}
+The state of a system is a comprehensive characterization of the system at a particular time.
 The state of the system is represented by the pair $(n_{clt,1},n_{clt,2},n_{cld,1},n_{cld,2})$, where $n_{cld,i}$ is the number of tasks belonging to the $i$-th class within the Cloudlet and $n_{cld,i}$ is the number of tasks belonging to the $i$-th class within the Cloud.
+An event is an occurrence that could change the state of the system at the event time, according to the event type.
+Our events are ...
+
 Tasks belonging to the first class, i.e. $t\in C_{1}$ arrive to the system with an exponential arrival process with rate $ \lambda_{1}$; whilst tasks belonging to the seconds class, i.e. $t\in C_{2}$ arrive to the system with an exponential arrival process with rate $ \lambda_{2}$.
 The Cloudlet serves tasks belonging to the first class with exponentially distributed service time with rate $\mu_{cld,1}$; whilst the Cloudlet serves tasks belonging to the second class with exponentially distributed service time with rate $\mu_{cld,2}$.
 The Cloud serves tasks belonging to the first class with exponentially distributed service time with rate $\mu_{clt,1}$; whilst the Cloudlet serves tasks belonging to the second class with exponentially distributed service time with rate $\mu_{clt,2}$.
@@ -101,6 +105,16 @@ The full open source code is available at \cite{gmarciani-pydes} and some repres
 We adopted the next-event simulation paradigm, using 
 (i) a custom multi-stream Lehmer generator to generate random events, whose parameters have been described in Section~\ref{sec:random-number-generation} and whose evaluation will be presented in Section~\ref{sec:evaluation}; and
 (ii) a priority-queue based calendar with the ability both to schedule and un-schedule events.
+
+Even if both the initial and terminal state can have any possible value, we adopted the convention of initializing and terminating the system in the idle state $(0,0,0,0)$. In particular, the terminal state is reached via the well-known closed door technique driven by a stop time condition.
+
+The calendar is initialized by scheduling the first arrival in the initialization phase. The submission of an arrival $a$ to the system could induce
+(i) the scheduling of the corresponding completion event,
+(ii) the scheduling of a new arrival, or
+(iii) the unscheduling of a previously scheduled completion, i.e. interruption in Cloudlet.
+
+The next-event calendar is implemented as priority queue, appropriately extended to manage scheduling/unscheduling of events and exclusion of impossible events, i.e. arrivals with occurrence time greater than the stop time.
+The impossibility of events is managed by letting the calendar contain possible events only, which is the best approach when the event list is assumed to be very long.
 
 
 % %

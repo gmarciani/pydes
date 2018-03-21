@@ -3,6 +3,7 @@ import logging
 
 # Configure logger
 from core.simulation.model.event import EventType
+from core.simulation.model.scope import ActionScope, SystemScope, TaskScope
 
 logger = logging.getLogger(__name__)
 
@@ -51,13 +52,14 @@ class NextEventCalendar:
         :return: (boolean) True, if all the events has been scheduled; False, otherwise.
         """
         for e in events:
-            if EventType.is_arrival(e.type) and e.time >= self._stop:
+            if e.type.act is ActionScope.ARRIVAL and e.time >= self._stop:
                 logger.debug("Not scheduled (impossible): {}".format(e))
                 return False
             else:
                 try:
                     self._events.put((e.time, e))
                 except TypeError as exc:
+                    assert False # TODO eliminare
                     print("Error: {} : {}".format(str(exc), e))
                 logger.debug("Scheduled: {}".format(e))
                 return True
@@ -78,13 +80,15 @@ class NextEventCalendar:
         """
         if self._events.empty():
             logger.debug("Event queue is empty, next event is None")
+            assert False # TODO eliminare
             return None
         else:
             candidate = self._events.get()[1]
             while candidate in self._ignore:
+                assert candidate.type == EventType.COMPLETION_CLOUDLET_TASK_2  # TODO eliminare
+                logger.debug("Ignoring next event (unscheduled): {}".format(candidate))
                 self._ignore.discard(candidate)
                 candidate = self._events.get()[1]
-                logger.debug("Ignoring next event (unscheduled): {}".format(candidate))
             self.set_clock(candidate.time)
             return candidate
 

@@ -17,19 +17,22 @@ class EventType(Enum):
         obj._value_ = value
         return obj
 
-    def __init__(self, action, scope, task):
-        self.action = action
-        self.scope = scope
-        self.task = task
+    def __init__(self, act, sys, tsk):
+        self.act = act
+        self.sys = sys
+        self.tsk = tsk
 
-    ARRIVAL_TASK_1 = ActionScope.ARRIVAL, SystemScope.SYSTEM, TaskScope.TASK_1  # 0
-    ARRIVAL_TASK_2 = ActionScope.ARRIVAL, SystemScope.SYSTEM, TaskScope.TASK_2  # 1
-    COMPLETION_CLOUDLET_TASK_1 = ActionScope.COMPLETION, SystemScope.CLOUDLET, TaskScope.TASK_1  # 2
-    COMPLETION_CLOUDLET_TASK_2 = ActionScope.COMPLETION, SystemScope.CLOUDLET, TaskScope.TASK_2  # 3
-    COMPLETION_CLOUD_TASK_1 = ActionScope.COMPLETION, SystemScope.CLOUD, TaskScope.TASK_1  # 4
-    COMPLETION_CLOUD_TASK_2 = ActionScope.COMPLETION, SystemScope.CLOUD, TaskScope.TASK_2  # 5
-    SWITCH_TASK_1 = ActionScope.SWITCH, SystemScope.SYSTEM, TaskScope.TASK_1  # 6
-    SWITCH_TASK_2 = ActionScope.SWITCH, SystemScope.SYSTEM, TaskScope.TASK_2  # 7
+    ARRIVAL_TASK_1 = ActionScope.ARRIVAL, SystemScope.SYSTEM, TaskScope.TASK_1
+    ARRIVAL_TASK_2 = ActionScope.ARRIVAL, SystemScope.SYSTEM, TaskScope.TASK_2
+    ARRIVAL_GLOBAL = ActionScope.ARRIVAL, SystemScope.SYSTEM, TaskScope.GLOBAL # fake event type, used only in taskgen
+    COMPLETION_CLOUDLET_TASK_1 = ActionScope.COMPLETION, SystemScope.CLOUDLET, TaskScope.TASK_1
+    COMPLETION_CLOUDLET_TASK_2 = ActionScope.COMPLETION, SystemScope.CLOUDLET, TaskScope.TASK_2
+    COMPLETION_CLOUD_TASK_1 = ActionScope.COMPLETION, SystemScope.CLOUD, TaskScope.TASK_1
+    COMPLETION_CLOUD_TASK_2 = ActionScope.COMPLETION, SystemScope.CLOUD, TaskScope.TASK_2
+    INTERRUPTION_CLOUDLET_TASK_1 = ActionScope.INTERRUPTION, SystemScope.CLOUDLET, TaskScope.TASK_1 # fake event type, added only for simmetry
+    INTERRUPTION_CLOUDLET_TASK_2 = ActionScope.INTERRUPTION, SystemScope.CLOUDLET, TaskScope.TASK_2
+    RESTART_CLOUD_TASK_1 = ActionScope.RESTART, SystemScope.CLOUD, TaskScope.TASK_1 # fake event type, added only for simmetry
+    RESTART_CLOUD_TASK_2 = ActionScope.RESTART, SystemScope.CLOUD, TaskScope.TASK_2
 
     @staticmethod
     def arrivals():
@@ -38,15 +41,6 @@ class EventType(Enum):
         :return: the list of events representing an arrival.
         """
         return [EventType.ARRIVAL_TASK_1, EventType.ARRIVAL_TASK_2]
-
-    @staticmethod
-    def is_arrival(etype):
-        """
-        Check whether a event type is an arrival.
-        :param etype: (EventType) the type of event.
-        :return: the list of events representing an arrival.
-        """
-        return etype is EventType.ARRIVAL_TASK_1 or etype is EventType.ARRIVAL_TASK_2
 
     @staticmethod
     def of(action, sys, tsk):
@@ -58,9 +52,23 @@ class EventType(Enum):
         :return: (EventType) the event type.
         """
         for event_type in EventType:
-            if event_type.action is action and event_type.scope is sys and event_type.task is tsk:
+            if event_type.act is action and event_type.sys is sys and event_type.tsk is tsk:
                 return event_type
         raise KeyError("Cannot find event type for action={}, scope={}, task={}".format(action, sys, tsk))
+
+    def __str__(self):
+        """
+        Return the string representation.
+        :return: the string representation.
+        """
+        return self.name
+
+    def __repr__(self):
+        """
+        Return the string representation.
+        :return: the string representation.
+        """
+        return self.__str__()
 
 
 class SimpleEvent:

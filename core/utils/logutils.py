@@ -6,7 +6,8 @@ import logging
 import sys
 
 
-FORMATTER = logging.Formatter("%(levelname)s: %(message)s")
+FORMATTER = logging.Formatter("%(levelname)6s: %(message)s")
+LEVEL = logging.DEBUG
 
 
 class ConsoleHandler(logging.StreamHandler):
@@ -48,7 +49,7 @@ def get_logger(name):
     :param name: the logger name.
     :return: the logger.
     """
-    logging.basicConfig(level=logging.INFO, handlers=[ConsoleHandler(logging.INFO, FORMATTER)])
+    logging.basicConfig(level=LEVEL, handlers=[ConsoleHandler(LEVEL, FORMATTER)])
     logger = logging.getLogger(name)
 
     return logger
