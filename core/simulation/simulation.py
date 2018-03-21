@@ -64,13 +64,13 @@ class Simulation:
         self.calendar = Calendar(t_clock=0.0, t_stop=self.t_stop)
 
         # Sampling management
-        self.t_last_sample = 0
+        self.t_last_sample = 0.0
         self.sampling_file = None
 
         # Batch management
         self.curr_batch = 0
-        self.transient_mark = False
-        self.t_last_batch = self.t_tran
+        self.should_discard_transient_data = self.t_tran > 0.0
+        self.t_last_batch = 0.0
 
         # Simulation management
         self.closed_door = False
@@ -144,13 +144,13 @@ class Simulation:
                     self.t_last_sample = self.calendar.get_clock()
 
                 # If not previously done, discard batch data collected during the transient period
-                if not self.transient_mark:
+                if self.should_discard_transient_data:
                     self.statistics.discard_batch()
-                    self.transient_mark = True
+                    self.should_discard_transient_data = False
 
                 # If batch timing dimension has been reached, record batch data
                 if self.calendar.get_clock() >= self.t_last_batch + self.t_batch:
-                    self.statistics.register_batch()
+                    self.statistics.register_batch(self.calendar.get_clock())
                     self.curr_batch += 1
                     self.t_last_batch = self.calendar.get_clock()
 
@@ -194,18 +194,18 @@ class Simulation:
         r.add("system/cloudlet", "n_servers", self.system.cloudlet.n_servers)
         r.add("system/cloudlet", "threshold", self.system.cloudlet.threshold)
         for tsk in TaskScope.concrete():
-            r.add("system/cloudlet", "service_{}_dist".format(tsk.name.lower()), self.system.cloudlet.rndservice.var[tsk].name.lower())
+            r.add("system/cloudlet", "service_{}_dist".format(tsk.name.lower()), self.system.cloudlet.rndservice.var[tsk].name)
             for p in self.system.cloudlet.rndservice.par[tsk]:
                 r.add("system/cloudlet", "service_{}_param_{}".format(tsk.name.lower(), p), self.system.cloudlet.rndservice.par[tsk][p])
 
         # Report - System/Cloud
         for tsk in TaskScope.concrete():
-            r.add("system/cloud", "service_{}_dist".format(tsk.name.lower()), self.system.cloud.rndservice.var[tsk].name.lower())
+            r.add("system/cloud", "service_{}_dist".format(tsk.name.lower()), self.system.cloud.rndservice.var[tsk].name)
             for p in self.system.cloud.rndservice.par[tsk]:
                 r.add("system/cloud", "service_{}_param_{}".format(tsk.name.lower(), p), self.system.cloud.rndservice.par[tsk][p])
 
         for tsk in TaskScope.concrete():
-            r.add("system/cloud", "setup_{}_dist".format(tsk.name.lower()), self.system.cloud.rndsetup.var[tsk].name.lower())
+            r.add("system/cloud", "setup_{}_dist".format(tsk.name.lower()), self.system.cloud.rndsetup.var[tsk].name)
             for p in self.system.cloud.rndsetup.par[tsk]:
                 r.add("system/cloud", "service_{}_param_{}".format(tsk.name.lower(), p), self.system.cloud.rndsetup.par[tsk][p])
 
@@ -244,8 +244,8 @@ if __name__ == "__main__":
     from core.simulation.model.config import get_default_configuration
 
     config = get_default_configuration()
-    config["general"]["t_stop"] = 5
-    config["general"]["n_batch"] = 1
+    config["general"]["t_stop"] = 200
+    config["general"]["n_batch"] = 10
 
     simulation = Simulation(config)
 

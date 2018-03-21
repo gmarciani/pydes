@@ -100,11 +100,11 @@ class SimpleCloudletCloudSystem:
 
         return response_events_to_schedule, response_events_to_unschedule
 
-    def submit_arrival(self, tsk, t_event):
+    def submit_arrival(self, tsk, t_now):
         """
         Submit the arrival of a task.
         :param tsk: (TaskType) the type of task.
-        :param t_event: (float) the arrival time.
+        :param t_now: (float) the arrival time.
         :return: (s,u) where
         *s* is a list of events to schedule;
         *u* is a list of events to unschedule;
@@ -116,51 +116,51 @@ class SimpleCloudletCloudSystem:
         if tsk is TaskScope.TASK_1:
 
             if self.state[SystemScope.CLOUDLET][TaskScope.TASK_1] == self.cloudlet.n_servers:
-                logger.debug("{} sent to CLOUD at {}".format(tsk, t_event))
-                t_completion = self.cloud.submit_arrival(tsk, t_event)
-                e_completion = Event(EventType.of(ActionScope.COMPLETION, SystemScope.CLOUD, tsk), t_completion, t_arrival=t_event)
+                logger.debug("{} sent to CLOUD at {}".format(tsk, t_now))
+                t_completion = self.cloud.submit_arrival(tsk, t_now)
+                e_completion = Event(EventType.of(ActionScope.COMPLETION, SystemScope.CLOUD, tsk), t_completion, t_arrival=t_now)
                 e_to_schedule.append(e_completion)
 
             elif self.state[SystemScope.CLOUDLET][TaskScope.TASK_1] + self.state[SystemScope.CLOUDLET][TaskScope.TASK_2] < self.cloudlet.threshold:
-                logger.debug("{} sent to CLOUDLET at {}".format(tsk, t_event))
-                t_completion = self.cloudlet.submit_arrival(tsk, t_event)
-                e_completion = Event(EventType.of(ActionScope.COMPLETION, SystemScope.CLOUDLET, tsk), t_completion, t_arrival=t_event)
+                logger.debug("{} sent to CLOUDLET at {}".format(tsk, t_now))
+                t_completion = self.cloudlet.submit_arrival(tsk, t_now)
+                e_completion = Event(EventType.of(ActionScope.COMPLETION, SystemScope.CLOUDLET, tsk), t_completion, t_arrival=t_now)
                 e_to_schedule.append(e_completion)
 
             elif self.state[SystemScope.CLOUDLET][TaskScope.TASK_2] > 0:
-                task_to_interrupt = TaskScope.TASK_2
-                logger.debug("{} interrupted in CLOUDLET at {}".format(task_to_interrupt, t_event))
-                t_completion_1, t_arrival_1, r_remaining_1 = self.cloudlet.submit_interruption(task_to_interrupt, t_event)
-                e_completion_to_ignore = Event(EventType.of(ActionScope.COMPLETION, SystemScope.CLOUDLET, task_to_interrupt), t_completion_1)
+                tsk_interrupt = TaskScope.TASK_2
+                logger.debug("{} interrupted in CLOUDLET at {}".format(tsk_interrupt, t_now))
+                t_completion_1, t_arrival_1 = self.cloudlet.submit_interruption(tsk_interrupt, t_now)
+                e_completion_to_ignore = Event(EventType.of(ActionScope.COMPLETION, SystemScope.CLOUDLET, tsk_interrupt), t_completion_1)
                 e_to_unschedule.append(e_completion_to_ignore)
 
-                logger.debug("{} restarted in CLOUD at {}".format(task_to_interrupt, t_event))
-                t_completion = self.cloud.submit_restart(task_to_interrupt, t_event, r_remaining_1)
-                e_completion = Event(EventType.of(ActionScope.COMPLETION, SystemScope.CLOUD, task_to_interrupt), t_completion, t_arrival=t_event, t_arrival_before_switch=t_arrival_1, switched=True)
+                logger.debug("{} restarted in CLOUD at {}".format(tsk_interrupt, t_now))
+                t_completion = self.cloud.submit_arrival(tsk_interrupt, t_now, restart=True)
+                e_completion = Event(EventType.of(ActionScope.COMPLETION, SystemScope.CLOUD, tsk_interrupt), t_completion, t_arrival=t_arrival_1, switched=True)
                 e_to_schedule.append(e_completion)
 
-                logger.debug("{} sent to CLOUDLET at {}".format(tsk, t_event))
-                t_completion = self.cloudlet.submit_arrival(tsk, t_event)
-                e_completion = Event(EventType.of(ActionScope.COMPLETION, SystemScope.CLOUDLET, tsk), t_completion, t_arrival=t_event)
+                logger.debug("{} sent to CLOUDLET at {}".format(tsk, t_now))
+                t_completion = self.cloudlet.submit_arrival(tsk, t_now)
+                e_completion = Event(EventType.of(ActionScope.COMPLETION, SystemScope.CLOUDLET, tsk), t_completion, t_arrival=t_now)
                 e_to_schedule.append(e_completion)
 
             else:
-                logger.debug("{} sent to CLOUDLET at {}".format(tsk, t_event))
-                t_completion = self.cloudlet.submit_arrival(tsk, t_event)
-                e_completion = Event(EventType.of(ActionScope.COMPLETION, SystemScope.CLOUDLET, tsk), t_completion, t_arrival=t_event)
+                logger.debug("{} sent to CLOUDLET at {}".format(tsk, t_now))
+                t_completion = self.cloudlet.submit_arrival(tsk, t_now)
+                e_completion = Event(EventType.of(ActionScope.COMPLETION, SystemScope.CLOUDLET, tsk), t_completion, t_arrival=t_now)
                 e_to_schedule.append(e_completion)
 
         elif tsk is TaskScope.TASK_2:
             if self.state[SystemScope.CLOUDLET][TaskScope.TASK_1] + self.state[SystemScope.CLOUDLET][TaskScope.TASK_2] >= self.cloudlet.threshold:
-                logger.debug("{} sent to CLOUD at {}".format(tsk, t_event))
-                t_completion = self.cloud.submit_arrival(tsk, t_event)
-                e_completion = Event(EventType.of(ActionScope.COMPLETION, SystemScope.CLOUD, tsk), t_completion, t_arrival=t_event)
+                logger.debug("{} sent to CLOUD at {}".format(tsk, t_now))
+                t_completion = self.cloud.submit_arrival(tsk, t_now)
+                e_completion = Event(EventType.of(ActionScope.COMPLETION, SystemScope.CLOUD, tsk), t_completion, t_arrival=t_now)
                 e_to_schedule.append(e_completion)
 
             else:
-                logger.debug("{} sent to CLOUDLET at {}".format(tsk, t_event))
-                t_completion = self.cloudlet.submit_arrival(tsk, t_event)
-                e_completion = Event(EventType.of(ActionScope.COMPLETION, SystemScope.CLOUDLET, tsk), t_completion, t_arrival=t_event)
+                logger.debug("{} sent to CLOUDLET at {}".format(tsk, t_now))
+                t_completion = self.cloudlet.submit_arrival(tsk, t_now)
+                e_completion = Event(EventType.of(ActionScope.COMPLETION, SystemScope.CLOUDLET, tsk), t_completion, t_arrival=t_now)
                 e_to_schedule.append(e_completion)
 
         else:
@@ -168,26 +168,26 @@ class SimpleCloudletCloudSystem:
 
         return e_to_schedule, e_to_unschedule
 
-    def submit_completion(self, tsk, scope, t_event, meta):
+    def submit_completion(self, tsk, scope, t_now, meta):
         """
         Submit the completion of a task.
         :param tsk: (TaskType) the type of task.
         :param scope: (Scope) the scope.
-        :param t_event: (float) the occurrence time of the event.
+        :param t_now: (float) the occurrence time of the event.
         :param meta: (dict) metadata associate to the completion event.
         :return: None
         """
-        logger.debug("{} completed in {} at {}".format(tsk, scope, t_event))
+        logger.debug("{} completed in {} at {}".format(tsk, scope, t_now))
 
         # Check correctness
         assert self.state[scope][tsk] > 0
 
         # Process event
         if scope is SystemScope.CLOUDLET:
-            self.cloudlet.submit_completion(tsk, t_event, meta.t_arrival)
+            self.cloudlet.submit_completion(tsk, t_now, meta.t_arrival)
         elif scope is SystemScope.CLOUD:
             switched = meta.switched if "switched" in meta.__dict__ else False
-            self.cloud.submit_completion(tsk, t_event, meta.t_arrival, switched)
+            self.cloud.submit_completion(tsk, t_now, meta.t_arrival, switched)
         else:
             raise ValueError("Unrecognized scope {}".format(scope))
 

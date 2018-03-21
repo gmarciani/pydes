@@ -96,8 +96,6 @@ class SimpleServer:
         :return: (c,a,s,r) where
         *c* is the scheduled completion time of the interrupted task;
         *a* is the arrival time of the interrupted task;
-        *s* is the served time of the interrupted task;
-        *r* is the remaining service time ratio of the interrupted task.
         """
         assert self.state is ServerState.BUSY and self.task_type is tsk
         assert self.t_completion >= t_now
@@ -113,9 +111,7 @@ class SimpleServer:
         self.switched[tsk] += 1
         self.service[tsk] += t_served
 
-        ratio_remaining = (self.t_completion - t_served) / (self.t_completion - self.t_arrival)
-
-        return self.t_completion, self.t_arrival, t_served, ratio_remaining
+        return self.t_completion, self.t_arrival
 
     def submit_completion(self):
         """

@@ -85,7 +85,6 @@ class NextEventCalendar:
         """
         if self._events.empty():
             logger.debug("Event queue is empty, next event is None")
-            assert False # TODO eliminare
             return None
         else:
             candidate = self._events.get()[1]

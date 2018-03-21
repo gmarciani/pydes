@@ -53,44 +53,25 @@ class SimpleCloud:
     #   * COMPLETION
     # ==================================================================================================================
 
-    def submit_arrival(self, tsk, t_now):
+    def submit_arrival(self, tsk, t_now, restart=False):
         """
         Submit to the Cloud the arrival of a task.
         :param tsk: (TaskType) the type of the task.
         :param t_now: (float) the current time.
+        :param restart: (bool) if True, the arrival is a restarted task.
         :return: (float) the completion time.
         """
         # Update state
         self.state[tsk] += 1
 
         # Generate completion
-        t_service = self.rndservice.generate(tsk)
+        t_service = self.rndservice.generate(tsk) + (0.0 if not restart else self.rndsetup.generate(tsk))
         t_completion = t_now + t_service
 
         # Update statistics
         self.statistics.metrics.arrived[SystemScope.CLOUD][tsk].increment(1)
-        self.sample_mean_population()
-
-        return t_completion
-
-    def submit_restart(self, tsk, t_now, ratio_remaining):
-        """
-        Submit to the Cloud the restart of a task.
-        :param tsk: (TaskType) the type of the task.
-        :param t_now: (float) the current time.
-        :param ratio_remaining: (float) the remaining ratio.
-        :return: (float) the completion time.
-        """
-        # Update state
-        self.state[tsk] += 1
-
-        # Generate completion
-        t_setup = self.rndsetup.generate(tsk)
-        t_service = t_setup + ratio_remaining * self.rndservice.generate(tsk)
-        t_completion = t_now + t_service
-
-        # Update statistics
-        self.statistics.metrics.switched[SystemScope.CLOUD][tsk].increment(1)
+        if restart:
+            self.statistics.metrics.switched[SystemScope.CLOUD][tsk].increment(1)
         self.sample_mean_population()
 
         return t_completion

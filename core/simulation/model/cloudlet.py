@@ -97,16 +97,14 @@ class SimpleCloudlet:
         server_idx = self.server_selector.select_interruption(tsk)
         if server_idx is None:
             raise RuntimeError("Cannot find server for interruption of task {} at time {}".format(tsk, t_now))
-        t_completion_to_ignore, t_arrival, t_served, r_remaining = self.servers[server_idx].submit_interruption(tsk, t_now)
+        t_completion_to_ignore, t_arrival = self.servers[server_idx].submit_interruption(tsk, t_now)
         self.state[tsk] -= 1
 
         # Update statistics
         self.statistics.metrics.switched[SystemScope.CLOUDLET][tsk].increment(1)
-        self.statistics.metrics.switched_service[SystemScope.CLOUDLET][tsk].increment(t_served)
-        self.statistics.metrics.service[SystemScope.CLOUDLET][tsk].increment(t_served)
         self.sample_mean_population()
 
-        return t_completion_to_ignore, t_arrival, r_remaining
+        return t_completion_to_ignore, t_arrival
 
     def submit_completion(self, tsk, t_now, t_arrival):
         """

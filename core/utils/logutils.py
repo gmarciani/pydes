@@ -7,7 +7,7 @@ import sys
 
 
 FORMATTER = logging.Formatter("%(levelname)6s: %(message)s")
-LEVEL = logging.DEBUG
+LEVEL = logging.INFO
 
 
 class ConsoleHandler(logging.StreamHandler):
