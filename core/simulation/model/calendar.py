@@ -49,20 +49,25 @@ class NextEventCalendar:
         """
         Schedule events.
         :param events: (SimpleEvent) the events to schedule.
-        :return: (boolean) True, if all the events has been scheduled; False, otherwise.
+        :return: (int,int) (ns,ni), where *ns* is the number of scheduled tasks, and *ni* is the number of ignored tasks.
         """
+        nscheduled = 0
+        nignored = 0
+
         for e in events:
             if e.type.act is ActionScope.ARRIVAL and e.time >= self._stop:
                 logger.debug("Not scheduled (impossible): {}".format(e))
-                return False
+                nignored += 1
             else:
                 try:
                     self._events.put((e.time, e))
+                    nscheduled += 1
                 except TypeError as exc:
-                    assert False # TODO eliminare
                     print("Error: {} : {}".format(str(exc), e))
+                    continue
                 logger.debug("Scheduled: {}".format(e))
-                return True
+
+        return nscheduled, nignored
 
     def unschedule(self, *events):
         """

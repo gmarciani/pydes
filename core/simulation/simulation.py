@@ -127,6 +127,7 @@ class Simulation:
             self.calendar.unschedule(*events_to_unschedule)
 
             # If the last event was an arrival and the closed-door condition does not hold, schedule a new arrival
+            # Notice that, impossible events are automatically ignored by the calendar
             if event.type.act is ActionScope.ARRIVAL and not self.closed_door:
                 self.calendar.schedule(self.taskgen.generate(self.calendar.get_clock()))
 
@@ -244,7 +245,7 @@ if __name__ == "__main__":
 
     config = get_default_configuration()
     config["general"]["t_stop"] = 5
-    config["general"]["n_batch"] = 10
+    config["general"]["n_batch"] = 1
 
     simulation = Simulation(config)
 

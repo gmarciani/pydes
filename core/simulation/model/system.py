@@ -66,6 +66,9 @@ class SimpleCloudletCloudSystem:
         response_events_to_unschedule = []
 
         if event.type.act is ActionScope.ARRIVAL:
+
+            sum_1 = sum(self.state[sys][tsk] for tsk in TaskScope.concrete() for sys in SystemScope.subsystems())  #TODO eliminare
+
             # Submit the arrival
             e_completions_to_schedule, e_completions_to_unschedule = self.submit_arrival(event.type.tsk, event.time)
 
@@ -76,15 +79,19 @@ class SimpleCloudletCloudSystem:
             response_events_to_unschedule.extend(e_completions_to_unschedule)
 
             assert len(response_events_to_schedule) != 0  # TODO eliminare
-            assert all(rets.type.act is ActionScope.COMPLETION for rets in response_events_to_schedule)  # TODO eliminare
+            assert all((rets.type.act is ActionScope.COMPLETION and rets.type.tsk is event.type.tsk) or (rets.type is EventType.COMPLETION_CLOUD_TASK_2) for rets in response_events_to_schedule)  #TODO eliminare
             assert all(e.type is EventType.COMPLETION_CLOUDLET_TASK_2 for e in response_events_to_unschedule)  # TODO eliminare
             assert not any(rets in response_events_to_unschedule for rets in response_events_to_schedule)  # TODO eliminare
+            assert sum(self.state[sys][tsk] for tsk in TaskScope.concrete() for sys in SystemScope.subsystems()) == sum_1+1  #TODO eliminare
 
         elif event.type.act is ActionScope.COMPLETION:
+
+            sum_1 = sum(self.state[sys][tsk] for tsk in TaskScope.concrete() for sys in SystemScope.subsystems())  # TODO eliminare
 
             # Submit the completion
             self.submit_completion(event.type.tsk, event.type.sys, event.time, event.meta)
 
+            assert sum(self.state[sys][tsk] for tsk in TaskScope.concrete() for sys in SystemScope.subsystems()) == sum_1 - 1  # TODO eliminare
         else:
             raise ValueError("Unrecognized event: {}".format(event))
 

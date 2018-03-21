@@ -96,6 +96,13 @@ class SimpleEvent:
               not attr.startswith("__") and not callable(getattr(self, attr))]
         return "Event({})".format(", ".join(sb))
 
+    def __repr__(self):
+        """
+        Return the string representation.
+        :return: the string representation.
+        """
+        return self.__str__()
+
     def __eq__(self, other):
         if not isinstance(other, SimpleEvent):
             return False
