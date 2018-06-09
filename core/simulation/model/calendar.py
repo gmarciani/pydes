@@ -89,7 +89,7 @@ class NextEventCalendar:
         else:
             candidate = self._events.get()[1]
             while candidate in self._ignore:
-                assert candidate.type == EventType.COMPLETION_CLOUDLET_TASK_2  # TODO eliminare
+                #assert candidate.type == EventType.COMPLETION_CLOUDLET_TASK_2  # TODO eliminare
                 logger.debug("Ignoring next event (unscheduled): {}".format(candidate))
                 self._ignore.discard(candidate)
                 candidate = self._events.get()[1]

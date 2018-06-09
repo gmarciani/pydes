@@ -4,11 +4,6 @@ from types import SimpleNamespace
 from core.utils.csv_utils import save_csv
 from core.simulation.model.scope import SystemScope
 from core.simulation.model.scope import TaskScope
-from core.utils.logutils import get_logger
-
-
-# Logging
-logger = get_logger(__name__)
 
 
 NAN = float("nan")
@@ -142,7 +137,6 @@ class SimulationStatistics:
                 for tsk in TaskScope:
                     sample = getattr(self.metrics, metric)[sys][tsk].sample()
                     getattr(stat.metrics, metric)[sys][tsk] = sample
-                    assert getattr(stat.metrics, metric)[sys][tsk] == sample  #TODO eliminare
 
         return stat
     

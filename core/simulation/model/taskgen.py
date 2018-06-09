@@ -156,7 +156,6 @@ class GeneralTaskgen:
         :param t_clock: (float) the current time.
         :return: tsk, t_event
         """
-        #TODO
         raise NotImplementedError("The type selection for general arrival process has not been implemented, yet.")
 
     # ==================================================================================================================

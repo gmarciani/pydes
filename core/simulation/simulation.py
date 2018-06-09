@@ -15,7 +15,7 @@ from core.utils.logutils import get_logger
 
 
 # Logging
-logger = get_logger(__name__)
+#logger = get_logger(__name__)
 
 
 class Simulation:
@@ -93,7 +93,7 @@ class Simulation:
             empty_file(self.sampling_file)
 
         # Simulation Start.
-        logger.info("Simulation started")
+        #logger.info("Simulation started")
 
         # Initialize first arrivals
         # Schedule the first events, i.e. task of type 1 and 2.
@@ -109,10 +109,10 @@ class Simulation:
             # Notice that the Calendar clock is automatically updated.
             # Notice that the next event is always a possible event.
             event = self.calendar.get_next_event()
-            logger.debug("State: %s", self.system.state)
-            logger.debug("Next: %s", event)
+            #logger.debug("State: %s", self.system.state)
+            #logger.debug("Next: %s", event)
 
-            assert self.closed_door is False or event.type.act is ActionScope.COMPLETION  # TODO eliminare
+            #assert self.closed_door is False or event.type.act is ActionScope.COMPLETION  # TODO eliminare
 
             # Update the closed-door condition
             self.closed_door = self.calendar.get_clock() >= self.t_stop
@@ -133,7 +133,7 @@ class Simulation:
 
             # Simulation progress
             if show_progress:
-                print_progress(min(self.calendar.get_clock(), self.t_stop), self.t_stop)
+                print_progress(self.calendar.get_clock(), self.t_stop)
 
             # If transient period has been passed...
             if self.calendar.get_clock() > self.t_tran:
@@ -155,7 +155,7 @@ class Simulation:
                     self.t_last_batch = self.calendar.get_clock()
 
         # Simulation End.
-        logger.info("Simulation completed")
+        #logger.info("Simulation completed")
 
     # ==================================================================================================================
     # REPORT
@@ -249,7 +249,7 @@ if __name__ == "__main__":
 
     simulation = Simulation(config)
 
-    simulation.run(show_progress=False)
+    simulation.run(show_progress=True)
 
     report = simulation.generate_report()
 

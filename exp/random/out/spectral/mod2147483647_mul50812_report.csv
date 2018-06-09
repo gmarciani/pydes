@@ -1,0 +1,2 @@
+name,generator_class,generator_modulus,generator_multiplier,generator_seed,test_parameters_sample_size,test_parameters_interval
+SPECTRAL TEST,MarcianiSingleStream,2147483647,50812,123456789,2147483646,(0.0, 0.001)

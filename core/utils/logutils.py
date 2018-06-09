@@ -21,7 +21,7 @@ class ConsoleHandler(logging.StreamHandler):
 
     def __init__(self, level, formatter=FORMATTER):
         logging.StreamHandler.__init__(self)
-        self.stream = None # reset it; we are not going to use it anyway
+        self.stream = None  # reset it; we are not going to use it anyway
         self.setLevel(level)
         self.setFormatter(formatter)
 
@@ -50,6 +50,4 @@ def get_logger(name):
     :return: the logger.
     """
     logging.basicConfig(level=LEVEL, handlers=[ConsoleHandler(LEVEL, FORMATTER)])
-    logger = logging.getLogger(name)
-
-    return logger
+    return logging.getLogger(name)

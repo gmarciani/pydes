@@ -3,6 +3,10 @@ Utilities for CLI.
 """
 
 import sys
+from core.utils.logutils import get_logger
+
+
+logger = get_logger(__name__)
 
 
 def print_progress(iteration, total, prefix="PROGRESS", suffix="Complete", decimals=0, bar_length=50):
@@ -14,14 +18,17 @@ def print_progress(iteration, total, prefix="PROGRESS", suffix="Complete", decim
     sys.stdout.flush()
 
     sys.stdout.write("\r%s [%s] %s%s %s" % (prefix, bar, percents, "%", suffix))
-    if iteration >= total:
-        sys.stdout.write("\n")
-        sys.stdout.flush()
 
 
 if __name__ == "__main__":
     from time import sleep
 
-    for i in range(10):
-        sleep(1)
-        print_progress(i+1, 10)
+    tot = 1000
+
+    logger.info("Start")
+
+    for i in range(tot+100):
+        sleep(0.1/tot)
+        print_progress(i+1, tot)
+
+    logger.info("End")
