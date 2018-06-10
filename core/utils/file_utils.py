@@ -110,6 +110,25 @@ def append_csv(filename, list_dict):
         resfile.write(",".join(list_dict.values()))
         resfile.write("\n")
 
+def save_txt(content, filename, append=False, empty=False):
+    """
+    Save the content onto a file.
+    :param content: (string) the string content to save.
+    :param filename: (string) the absolute file path.
+    :param append: (bool) if True, append to an existing file.
+    :param empty: (bool) if True, the file is emptied.
+    :return: (void)
+    """
+    create_dir_tree(filename)
+
+    if empty:
+        empty_file(filename)
+
+    mode = "a+" if append else "w+"
+
+    with open(filename, mode) as f:
+        f.write(str(content))
+
 
 if __name__ == "__main__":
     filename = "./test.txt"

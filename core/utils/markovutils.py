@@ -2,8 +2,16 @@ class MarkovState:
     def __init__(self, value):
         self.value = value
 
+    def pretty_str(self):
+        str = ""
+        sym = 'A'
+        idx = 0
+        for i in self.value:
+            str += "{}{}".format(chr(ord(sym)+idx), i)
+        return str
+
     def __str__(self):
-        return "[{}]".format(self.value)
+        return "{}".format(self.value)
 
     def __repr__(self):
         return self.__str__()
@@ -62,6 +70,21 @@ class MarkovChain:
     def out_links(self, state):
         return list(l for l in self.links if l.tail == state)
 
+    def find_link(self, state1, state2):
+        return next((l for l in self.out_links(state1) if l.head == state2 ), None)
+
+    def transition_matrix(self):
+        states = sorted([s for s in self.states], key=lambda state: state.value)
+        tmatrix = []
+        for state1 in states:
+            row = []
+            for state2 in states:
+                link = self.find_link(state1, state2)
+                link_value = 0.0 if link is None else link.value
+                row.append(link_value)
+            tmatrix.append(row)
+        return tmatrix, states
+
     def __str__(self):
         return "States: {}\nLinks: {}\n".format(self.states, self.links)
 
@@ -69,7 +92,7 @@ class MarkovChain:
         return self.__str__()
 
 
-def generate_markov_chain(N, S, l1, l2, mu1, mu2):
+def generate_markov_chain(N, S, l1, l2, m1, m2):
     """
     Generate the matrix for the flow equations.
     :param N: (int) the number of Cloudlet servers.
@@ -86,7 +109,7 @@ def generate_markov_chain(N, S, l1, l2, mu1, mu2):
     return M
 
 
-def explore_state(M, state, N, S, l1, l2, mu1, mu2):
+def explore_state(M, state, N, S, l1, l2, m1, m2):
     """
     Recursive state exploration.
     :param M: the Markov Chain.
@@ -130,7 +153,7 @@ def explore_state(M, state, N, S, l1, l2, mu1, mu2):
     if n1 > 0:
         # service task 1
         state_served = M.add_state((n1-1,n2))
-        link = MarkovLink(state, state_served, n1*mu1)
+        link = MarkovLink(state, state_served, n1*m1)
         added = M.add_link(link)
         if added:
             explore_state(M, state_served, N, S, l1, l2, m1, m2)
@@ -138,7 +161,7 @@ def explore_state(M, state, N, S, l1, l2, mu1, mu2):
     if n2 > 0:
         # service task 2
         state_served = M.add_state((n1,n2-1))
-        link = MarkovLink(state, state_served, n2 * mu2)
+        link = MarkovLink(state, state_served, n2 * m2)
         added = M.add_link(link)
         if added:
             explore_state(M, state_served, N, S, l1, l2, m1, m2)
@@ -150,15 +173,13 @@ def generate_equations(M):
     :param M: (MarkovChain) the Markov Chain.
     :return: the list of equations
     """
-    balancing = {s: (M.in_links(s), M.out_links(s)) for s in M.states}
     equations = []
-    for si in M.states:
-        lhs = None
-        rhs = None
+    for s in M.states:
+        lhs = M.in_links(s)
+        rhs = M.out_links(s)
         equations.append((lhs,rhs))
 
     return equations
-
 
 
 def matrixs(M):
@@ -168,8 +189,8 @@ def matrixs(M):
     :return: the string representation.
     """
     s = ""
-    for r in range(len(M)):
-        s += "{}\n".format(",".join(map(str,M[r])))
+    for r in M:
+        s += "{}\n".format(",".join(map(str,r)))
     return s
 
 
@@ -181,7 +202,8 @@ if __name__ == "__main__":
     m1 = 2
     m2 = 4
 
-    M = generate_markov_chain(N, S, l1, l2, m1, m2)
-    print(M)
-    #E = generate_equations(M)
-    #print(matrixs(E))
+    MC = generate_markov_chain(N, S, l1, l2, m1, m2)
+    print(MC)
+    M, S = MC.transition_matrix()
+    print(matrixs(M))
+    print(S)

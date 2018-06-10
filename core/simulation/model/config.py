@@ -100,7 +100,7 @@ def get_default_configuration():
     return config
 
 
-def load_configuration(filename):
+def load_configuration(filename, norm=True):
     """
     Load the configuration from a file.
     :param filename: (string) the file name.
@@ -108,7 +108,8 @@ def load_configuration(filename):
     """
     with open(filename, "r") as config_file:
         config = yaml.load(config_file)
-    normalize(config)
+    if norm:
+        normalize(config)
     return config
 
 
