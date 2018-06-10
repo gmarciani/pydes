@@ -121,9 +121,11 @@ The impossibility of events is managed by letting the calendar contain possible 
 % VERIFICATION
 % %
 \paragraph{Verification}
-The model has been verified by 
+The verification has been carried out taking into account two dimensions: we verified the computational model by (i) checking the consistency of its response to input variations and (ii) checking the comparison of the computed performance indices with the ones calculated with a theoretical model.
+%
+In particular, the model has been verified by 
 \begin{itemize}
-	\item \textbf{flow consistency:} responsible to verify the correctness of flow trends, such as:
+	\item \textbf{flow consistency:} verifies the correctness of flow trends, such as:
 	
 	\begin{equation}
 	n_{cld,i}=a_{cld,i}-c_{cld,i}-s_{cld,i}
@@ -135,23 +137,29 @@ The model has been verified by
 	s_{clt,i}=s_{cld,i}
 	\end{equation}
 	
-	 where 
-	 $n_{j,i}$ is the population of tasks belonging to $i$-th class in the $j$-th subsystem, 
-	 $a{j,i}$ is the number of tasks belonging to $i$-th class arrived to the $j$-th subsystem, 
-	 $c{j,i}$ is the number of tasks belonging to $i$-th class completed in the $j$-th subsystem, 
-	 $s{j,i}$ is the number of tasks belonging to $i$-th class switched from/to the $j$-th subsystem.
+	where 
+	$n_{j,i}$ is the population of tasks belonging to $i$-th class in the $j$-th subsystem, 
+	$a{j,i}$ is the number of tasks belonging to $i$-th class arrived to the $j$-th subsystem, 
+	$c{j,i}$ is the number of tasks belonging to $i$-th class completed in the $j$-th subsystem, 
+	$s{j,i}$ is the number of tasks belonging to $i$-th class switched from/to the $j$-th subsystem.
 	 
-	\item \textbf{workload change consistency:} responsible to verify the correctness of metrics variations in response to arrival/service rates variations, such as:
+	\item \textbf{workload change consistency:} verifies the correctness of metrics variations in response to arrival/service rates variations, such as:
 	
 	\begin{equation}
 		\lambda_{1}' > \lambda_{1} \Rightarrow
 	\end{equation}
 	
-	\item \textbf{stationary check:} responsible to verify the correctness of the model in stationary conditions.
+	\item \textbf{stationary check:} responsible to verify the correctness of the model in stationary conditions leveraging the Continuous Time Markov Chain model.
 \end{itemize}
 
 % %
 % VALIDATION
 % %
 \paragraph{Validation}
-It is well-known that model development should includes a final validation step. Clearly, we cannot conduct this final step because we cannot compare the performance model with its real counterpart.
+It is well-known that model development should include a final validation step in order to assess the consistency of the model with the real system. 
+%
+As the simulation main purpose is insight, a widely adopted technique is to place the computational model alongside with the real system and check the consistency of performance indices.
+%
+Clearly, we cannot conduct this final step because we cannot compare the performance model with its real counterpart.
+%
+For this reason, we totally rely on the verification step, considering the calculus made on the theoretical model (e.g. leveraging Markov Chains) as the best alternative available to us
