@@ -83,13 +83,7 @@ The randomness has been assessed by the following tests:
 % %
 \subsection{Performance Analysis}
 Let us now consider the results about the performance recorded during the simulation of the target system.
-In all the experiments we have considered the following parameters:
-
-\begin{itemize}
-	\item \textbf{arrivals:} exponential with rate $\lambda_{1}=6.00\;task/sec$ and $\lambda_{2}=6.25\;task/sec$.
-	\item \textbf{services:} exponential with rate $\mu_{clt,1}=0.45\;task/sec$, $\mu_{clt,2}=0.27\;task/sec$, $\mu_{cld,1}=0.25\;task/sec$ and $\mu_{cld,2}=0.22\;task/sec$.
-	\item \textbf{setup:} exponential with mean $E[T_{setup}]=0.8\;sec$.
-\end{itemize}
+In all experiments we considered values stated in Section~\ref{sec:performance-modeling}.
 
 \subsection{Transient Analysis}
 \label{sec:evaluation-transient-analysis}
@@ -220,7 +214,7 @@ Let us now focus on the \textit{performance evaluation}, taking into account the
 
 \begin{figure}
 	\includegraphics[width=\columnwidth]{fig/evaluation-distribution-analysis-response-time}
-	\caption{Distribution analysis for response time with threshold $S=20$. The binnign rule is Freedman-Diaconis Rule. The best fitting is the Weibull with parameters $A\approx4.357$ and $B\approx3546.917$.}
+	\caption{Distribution analysis for response time with threshold $S=20$. The binning rule is Freedman-Diaconis Rule. The best fitting is the Weibull with parameters $A\approx4.357$ and $B\approx3546.917$.}
 	\label{fig:evaluation-distribution-analysis-response-time}
 \end{figure}
 

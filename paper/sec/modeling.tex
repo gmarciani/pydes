@@ -1,5 +1,7 @@
-\section{Modeling}
+\section{Performance Modeling}
 \label{sec:modeling}
+
+In this section we describe the performance model used to analyze the target system, following the widely adopted modeling approach suggested in \cite{leemis2006discrete}.
 
 
 % %
@@ -9,10 +11,11 @@ We consider the environment sketched in Figure~\ref{fig:modeling-system-sketch},
 
 \begin{itemize}
 	\item  \textbf{workload:} mobile devices send to the system tasks that can be partitioned in two classes $C_{1}$ and $C_{2}$.
-	\item \textbf{system:} a two-tiers system, made of:	
+	\item \textbf{system:} a two-layers system, made of:	
 	\begin{itemize}
+		\item a Cloudlet with $N$ servants, having the ability to off-load tasks to the Cloud server, accordingly to an \textit{off-loading policy} parametrized by a given \textit{threshold}.
 		\item a remote Cloud server with virtually unlimited servants.
-		\item a Cloudlet with $N$ servants, having the ability to off-load tasks to the Cloud, accordingly to a certain \textit{off-loading policy} parametrized by a given \textit{threshold}.
+		
 	\end{itemize}
 \end{itemize}
 
@@ -29,8 +32,8 @@ We assume that
 % %
 % GOALS AND OBJECTIVES
 % %
-\paragraph{Goals and Objectives}
-The main goals of the simulation are about system tuning.
+\subsection{Goals and Objectives}
+The main goals of simulation are about system tuning.
 In particular, we propose to determine with a $95\%$ level of confidence
 \begin{itemize}
 	\item the response time as a function of the threshold $S$,
@@ -43,7 +46,7 @@ In particular, we propose to determine with a $95\%$ level of confidence
 % %
 % CONCEPTUAL MODEL
 % %
-\paragraph{Conceptual Model}
+\subsection{Conceptual Model}
 The conceptual model is depicted in Figure~\ref{fig:modeling-conceptual-model}.
 
 \begin{figure}
@@ -55,7 +58,7 @@ The conceptual model is depicted in Figure~\ref{fig:modeling-conceptual-model}.
 % %
 % SPECIFICATION MODEL
 % %
-\paragraph{Specification Model}
+\subsection{Specification Model}
 The state of a system is a comprehensive characterization of the system at a particular time.
 The state of the system is represented by the pair $(n_{clt,1},n_{clt,2},n_{cld,1},n_{cld,2})$, where $n_{cld,i}$ is the number of tasks belonging to the $i$-th class within the Cloudlet and $n_{cld,i}$ is the number of tasks belonging to the $i$-th class within the Cloud.
 An event is an occurrence that could change the state of the system at the event time, according to the event type.
@@ -72,38 +75,38 @@ We assume that
 	\SetAlgoLined
 	\If{task of class 1}{
 		\If{$n_{clt}=N$}{
-			send on the Cloud
+			send to Cloud
 		} 
 		\If{$n_{clt}+n_{cld}<S$}{
 			accept
 		} 
 		\eIf{$n_{cld} > 0$}{
-			accept the task on the Cloudlet and send a class 2 task on the Cloud
+			accept on Cloudlet and send a class 2 task to Cloud
 		}{
-		accept the task on the Cloudlet
+		accept on Cloudlet
 		}
 	}
 	\If{arrival of class 2}{
 		\eIf{$n_{clt}+n_{cld}>=S$}{
-			send on the Cloud
+			send to Cloud
 		}{
-		accept the task on the Cloudlet
+		accept on Cloudlet
 	}
 	}
-	\caption{The dispatching policy.}
-	\label{alg:modeling-dispatching-policy}
+	\caption{The offloading policy.}
+	\label{alg:modeling-offloading-policy}
 \end{algorithm}
 
 % %
 % COMPUTATIONAL MODEL
 % %
-\paragraph{Computational Model}
+\subsection{Computational Model}
 The proposed performance model has been implemented as a Python application. 
-The simulation parameters can be configured with a simple YAML file that can be loaded by the simulation program.
-The full open source code is available at \cite{gmarciani-pydes} and some representative configurations and outputs are presented in Section~\ref{sec:usage}.
+The simulation parameters can be configured with a YAML file loaded by the simulator when it starts up.
+The full open source code is available in a public repository \cite{gmarciani-pydes} and representative examples of configuration and outputs are presented in Section~\ref{sec:usage}.
 
 We adopted the next-event simulation paradigm, using 
-(i) a custom multi-stream Lehmer generator to generate random events, whose parameters have been described in Section~\ref{sec:random-number-generation} and whose evaluation will be presented in Section~\ref{sec:evaluation}; and
+(i) a custom multi-stream Lehmer generator to generate random events, whose parameters have been described in Section~\ref{sec:random-number-generation} and whose evaluation is presented in Section~\ref{sec:evaluation}; and
 (ii) a priority-queue based calendar with the ability both to schedule and un-schedule events.
 
 Even if both the initial and terminal state can have any possible value, we adopted the convention of initializing and terminating the system in the idle state $(0,0,0,0)$. In particular, the terminal state is reached via the well-known closed door technique driven by a stop time condition.
@@ -120,46 +123,100 @@ The impossibility of events is managed by letting the calendar contain possible 
 % %
 % VERIFICATION
 % %
-\paragraph{Verification}
-The verification has been carried out taking into account two dimensions: we verified the computational model by (i) checking the consistency of its response to input variations and (ii) checking the comparison of the computed performance indices with the ones calculated with a theoretical model.
-%
-In particular, the model has been verified by 
+\subsection{Verification}
+The main goal of verification is to assess the consistency of the computational model with the specification model.
+The verification has been carried out by evaluating the following consistency checks based on simulator logs and outputs:
+
 \begin{itemize}
+	\item \textbf{state consistency:} verifies the correctness of the system state evolution, i.e. state transitions;
+	
+	\item \textbf{arrival consistency:} verifies the correctness of arrivals ordering, i.e. tasks arrived before are served before;
+	
+	\item \textbf{service consistency:} verifies the correctness of service ordering, i.e. tasks with less service time leave the system before;
+	
 	\item \textbf{flow consistency:} verifies the correctness of flow trends, such as:
 	
 	\begin{equation}
-	n_{cld,i}=a_{cld,i}-c_{cld,i}-s_{cld,i}
+	n_{clt,i}=a_{clt,i}-s_{clt,i}-c_{clt,i}
 	\end{equation}
 	\begin{equation}
-	n_{cld,i}=a_{cld,i}-c_{cld,i}+s_{cld,i}
+	n_{cld,i}=a_{cld,i}+s_{cld,i}-c_{cld,i}
 	\end{equation}
 	\begin{equation}
 	s_{clt,i}=s_{cld,i}
 	\end{equation}
 	
 	where 
-	$n_{j,i}$ is the population of tasks belonging to $i$-th class in the $j$-th subsystem, 
-	$a{j,i}$ is the number of tasks belonging to $i$-th class arrived to the $j$-th subsystem, 
-	$c{j,i}$ is the number of tasks belonging to $i$-th class completed in the $j$-th subsystem, 
-	$s{j,i}$ is the number of tasks belonging to $i$-th class switched from/to the $j$-th subsystem.
+	$n_{j,i}$ is the population in the $j$-th subsystem belonging to $i$-th class of tasks, 
+	$a_{j,i}$ is the number of arrivals to the $j$-th subsystem belonging to $i$-th class of tasks,
+	$c_{j,i}$ is the number of completions in the $j$-th subsystem belonging to $i$-th class of tasks
+	$s_{j,i}$ is the number of switches from/to the $j$-th subsystem belonging to $i$-th class of tasks\footnote{notice that $s_{j,1}=0\forall j=1,2$, as tasks belonging to class $C1$ cannot be switched from Cloudlet to Cloud.}.
 	 
-	\item \textbf{workload change consistency:} verifies the correctness of metrics variations in response to arrival/service rates variations, such as:
+	\item \textbf{workload change consistency:} verifies the correctness of performance metrics variations in response to arrival/service rates variations. For example, we verified that the following hold true:
 	
 	\begin{equation}
-		\lambda_{1}' > \lambda_{1} \Rightarrow
+		\mu_{cld,2}^{new} > \mu_{cld,2}^{old} \Rightarrow E[T_{sys,2}]^{new} > E[T_{sys,2}]^{old}
 	\end{equation}
+	\\
+	and
 	
-	\item \textbf{stationary check:} responsible to verify the correctness of the model in stationary conditions leveraging the Continuous Time Markov Chain model.
+	\begin{equation}
+	S^{new} > S^{old} \Rightarrow E[N_{cld,2}]^{new} < E[N_{cld,2}]^{old}
+	\end{equation}
 \end{itemize}
 
 % %
 % VALIDATION
 % %
-\paragraph{Validation}
+\subsection{Validation}
 It is well-known that model development should include a final validation step in order to assess the consistency of the model with the real system. 
 %
-As the simulation main purpose is insight, a widely adopted technique is to place the computational model alongside with the real system and check the consistency of performance indices.
+As the simulation main purpose is insight, a widely adopted Turing-like technique is to place the computational model alongside with the real system and assess the consistency of performance indices.
 %
-Clearly, we cannot conduct this final step because we cannot compare the performance model with its real counterpart.
+Clearly, we cannot adopt this technique as we cannot compare the model with its real counterpart.
 %
-For this reason, we totally rely on the verification step, considering the calculus made on the theoretical model (e.g. leveraging Markov Chains) as the best alternative available to us
+For this reason, we totally rely on the validation with respect to the analytical model. 
+In Figure \ref{tbl:validation} we show the comparison between theoretical performance results, taken from the analytical model, and their experimental counterpart, taken from the simulator. 
+The obtained results demonstrate that our simulator is a reliable tool to conduct the performance analysis of the target system.
+
+\begin{figure}
+	\begin{center}
+		\begin{tabular}{|c||c|c|}
+			\hline
+			Index & Theoretical & Experimental\\
+			\hline
+			$E[N_{clt}]$  & $123456789$ & $123456789$ \\
+			$E[N_{1,clt}]$  & $123456789$ & $123456789$ \\
+			$E[N_{2,clt}]$  & $123456789$ & $123456789$ \\
+			$E[T_{clt}]$  & $123456789$ & $123456789$ \\
+			$E[T_{1,clt}]$  & $123456789$ & $123456789$ \\
+			$E[T_{2,clt}]$  & $123456789$ & $123456789$ \\
+			$X_{clt}$  & $123456789$ & $123456789$ \\
+			$X_{1,clt}$  & $123456789$ & $123456789$ \\
+			$X_{2,clt}$  & $123456789$ & $123456789$ \\
+			\hline
+			$E[N_{cld}]$  & $123456789$ & $123456789$ \\
+			$E[N_{1,cld}]$  & $123456789$ & $123456789$ \\
+			$E[N_{2,cld}]$  & $123456789$ & $123456789$ \\
+			$E[T_{cld}]$  & $123456789$ & $123456789$ \\
+			$E[T_{1,cld}]$  & $123456789$ & $123456789$ \\
+			$E[T_{2,cld}]$  & $123456789$ & $123456789$ \\
+			$X_{cld}$  & $123456789$ & $123456789$ \\
+			$X_{1,cld}$  & $123456789$ & $123456789$ \\
+			$X_{2,cld}$  & $123456789$ & $123456789$ \\
+			\hline
+			$E[N_{sys}]$  & $123456789$ & $123456789$ \\
+			$E[N_{1,sys}]$  & $123456789$ & $123456789$ \\
+			$E[N_{2,sys}]$  & $123456789$ & $123456789$ \\
+			$E[T_{sys}]$  & $123456789$ & $123456789$ \\
+			$E[T_{1,sys}]$  & $123456789$ & $123456789$ \\
+			$E[T_{2,sys}]$  & $123456789$ & $123456789$ \\
+			$X_{sys}$  & $123456789$ & $123456789$ \\
+			$X_{1,sys}$  & $123456789$ & $123456789$ \\
+			$X_{2,sys}$  & $123456789$ & $123456789$ \\
+			\hline
+		\end{tabular}
+	\end{center}
+	\caption{Validation: comparison between analytical results and experimental results.}
+	\label{tbl:validation}
+\end{figure}
