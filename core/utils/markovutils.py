@@ -194,6 +194,65 @@ def matrixs(M):
     return s
 
 
+def compute_states_clt_1(states, clt_n_servers):
+    """
+    Return the subset of states S_clt_1.
+    :param states: the state space.
+    :param clt_n_servers: the number of servers in Cloudlet.
+    :return: the subset of states S_clt_1.
+    """
+    states_clt_1 = []
+
+    for state in states:
+        n_clt_1 = state.value[0]
+        n_clt_2 = state.value[1]
+
+        if (n_clt_1 + n_clt_2 < clt_n_servers) or (n_clt_2 > 0):
+            states_clt_1.append(state)
+
+    return states_clt_1
+
+
+def compute_states_clt_2(states, clt_n_servers, clt_threshold):
+    """
+    Return the subset of states S_clt_2.
+    :param states: the state space.
+    :param clt_n_servers: the number of servers in Cloudlet.
+    :param clt_threshold: the Cloudlet threshold.
+    :return: the subset of states S_clt_2.
+    """
+    states_clt_2 = []
+
+    for state in states:
+        n_clt_1 = state.value[0]
+        n_clt_2 = state.value[1]
+
+        if (n_clt_1 + n_clt_2 < clt_n_servers) and (n_clt_2 < clt_threshold):
+            states_clt_2.append(state)
+
+    return states_clt_2
+
+
+def compute_states_clt_3(states, clt_n_servers, clt_threshold):
+    """
+    Return the subset of states S_clt_3.
+    :param states: the state space.
+    :param clt_n_servers: the number of servers in Cloudlet.
+    :param clt_threshold: the Cloudlet threshold.
+    :return: the subset of states S_clt_3.
+    """
+    states_clt_3 = []
+
+    for state in states:
+        n_clt_1 = state.value[0]
+        n_clt_2 = state.value[1]
+
+        if (n_clt_1 + n_clt_2 == clt_n_servers) and (n_clt_2 > 0):
+            states_clt_3.append(state)
+
+    return states_clt_3
+
+
 if __name__ == "__main__":
     N = 2
     S = 2

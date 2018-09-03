@@ -37,7 +37,7 @@ The state space of the whole system is represented by the state space of its sub
 \begin{itemize}
 	\item Cloudlet: $S_{clt} := \{(n_{clt,1},n_{clt,2})\in \mathcal{N}^{2}: n_{clt,1}+n_{clt,2}<N\}$, where $n_{clt,j}$ is the population of tasks belonging to the $j$-th class within the Cloudlet.
 	
-	\item Cloud: $S_{clt} := \{(n_{cld,1},n_{cld,2})\in \mathcal{N}^{2}\}$, where $n_{cld,j}$ is the population of tasks belonging to the $j$-th class within the Cloud.
+	\item Cloud: $S_{cld} := \{(n_{cld,1},n_{cld,2})\in \mathcal{N}^{2}\}$, where $n_{cld,j}$ is the population of tasks belonging to the $j$-th class within the Cloud.
 \end{itemize}
 
 \paragraph{Events space}
@@ -120,33 +120,24 @@ The \textit{analytical model} is depicted in Figure~\ref{fig:analytical-model}, 
 The definition of routing probabilities relies on the following subsets of states $S_{clt,i} \subset S_{cld}$:
 
 \begin{itemize}
-	\item $S_{clt,1}$:  a task belonging to the $j$-th class arrives to the Cloudlet.
+	\item $S_{clt,1}$:  a task belonging to the $1^{st}$ class is accepted in the Cloudlet.
 	
 	\begin{equation}
-	S_{clt,1} := \{(n_{clt,1},n_{clt,2})\in S : n_{clt,1}+n_{clt,2}<N\}
+	S_{clt,1} := \{(n_{clt,1},n_{clt,2})\in S_{clt} : n_{clt,1}+n_{clt,2}<N \vee n_{clt,2}>0\}
 	\end{equation}
 	
-	\item $S_{clt,2}$: a task belonging to the $j$-th class arrives to the Cloud.
+	\item $S_{clt,2}$: a task belonging to the $2^{nd}$ class is accepted in the Cloudlet.
 	
 	\begin{equation}
-	S_{clt,2} := \{(n_{clt,1},n_{clt,2})\in S : n_{clt,2}<S\}
+	S_{clt,2} := \{(n_{clt,1},n_{clt,2})\in S_{clt} : n_{clt,1}+n_{clt,2}<N \wedge n_{clt,2}<S\}
 	\end{equation}
 	
-	\item $S_{clt,3}$: a task belonging to the $j$-th class is completed by the Cloudlet.
+	\item $S_{clt,3}$: a task belonging to the $2^{nd}$ class is restarted in the Cloud.
 	
 	\begin{equation}
-	S_{clt,3} := \{(n_{clt,1},n_{clt,2})\in S : n_{clt,1}+n_{clt,2}=N \wedge n_{clt,2}>0\}
+	S_{clt,3} := \{(n_{clt,1},n_{clt,2})\in S_{clt} : n_{clt,1}+n_{clt,2}=N \wedge n_{clt,2}>0\}
 	\end{equation}
 \end{itemize}
-
-\begin{equation} 
-\begin{split}
-S_{1} & := \{(n_{clt,1},n_{clt,2})\in S : n_{clt,1}+n_{clt,2}<N\} \\
-S_{2} & := \{(n_{clt,1},n_{clt,2})\in S : n_{clt,2}<S\}\\
-S_{3} & := \{(n_{clt,1},n_{clt,2})\in S : n_{clt,1}+n_{clt,2}=N \wedge n_{clt,2}>0\}\\
-\end{split}
-\label{eqn:routing-probabilities-states}
-\end{equation}
 
 \begin{figure}
 	\includegraphics[width=\columnwidth]{fig/analytical-model}
