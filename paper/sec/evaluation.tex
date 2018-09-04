@@ -91,7 +91,7 @@ First, we conduct a \textit{transient analysis} to evaluate the stationary of th
 %
 In fact, given a system that converges to stationary, the knowledge of the duration of the transient period is really important to conduct an effective performance evaluation. In particular, it allows the analyst to focus performance evaluation on a system in its stationary conditions.
 %
-In the transient analysis we focus on the following global metrics for the whole system: response time, throughout, mean population, ratio of switched tasks, response time for switched tasks. 
+In the transient analysis we focus on the following global metrics for the whole system: response time and mean population.
 %
 We assess the transient period of the aforementioned metrics because they are also the performance metrics that will be taken into account in the final performance evaluation, thus it is really important to study their stationary.
 
@@ -99,18 +99,9 @@ The following results have been produced by considering an ensemble of $5$ repli
 
 In Figure \ref{fig:evaluation-transient-analysis-response-time} we show the transient analysis of the global response time in the whole system.
 %
-In Figure \ref{fig:evaluation-transient-analysis-throughput} we show the transient analysis of the global throughput in the whole system.
-%
 In Figure \ref{fig:evaluation-transient-analysis-mean-population} we show the transient analysis of the global mean population in the whole system.
-%
-In Figure \ref{fig:evaluation-transient-analysis-switched-ratio} we show the transient analysis of the global switch ratio in the whole system.
-%
-In Figure \ref{fig:evaluation-transient-analysis-switched-response-time} we show the transient analysis of the response time for switched tasks in the whole system.
 
-The results show that 
-(i) the system is stationary,
-(ii) the response time, the throughput, the mean population and the ratio of switched tasks loose their dependence on the starting conditions, whilst 
-(iii) the response time for switched tasks maintains its dependence on starting conditions, regardless of the termination of the transient period.
+The results show that the system is stationary.
 
 As we could image, each metric exposes a distinct transient period, e.g. the ratio of switched tasks converges faster than the mean population. Thus, we consider $\tau*=8\cdot 10^{4}\;sec$ as the final instant of the transient period, as in $\tau*$ we are sure that all metrics loosed their dependence on starting conditions.
 
@@ -121,27 +112,9 @@ As we could image, each metric exposes a distinct transient period, e.g. the rat
 \end{figure}
 
 \begin{figure}
-	\includegraphics[width=\columnwidth]{fig/evaluation-transient-analysis-throughput}
-	\caption{Transient analysis for global throughput in the whole system.}
-	\label{fig:evaluation-transient-analysis-throughput}
-\end{figure}
-
-\begin{figure}
 	\includegraphics[width=\columnwidth]{fig/evaluation-transient-analysis-mean-population}
 	\caption{Transient analysis for global mean population in the whole system.}
 	\label{fig:evaluation-transient-analysis-mean-population}
-\end{figure}
-
-\begin{figure}
-	\includegraphics[width=\columnwidth]{fig/evaluation-transient-analysis-switched-ratio}
-	\caption{Transient analysis for the ratio of switched tasks of type 2.}
-	\label{fig:evaluation-transient-analysis-switched-ratio}
-\end{figure}
-
-\begin{figure}
-	\includegraphics[width=\columnwidth]{fig/evaluation-transient-analysis-switched-response-time}
-	\caption{Transient analysis for response time for switched tasks of type 2.}
-	\label{fig:evaluation-transient-analysis-switched-response-time}
 \end{figure}
 
 
@@ -212,14 +185,16 @@ Let us now focus on the \textit{performance evaluation}, taking into account the
 	\label{tbl:evaluation-performance-analysis-throughput}
 \end{figure}
 
-\begin{figure}
-	\includegraphics[width=\columnwidth]{fig/evaluation-distribution-analysis-response-time}
-	\caption{Distribution analysis for response time with threshold $S=20$. The binning rule is Freedman-Diaconis Rule. The best fitting is the Weibull with parameters $A\approx4.357$ and $B\approx3546.917$.}
-	\label{fig:evaluation-distribution-analysis-response-time}
-\end{figure}
-
 %%
 % DISTRIBUTION ANALYSIS
 %%
 \subsection{Distribution Analysis}
 \label{sec:evaluation-distribution-analysis}
+In Figure~\ref{fig:evaluation-distribution-analysis-response-tim} we show the distribution analysis for the response time when $S=N=20$, where we adopted the \textit{Freedman-Diaconis Rule} for the binning schema.
+Results show that the best fitting is the \textit{Weibull} with parameters $A\approx4.357$ and $B\approx3546.917$.
+
+\begin{figure}
+	\includegraphics[width=\columnwidth]{fig/evaluation-distribution-analysis-response-time}
+	\caption{Distribution analysis for response time with threshold $S=N=20$.}
+	\label{fig:evaluation-distribution-analysis-response-time}
+\end{figure}

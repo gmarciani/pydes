@@ -204,9 +204,9 @@ Given the routing probabilities we can determine the following \textit{accepted 
 	\lambda_{cld,j} = (1-a_{clt,j})\lambda_{j}
 	\end{equation}
 	
-	\item Restarts: tasks belonging to $2$-nd class restarted in Cloud:
+	\item Preemption: tasks belonging to $2$-nd class preempted in Cloudlet and restarted in Cloud:
 	\begin{equation}
-	\lambda_{restart} = r(\lambda_{1}+\lambda_{2})
+	\lambda_{p} = r(\lambda_{1}+\lambda_{2})
 	\end{equation}
 \end{itemize}
 
@@ -226,7 +226,7 @@ Given the accepted workloads we can determine the following \textit{performance 
 	\begin{equation} 
 	\begin{split}
 	E[T_{clt,2}] &= \frac{1}{\mu_{clt,2}} \\
-	E[N_{clt,2}] &= \lambda_{clt,2}E[T_{clt,2}]-\psi\lambda_{restart}E[T_{clt,2}] \\
+	E[N_{clt,2}] &= \lambda_{clt,2}E[T_{clt,2}]-\psi\lambda_{p}E[T_{clt,2}] \\
 	\end{split}
 	\end{equation}
 	
@@ -250,7 +250,7 @@ Given the accepted workloads we can determine the following \textit{performance 
 	\begin{equation} 
 	\begin{split}
 	E[T_{cld,2}]^{[P]} &= E[T_{clt,2}]+E[T_{setup}]+\psi E[T_{cld,2}]^{[NP]} \\
-	E[N_{cld,2}]^{[P]} &= \lambda_{restart}E[T_{cld,2}]^{[P]} \\
+	E[N_{cld,2}]^{[P]} &= \lambda_{p}E[T_{cld,2}]^{[P]} \\
 	\end{split}
 	\end{equation}
 	
@@ -258,7 +258,7 @@ Given the accepted workloads we can determine the following \textit{performance 
 	\begin{equation} 
 	\begin{split}
 	E[T_{cld,2}] &= \sum_{m=NP,P}\frac{E[N_{cld,2}]^{[m]}}{E[N_{cld,2}]}E[T_{cld,2}]^{[m]} \\
-	E[N_{cld,2}] &= \sum_{x=NP,P}E[N_{cld,2}]^{[x]} \\
+	E[N_{cld,2}] &= \sum_{m=NP,P}E[N_{cld,2}]^{[m]} \\
 	\end{split}
 	\end{equation}
 \end{itemize}
@@ -271,7 +271,7 @@ Then we can determine the following \textit{performance metrics for each subsyst
 	\begin{split}
 	E[T_{clt}] &= \sum_{j=1,2}\frac{E[N_{clt,j}]}{E[N_{clt}]}E[T_{clt,j}] \\
 	E[N_{clt}] &= \sum_{j=1,2}E[N_{clt,j}] \\
-	E[X_{clt}] &= \sum_{j=1,2}\lambda_{cld,j}-\lambda_{restart} \\
+	E[X_{clt}] &= \sum_{j=1,2}\lambda_{clt,j}-\lambda_{p} \\
 	\end{split}
 	\end{equation}
 	
@@ -280,13 +280,12 @@ Then we can determine the following \textit{performance metrics for each subsyst
 	\begin{split}
 	E[T_{cld}] &= \sum_{j=1,2}\frac{E[N_{cld,j}]}{E[N_{cld}]}E[T_{cld,j}] \\
 	E[N_{cld}] &= \sum_{j=1,2}E[N_{cld,j}] \\
-	E[X_{cld}] &= \sum_{j=1,2}\lambda_{cld,j}+\lambda_{restart} \\
+	E[X_{cld}] &= \sum_{j=1,2}\lambda_{cld,j}+\lambda_{p} \\
 	\end{split}
 	\end{equation}
-
 \end{itemize}
 
-Finally we can determine the following \textit{performance metrics for the whole system}:
+Finally, we can determine the following \textit{performance metrics for the whole system}:
 
 \begin{equation} 
 \begin{split}
@@ -296,12 +295,27 @@ E[X] &= \sum_{i=cld,clt}E[X_{i}] \\
 \end{split}
 \end{equation}
 
+Thinking about the \textit{utilization of each subsystem}, the following hold true:
+
+\begin{itemize}
+	\item Cloudlet: simplifying our argument by assuming the whole incoming traffic belonging to the $1^{st}$ class served at the maximum rate (the best case), we can state that
+	\begin{equation} 
+	\rho_{clt} = \frac{\lambda_{1}+\lambda_{2}}{N\mu_{clt,1}}\rightarrow 0
+	\end{equation}
+	That is, the Cloudlet is not able to serve all traffic as it saturates.
+	
+	\item Cloud: as a queue with infinite resources, we can conclude that
+	\begin{equation}
+	\rho_{cld} \rightarrow 0
+	\end{equation}
+	That is, the Cloud can handle all requests as it never saturates.
+\end{itemize}
 
 
-\paragraph{Results}
+\paragraph{Resolution}
 Given the \textit{analytical model} depicted in Figure~\ref{fig:analytical-model}, the resolution of the Markov Chain for the case $S=N=20$ allows us to determine the routing probabilities and performance metrics shown at the end of this paragraph.
 
-We solved the Markov Chain leveraging (i) a Python script to determine the system of flow balance equations and (ii) a Matlab script to solve the resulting system.
+We solved the the \textit{analytical model} depicted in Figure~\ref{fig:analytical-model} leveraging (i) a \textit{Python script} that determines the transition matrix and the notable subsets of states, i.e. $S_{clt,1}$, $S_{clt,2}$ and $S_{clt,3}$, and (ii) a \textit{Matlab Live Script} that takes them as input and computes routing probabilities, accepted/preempted traffic and performance metrics.
 
 
 
