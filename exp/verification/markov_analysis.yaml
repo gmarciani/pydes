@@ -15,7 +15,7 @@ arrival:
   TASK_1:  # the arrival process for tasks of type 1 (exponential with rate 6 tasks/sec)
     distribution: "EXPONENTIAL"
     parameters:
-      r: 4.00
+      r: 6.00
   TASK_2:  # the arrival process for tasks of type 2 (exponential with rate 6.25 tasks/sec)
     distribution: "EXPONENTIAL"
     parameters:
@@ -23,8 +23,8 @@ arrival:
 
 system:
   cloudlet:
-    n_servers: 2  # the number of servers
-    threshold: 2  # the occupancy threshold
+    n_servers: 20  # the number of servers
+    threshold: 20  # the occupancy threshold
     server_selection: "ORDER"  # the server-selection rule
     service:
       TASK_1:  # the service process for tasks of type 1 (exponential with rate 0.45 tasks/sec)
