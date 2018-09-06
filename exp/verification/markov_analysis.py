@@ -10,6 +10,7 @@ from core.utils import markovutils
 from core.utils import file_utils
 import logging
 import os
+from sympy import *
 
 
 # Configure logger
@@ -46,33 +47,30 @@ def run(config_path=CONFIG_PATH):
     ))
 
     MC = markovutils.generate_markov_chain(clt_n_servers, clt_threshold, arrival_1, arrival_2, clt_service_1, clt_service_2)
-    M, S = MC.transition_matrix()
+    states = MC.get_states()
 
-    outdir = OUTDIR
-    tmatrix_file_csv = os.path.join(outdir, "transition_matrix.csv")
-    states_file_csv = os.path.join(outdir, "states.csv")
-    states_clt_1_file_csv = os.path.join(outdir, "states_clt_1.csv")
-    states_clt_2_file_csv = os.path.join(outdir, "states_clt_2.csv")
-    states_clt_3_file_csv = os.path.join(outdir, "states_clt_3.csv")
-    config_file_csv = os.path.join(outdir, "config.csv")
+    states_clt_1 = markovutils.compute_states_clt_1(states, clt_n_servers)
+    states_clt_2 = markovutils.compute_states_clt_2(states, clt_n_servers, clt_threshold)
+    states_clt_3 = markovutils.compute_states_clt_3(states, clt_n_servers, clt_threshold)
 
-    str_tmatrix = markovutils.matrixs(M)
-    str_states = "state\n" + "\n".join(map(markovutils.MarkovState.pretty_str, S))
-    str_states_clt_1 = "state\n" + "\n".join(map(markovutils.MarkovState.pretty_str, markovutils.compute_states_clt_1(S, clt_n_servers)))
-    str_states_clt_2 = "state\n" + "\n".join(map(markovutils.MarkovState.pretty_str, markovutils.compute_states_clt_2(S, clt_n_servers, clt_threshold)))
-    str_states_clt_3 = "state\n" + "\n".join(map(markovutils.MarkovState.pretty_str, markovutils.compute_states_clt_3(S, clt_n_servers, clt_threshold)))
+    solutions = markovutils.solve(MC)
 
-    str_config_header = "arrival_1,arrival_2,clt_service_1,clt_service_2,cld_service_1,cld_service_2,t_setup"
-    str_config_values = ",".join(map(str, [arrival_1,arrival_2,clt_service_1,clt_service_2,cld_service_1,cld_service_2,t_setup]))
-    str_config = str_config_header + "\n" + str_config_values
+    a_clt_1 = 0
+    for state_clt_1 in states_clt_1:
+        a_clt_1 += solutions[state_clt_1.pretty_str()]
 
-    file_utils.save_txt(str_tmatrix, tmatrix_file_csv, append=True, empty=True)
-    file_utils.save_txt(str_states, states_file_csv, append=True, empty=True)
-    file_utils.save_txt(str_states_clt_1, states_clt_1_file_csv, append=True, empty=True)
-    file_utils.save_txt(str_states_clt_2, states_clt_2_file_csv, append=True, empty=True)
-    file_utils.save_txt(str_states_clt_3, states_clt_3_file_csv, append=True, empty=True)
-    file_utils.save_txt(str_config, config_file_csv, append=True, empty=True)
+    a_clt_2 = 0
+    for state_clt_2 in states_clt_2:
+        a_clt_2 += solutions[state_clt_2.pretty_str()]
 
+    p = 0
+    for state_clt_3 in states_clt_3:
+        p += solutions[state_clt_3.pretty_str()]
+    p *= (arrival_1/(arrival_1+arrival_2))
+
+    print(a_clt_1)
+    print(a_clt_2)
+    print(p)
 
 
 

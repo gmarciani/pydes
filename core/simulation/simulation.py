@@ -244,6 +244,7 @@ if __name__ == "__main__":
     from core.simulation.model.config import get_default_configuration
 
     config = get_default_configuration()
+
     config["general"]["t_stop"] = 200
     config["general"]["n_batch"] = 10
 

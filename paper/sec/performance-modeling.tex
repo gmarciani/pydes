@@ -35,7 +35,7 @@ The state space $S$ of a system is a comprehensive characterization of the syste
 The state space of the whole system is represented by the state space of its subsystems:
 
 \begin{itemize}
-	\item Cloudlet: $S_{clt} := \{(n_{clt,1},n_{clt,2})\in \mathcal{N}^{2}: n_{clt,1}+n_{clt,2}<N\}$, where $n_{clt,j}$ is the population of tasks belonging to the $j$-th class within the Cloudlet.
+	\item Cloudlet: $S_{clt} := \{(n_{clt,1},n_{clt,2})\in \mathcal{N}^{2}: n_{clt,1}+n_{clt,2}\leq N\}$, where $n_{clt,j}$ is the population of tasks belonging to the $j$-th class within the Cloudlet.
 	
 	\item Cloud: $S_{cld} := \{(n_{cld,1},n_{cld,2})\in \mathcal{N}^{2}\}$, where $n_{cld,j}$ is the population of tasks belonging to the $j$-th class within the Cloud.
 \end{itemize}
@@ -89,23 +89,23 @@ The \textit{off-loading policy} implemented by the \textit{Cloudlet controller (
 \begin{algorithm}
 	\SetAlgoLined
 	\If{task of class 1}{
-		\If{$n_{clt}=N$}{
-			forward to Cloud
+		\If{$n_{clt,1}=N$}{
+			send to the Cloud
 		} 
-		\If{$n_{clt}+n_{cld}<S$}{
-			accept
+		\If{$n_{clt,1}+n_{clt,2}<S$}{
+			accept on the Cloudlet
 		} 
-		\eIf{$n_{cld} > 0$}{
-			accept on Cloudlet and restart a class 2 task to Cloud
+		\eIf{$n_{clt,2} > 0$}{
+			accept on the Cloudlet, interrupt a $2^{nd}$ class task in the Cloudlet and restart it in the Cloud
 		}{
 		accept on Cloudlet
 		}
 	}
 	\If{arrival of class 2}{
-		\eIf{$n_{clt}+n_{cld}>=S$}{
-			forward to Cloud
+		\eIf{$n_{clt,1}+n_{clt,2}>=S$}{
+			send to the Cloud
 		}{
-		accept on Cloudlet
+		accept on the Cloudlet
 	}
 	}
 	\caption{Off-loading policy.}
@@ -116,8 +116,16 @@ The \textit{off-loading policy} implemented by the \textit{Cloudlet controller (
 % ANALYTICAL MODEL
 % %
 \subsection{Analytical Model}
+In this Section we will define and solve the \textit{analytical model} of the system.
+%
+In particular, we will first show the Markov Chain and flow balance equations for a very simple case, in order to introduce the reader to the structure of the chain with its critical states.
+%
+Then, we will cover the general case showing formulas of routing probabilities and performance metrics.
+%
+At the end, we will solve the target case explaining how we solve it.
+
 The \textit{analytical model} is depicted in Figure~\ref{fig:analytical-model}, whose \textit{routing probabilities} are defined in Equation~\ref{eqn:routing-probabilities}.
-The definition of routing probabilities relies on the following subsets of states $S_{clt,i} \subset S_{cld}$:
+The definition of routing probabilities relies on the following subsets of states $S_{clt,i} \subset S_{clt}$:
 
 \begin{itemize}
 	\item $S_{clt,1}$:  a task belonging to the $1^{st}$ class is accepted in the Cloudlet.
@@ -132,7 +140,7 @@ The definition of routing probabilities relies on the following subsets of state
 	S_{clt,2} := \{(n_{clt,1},n_{clt,2})\in S_{clt} : n_{clt,1}+n_{clt,2}<N \wedge n_{clt,2}<S\}
 	\end{equation}
 	
-	\item $S_{clt,3}$: a task belonging to the $2^{nd}$ class is restarted in the Cloud.
+	\item $S_{clt,3}$: a task belonging to the $2^{nd}$ class is interrupted in the Cloudlet and it is restarted in the Cloud.
 	
 	\begin{equation}
 	S_{clt,3} := \{(n_{clt,1},n_{clt,2})\in S_{clt} : n_{clt,1}+n_{clt,2}=N \wedge n_{clt,2}>0\}
@@ -323,23 +331,66 @@ We solved the the \textit{analytical model} depicted in Figure~\ref{fig:analytic
 % COMPUTATIONAL MODEL
 % %
 \subsection{Computational Model}
-The proposed performance model has been implemented as a Python application. 
-The simulation parameters can be configured with a YAML file loaded by the simulator when it starts up.
-The full open source code is available in a public repository \cite{gmarciani-pydes} and representative examples of configuration and outputs are presented in Section~\ref{sec:usage}.
+The proposed simulator has been designed following the \textit{next-event simulation} paradigm and has been implemented as a \textit{Python} application. The full open source code is available in a public Github repository \cite{gmarciani-pydes}.
+Representative examples of configuration and outputs are presented in Section~\ref{sec:usage}.
 
-We adopted the next-event simulation paradigm, using 
-(i) a custom multi-stream Lehmer generator to generate random events, whose parameters have been described in Section~\ref{sec:random-number-generation} and whose evaluation is presented in Section~\ref{sec:evaluation}; and
-(ii) a priority-queue based calendar with the ability both to schedule and un-schedule events.
+\paragraph{Configuration}
+The simulation parameters can be fully configured with a YAML file loaded when the simulator starts up. In particular, the following parameters can be configured:
 
+\begin{itemize}
+	\item \textit{arrival process}: the user can configure the statistical distribution law and parameters of arrivals for both task classes. In this work, we consider the Exponential distribution, but any statistical distribution can be set.
+	
+	\item \textit{service process}: the user can configure the statistical distribution law and parameters of services for both task classes. In this work, we consider the Exponential distribution, but any statistical distribution can be set.
+	
+	\item \textit{setup time}: the user can configure the statistical distribution law and parameters of the setup time for both task classes. In this work, we consider a Deterministic setup time set to zero for the $1^{st}$ class and an Exponential setup time for the $2^{nd}$ class, but any statistical distribution can be set.
+	
+	\item \textit{Cloudlet dimension}: the user can configure the number of Cloudlet resources.
+	
+	\item \textit{Cloudlet threshold}: the user can configure the threshold for the restart condition of $2^{nd}$ class tasks in the Cloudlet.
+	
+	\item \textit{server selection policy}: the user can configure the policy adopted to select the $2^{nd}$ class task to interrupt in the Cloudlet when the threshold has been reached. In this work, we consider the Random selection, but the user can choose among Random, Ordered, Cyclic and Equity selection policies.
+\end{itemize}
+
+\paragraph{Randomization}
+Random components are ruled by a custom \textit{multi-stream Lehmer generator} to generate pseudo-random events, whose parameters have been described in Section~\ref{sec:random-number-generation} and whose evaluation is presented in Section~\ref{sec:evaluation}.
+The \textit{degree of randomization} has been improved by associating the random component the following processes to a dedicated stream of the pseudo-random number generator: arrival process of each task class, service process of each servant and server selection rule.
+This strategy has been motivated by the fact that in a real case scenario we can assume the independence between (i) inter-classed workload, (ii) computational offer of distinct resources and (iii) selection strategies.
+
+\paragraph{Event management}
+Events are managed by a \textit{priority-queue based calendar} with the ability both to schedule and un-schedule events.
+%
 Even if both the initial and terminal state can have any possible value, we adopted the convention of initializing and terminating the system in the idle state $(0,0,0,0)$. In particular, the terminal state is reached via the well-known closed door technique driven by a stop time condition.
-
+%
 The calendar is initialized by scheduling the first arrival in the initialization phase. The submission of an arrival $a$ to the system could induce
 (i) the scheduling of the corresponding completion event,
 (ii) the scheduling of a new arrival, or
 (iii) the unscheduling of a previously scheduled completion, i.e. interruption in Cloudlet.
-
+%
 The next-event calendar is implemented as priority queue, appropriately extended to manage scheduling/unscheduling of events and exclusion of impossible events, i.e. arrivals with occurrence time greater than the stop time.
+%
 The impossibility of events is managed by letting the calendar contain possible events only, which is the best approach when the event list is assumed to be very long.
+
+\paragraph{Software Classes}
+We provide here a short description of the main software classes involved in our simulator, in order to help the reader navigate through our code.
+
+\begin{itemize}
+
+	\item \textit{Simulation}: simulator entry-point, responsible to load and validate configurations, create the calendar of events, the statistics and the target system, show the real-time progress of the simulation, determine the duration of the simulation, write sampling files, reports and output results.
+	
+	\item \textit{Calendar}: calendar of events, implemented as a priority-queue with the ability to both schedule and unschedule events.
+	
+	\item \textit{System}: high level abstraction of the whole system, responsible to initialize the Cloudlet, initialize the Cloud, implement the Controller logic and update system-level classed/global metrics.
+	
+	\item \textit{Cloudlet}: represents the Cloudlet subsystem, responsible to handle events, select the task to interrupt according to the selection policy and update Cloudlet-level classed/global metrics.
+	
+	\item \textit{Cloud}: represents the Cloud subsystem, responsible to handle events and update Cloudlet-level classed/global metrics.
+	
+	\item \textit{RandomComponent}: represents a fully-customizable independent random process. In particular, the calendar and each subsystem receive as input an instance of this object in order to realize their own random logic.
+	
+	\item \textit{RndGen}: instance of a fully-customizable multi-stream Lehmer pseudo-random number generator.
+	
+	\item \textit{Stats}: abstraction encapsulating all metrics involved in the simulation, responsible to make it easy to update metrics during the simulation loop. In particular, each subsystem receives as input a reference to this singleton in order to centralize the management of performance metrics.
+\end{itemize}
 
 
 % %
@@ -398,47 +449,5 @@ As the simulation main purpose is insight, a widely adopted Turing-like techniqu
 Clearly, we cannot adopt this technique as we cannot compare the model with its real counterpart.
 %
 For this reason, we totally rely on the validation with respect to the analytical model. 
-In Figure \ref{tbl:validation} we show the comparison between theoretical performance results, taken from the analytical model, and their experimental counterpart, taken from the simulator. 
-The obtained results demonstrate that our simulator is a reliable tool to conduct the performance analysis of the target system.
-
-\begin{figure}
-	\begin{center}
-		\begin{tabular}{|c||c|c|}
-			\hline
-			Index & Theoretical & Experimental\\
-			\hline
-			$E[N_{clt}]$  & $123456789$ & $123456789$ \\
-			$E[N_{1,clt}]$  & $123456789$ & $123456789$ \\
-			$E[N_{2,clt}]$  & $123456789$ & $123456789$ \\
-			$E[T_{clt}]$  & $123456789$ & $123456789$ \\
-			$E[T_{1,clt}]$  & $123456789$ & $123456789$ \\
-			$E[T_{2,clt}]$  & $123456789$ & $123456789$ \\
-			$X_{clt}$  & $123456789$ & $123456789$ \\
-			$X_{1,clt}$  & $123456789$ & $123456789$ \\
-			$X_{2,clt}$  & $123456789$ & $123456789$ \\
-			\hline
-			$E[N_{cld}]$  & $123456789$ & $123456789$ \\
-			$E[N_{1,cld}]$  & $123456789$ & $123456789$ \\
-			$E[N_{2,cld}]$  & $123456789$ & $123456789$ \\
-			$E[T_{cld}]$  & $123456789$ & $123456789$ \\
-			$E[T_{1,cld}]$  & $123456789$ & $123456789$ \\
-			$E[T_{2,cld}]$  & $123456789$ & $123456789$ \\
-			$X_{cld}$  & $123456789$ & $123456789$ \\
-			$X_{1,cld}$  & $123456789$ & $123456789$ \\
-			$X_{2,cld}$  & $123456789$ & $123456789$ \\
-			\hline
-			$E[N_{sys}]$  & $123456789$ & $123456789$ \\
-			$E[N_{1,sys}]$  & $123456789$ & $123456789$ \\
-			$E[N_{2,sys}]$  & $123456789$ & $123456789$ \\
-			$E[T_{sys}]$  & $123456789$ & $123456789$ \\
-			$E[T_{1,sys}]$  & $123456789$ & $123456789$ \\
-			$E[T_{2,sys}]$  & $123456789$ & $123456789$ \\
-			$X_{sys}$  & $123456789$ & $123456789$ \\
-			$X_{1,sys}$  & $123456789$ & $123456789$ \\
-			$X_{2,sys}$  & $123456789$ & $123456789$ \\
-			\hline
-		\end{tabular}
-	\end{center}
-	\caption{Validation: comparison between analytical results and experimental results.}
-	\label{tbl:validation}
-\end{figure}
+In Figure \ref{tbl:evaluation} we show the comparison between theoretical performance results, taken from the analytical model, and their experimental counterpart, taken from the simulator. 
+The obtained results demonstrate that our simulator is a pretty reliable tool to conduct the performance analysis of the target system. Where the experimental values do not coincide with the theoretical ones, this is to be attributed to the adoption of the random selection of the tasks to be interrupted.

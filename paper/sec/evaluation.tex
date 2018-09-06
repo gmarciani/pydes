@@ -83,7 +83,7 @@ The randomness has been assessed by the following tests:
 % %
 \subsection{Performance Analysis}
 Let us now consider the results about the performance recorded during the simulation of the target system.
-In all experiments we considered values stated in Section~\ref{sec:performance-modeling}.
+In all experiments we considered values stated in Section~\ref{sec:performance-modeling} with a preemption policy based on random selection.
 
 \subsection{Transient Analysis}
 \label{sec:evaluation-transient-analysis}
@@ -91,9 +91,9 @@ First, we conduct a \textit{transient analysis} to evaluate the stationary of th
 %
 In fact, given a system that converges to stationary, the knowledge of the duration of the transient period is really important to conduct an effective performance evaluation. In particular, it allows the analyst to focus performance evaluation on a system in its stationary conditions.
 %
-In the transient analysis we focus on the following global metrics for the whole system: response time and mean population.
+In the transient analysis we focus on the global response time and mean population for the whole system.
 %
-We assess the transient period of the aforementioned metrics because they are also the performance metrics that will be taken into account in the final performance evaluation, thus it is really important to study their stationary.
+We assess the transient period of the aforementioned metrics because their behavior can be considered a good representation of the dependency of the system from the initial state.
 
 The following results have been produced by considering an ensemble of $5$ replications, where the $i+1$-th replication is initialized with the last seed of the $i$-th replication, so as to achieve the best decoupling between random sequences of different replications.
 
@@ -122,67 +122,57 @@ As we could image, each metric exposes a distinct transient period, e.g. the rat
 Let us now focus on the \textit{performance evaluation}, taking into account the following metrics:
 
 \begin{enumerate}
-	\item response time both global and per-class, both for the system as a whole and for each subsystem;
-	\item throughput both global and per-class, both for the system as a whole and for each subsystem;
-	\item mean population both global and per-class, both for the system as a whole and for each subsystem;
-	\item ratio of switched tasks of type 2;
-	\item response time for switched tasks of type 2.
+	\item \textit{response time} both global and classed, both for the system as a whole and for each subsystem;
+	
+	\item \textit{throughput} both global and classed, both for the system as a whole and for each subsystem;
+	
+	\item \textit{population} both global and classed, both for the system as a whole and for each subsystem;
+	
+	\item \textit{switch ratio} for tasks belonging to the $2^{nd}$ class.
+	
+	\item \textit{switched response time} for tasks belonging to the $2^{nd}$ class.
 \end{enumerate}
-
-\begin{figure}
-	\includegraphics[width=\columnwidth]{fig/evaluation-performance-analysis-response-time}
-	\caption{Performance analysis of response time as a function of the threshold $S$ with level of confidence $95\%$. The threshold that minimizes the response time is $S*=2$ with mean value $E[R]\approx3.7512 \; sec$.}
-	\label{fig:evaluation-performance-analysis-response-time}
-\end{figure}
-
-\begin{figure}
-	\begin{center}
-	\begin{tabular}{|c||c|c|}
-		\hline
-		$\mathbf{S}$ & $\mathbf{\mu(R)\pm\delta_{0.05}}$ & $\mathbf{\sigma(R)}$\\
-		\hline
-		$0$  & $3.75149\pm 0.00342$ & $0.01346$ \\
-		$1$  & $3.75172\pm 0.00335$ & $0.01322$ \\
-		$\mathbf{2}$  & $\mathbf{3.75120\pm 0.00338}$ & $\mathbf{0.01330}$ \\
-		$3$  & $3.75198\pm 0.00334$ & $0.01315$ \\
-		$4$  & $3.75200\pm 0.00328$ & $0.01292$ \\
-		$5$  & $3.75430\pm 0.00324$ & $0.01275$ \\
-		$10$ & $3.80394\pm 0.00330$ & $0.01299$ \\
-		$15$ & $4.01623\pm 0.00406$ & $0.01599$ \\
-		$20$ & $4.35885\pm 0.00342$ & $0.01349$ \\
-		\hline
-	\end{tabular}
-	\end{center}
-	\caption{Performance analysis of the response time as a function of the threshold $S$ with level of confidence $95\%$.}
-	\label{tbl:evaluation-performance-analysis-response-time}
-\end{figure}
-
-\begin{figure}
-	\includegraphics[width=\columnwidth]{fig/evaluation-performance-analysis-throughput}
-	\caption{Performance analysis of the throughput as a function of the threshold $S$  with level of confidence $95\%$. The throughput is clearly threshold insensitive, with a constant mean value $E[X]\approx9.5030 \; task/sec$. The threshold $S*=2$ is a good choice}
-	\label{fig:evaluation-performance-analysis-throughput}
-\end{figure}
 
 \begin{figure}
 	\begin{center}
 		\begin{tabular}{|c||c|c|}
 			\hline
-			$\mathbf{S}$ & $\mathbf{\mu(X)\pm\delta_{0.05}}$ & $\mathbf{\sigma(X)}$\\
+			Index & Theoretical & Experimental\\
 			\hline
-			$0$  & $9.50296\pm 0.00969$ & $0.03818 $ \\
-			$1$  & $9.50295\pm 0.00969$ & $0.03818$ \\
-			$\mathbf{2}$  & $\mathbf{9.50296\pm 0.00969}$ & $\mathbf{0.03816}$ \\
-			$3$  & $9.50294\pm 0.00967$ & $0.03808$ \\
-			$4$  & $9.50296\pm 0.00969$ & $0.03816$ \\
-			$5$  & $9.50294\pm 0.00969$ & $0.03818$ \\
-			$10$ & $9.50295\pm 0.00969$ & $0.03818$ \\
-			$15$ & $9.50295\pm 0.00968$ & $0.03813$ \\
-			$20$ & $9.50296\pm 0.00970$ & $0.03821$ \\
+			$E[N_{clt}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[N_{1,clt}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[N_{2,clt}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[T_{clt}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[T_{1,clt}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[T_{2,clt}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$X_{clt}$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$X_{1,clt}$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$X_{2,clt}$  & $123456789$ & $123456789\pm 0.00342$ \\
+			\hline
+			$E[N_{cld}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[N_{1,cld}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[N_{2,cld}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[T_{cld}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[T_{1,cld}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[T_{2,cld}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$X_{cld}$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$X_{1,cld}$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$X_{2,cld}$  & $123456789$ & $123456789\pm 0.00342$ \\
+			\hline
+			$E[N_{sys}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[N_{1,sys}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[N_{2,sys}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[T_{sys}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[T_{1,sys}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[T_{2,sys}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$X_{sys}$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$X_{1,sys}$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$X_{2,sys}$  & $123456789$ & $123456789\pm 0.00342$ \\
 			\hline
 		\end{tabular}
 	\end{center}
-	\caption{Performance analysis of the throughput as a function of the threshold $S$ with level of confidence $95\%$.}
-	\label{tbl:evaluation-performance-analysis-throughput}
+	\caption{Evaluation of performance metrics with comparison between analytical results and experimental ones with level of confidence $95\%$.}
+	\label{tbl:evaluation}
 \end{figure}
 
 %%
@@ -190,11 +180,20 @@ Let us now focus on the \textit{performance evaluation}, taking into account the
 %%
 \subsection{Distribution Analysis}
 \label{sec:evaluation-distribution-analysis}
-In Figure~\ref{fig:evaluation-distribution-analysis-response-tim} we show the distribution analysis for the response time when $S=N=20$, where we adopted the \textit{Freedman-Diaconis Rule} for the binning schema.
-Results show that the best fitting is the \textit{Weibull} with parameters $A\approx4.357$ and $B\approx3546.917$.
+In this Section we show the distribution analysis of the Cloudlet global throughput. 
+In particular, we focus on the estimation of Probability Density Function (PDF) and the comparison between theoretical and experimental Cumulative Distribution Function (CDF).
+
+In Figure~\ref{fig:evaluation-distribution-analysis-pdf-throughput-cloudlet-global} and  Figure~\ref{fig:evaluation-distribution-analysis-cdf-throughput-cloudlet-global} we show the PDF estimation and the CDF analysis, respectively, for the global Cloudlet throughput when $S=N=20$, where we adopted the \textit{Freedman-Diaconis Rule} for the binning schema.
+Results show that the best fitting is the \textit{Normal Distribution} with parameters $A\approx4.357$ and $B\approx3546.917$.
 
 \begin{figure}
-	\includegraphics[width=\columnwidth]{fig/evaluation-distribution-analysis-response-time}
-	\caption{Distribution analysis for response time with threshold $S=N=20$.}
-	\label{fig:evaluation-distribution-analysis-response-time}
+	\includegraphics[width=\columnwidth]{fig/evaluation-distribution-analysis-pdf-throughput-cloudlet-global}
+	\caption{Distribution analysis (Probability Distribution Function)for the Cloudlet global throughput with threshold $S=N=20$.}
+	\label{fig:evaluation-distribution-analysis-pdf-throughput-cloudlet-global}
+\end{figure}
+
+\begin{figure}
+	\includegraphics[width=\columnwidth]{fig/evaluation-distribution-analysis-cdf-throughput-cloudlet-global}
+	\caption{Distribution analysis (Cumulative Distribution Function) for the Cloudlet global throughput with threshold $S=N=20$.}
+	\label{fig:evaluation-distribution-analysis-cdf-throughput-cloudlet-global}
 \end{figure}

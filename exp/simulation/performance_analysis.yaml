@@ -25,7 +25,7 @@ system:
   cloudlet:
     n_servers: 20  # the number of servers
     threshold: 20  # the occupancy threshold
-    server_selection: "ORDER"  # the server-selection rule
+    server_selection: "RANDOM"  # the server-selection rule
     service:
       TASK_1:  # the service process for tasks of type 1 (exponential with rate 0.45 tasks/sec)
         distribution: "EXPONENTIAL"

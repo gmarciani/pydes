@@ -1,3 +1,5 @@
+import sympy
+
 class MarkovState:
     def __init__(self, value):
         self.value = value
@@ -73,8 +75,11 @@ class MarkovChain:
     def find_link(self, state1, state2):
         return next((l for l in self.out_links(state1) if l.head == state2 ), None)
 
+    def get_states(self):
+        return sorted([s for s in self.states], key=lambda state: state.value)
+
     def transition_matrix(self):
-        states = sorted([s for s in self.states], key=lambda state: state.value)
+        states = self.get_states()
         tmatrix = []
         for state1 in states:
             row = []
@@ -175,11 +180,59 @@ def generate_equations(M):
     """
     equations = []
     for s in M.states:
-        lhs = M.in_links(s)
-        rhs = M.out_links(s)
+        lhs = M.out_links(s)
+        rhs = M.in_links(s)
         equations.append((lhs,rhs))
 
     return equations
+
+
+def solve(MC):
+    """
+    Solves a Markov Chain.
+    :param MC: the Markov Chain.
+    :return: the solutions of the Markov Chain.
+    """
+    equations, variables = generate_sympy_equations(generate_equations(MC))
+    solutions = sympy.solve(equations, variables)
+
+    state_solutions = {}
+    for symbol, value in solutions.items():
+        state_solutions[symbol.name] = value
+
+    return state_solutions
+
+
+def generate_sympy_equations(eqns):
+    """
+    Generate sympy flow equations from the MArkov chain.
+    :param M: (MarkovChain) the Markov Chain.
+    :return: the list of equations
+    """
+    variables = set()
+    equations = []
+    for eqn in eqns:
+        equation = 0
+        lhs = eqn[0]
+        rhs = eqn[1]
+        for lhs_link in lhs:
+            variable = sympy.Symbol(lhs_link.tail.pretty_str())
+            variables.add(variable)
+            equation += variable * lhs_link.value
+
+        for rhs_link in rhs:
+            variable = sympy.Symbol(rhs_link.tail.pretty_str())
+            variables.add(variable)
+            equation -= variable * rhs_link.value
+
+        equations.append(equation)
+
+    equation = -1
+    for variable in variables:
+        equation += variable
+    equations.append(equation)
+
+    return equations, variables
 
 
 def matrixs(M):
