@@ -16,25 +16,25 @@ class SimpleCloudletCloudSystem:
     A system composed by a Cloudlet and a Cloud.
     """
 
-    def __init__(self, rndgen, config, statistics):
+    def __init__(self, rndgen, config, metrics):
         """
         Create a new system.
         :param rndgen: (object) the multi-stream random number generator.
-        :param config: (dictionary) the configuration for the system.
-        :param statistics: (SimulationStatistics) the simulation statistics.
+        :param config: (dictionary) the System configuration.
+        :param metrics: (SimulationMetrics) the simulation metrics.
         """
         # State
         self.state = {sys: {tsk: 0 for tsk in TaskScope.concrete()} for sys in SystemScope.subsystems()}
 
-        # Statistics
-        self.statistics = statistics
+        # Metrics
+        self.metrics = metrics
 
         # Subsystem - Cloudlet
         self.cloudlet = Cloudlet(
             rndgen,
             config["cloudlet"],
             self.state[SystemScope.CLOUDLET],
-            self.statistics
+            self.metrics
         )
 
         # Subsystem - Cloud
@@ -42,7 +42,7 @@ class SimpleCloudletCloudSystem:
             rndgen,
             config["cloud"],
             self.state[SystemScope.CLOUD],
-            self.statistics
+            self.metrics
         )
 
     # ==================================================================================================================
@@ -190,17 +190,6 @@ class SimpleCloudletCloudSystem:
         :return: True, if the system is idle; False, otherwise.
         """
         return self.cloudlet.is_idle() and self.cloud.is_idle()
-
-    def sample_mean_population(self):
-        """
-        Register the sample for the mean population.
-        :return: None.
-        """
-        for tsk in TaskScope.concrete():
-            self.statistics.metrics.population[SystemScope.SYSTEM][tsk].add_sample(
-                sum(self.state[sys][tsk] for sys in SystemScope.subsystems()))
-        self.statistics.metrics.population[SystemScope.SYSTEM][TaskScope.GLOBAL].add_sample(
-            sum(x for sys in SystemScope.subsystems() for x in self.state[sys].values()))
 
     def __str__(self):
         """

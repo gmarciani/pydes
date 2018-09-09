@@ -115,8 +115,8 @@ def get_default_configuration(simulation_mode):
     elif simulation_mode is SimulationMode.PERFORMANCE_ANALYSIS:
         config["general"]["mode"] = SimulationMode.PERFORMANCE_ANALYSIS
         config["general"]["t_tran"] = 2000
-        config["general"]["batches"] = 64
-        config["general"]["batchdim"] = 512
+        config["general"]["batches"] = 10
+        config["general"]["batchdim"] = 100
 
     normalize(config)
 

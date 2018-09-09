@@ -1,5 +1,5 @@
 import unittest
-from core.metrics.stats import Sample
+from core.metrics.simulation_metrics import Sample
 from core.simulation.model.scope import SystemScope
 from core.simulation.model.scope import TaskScope
 
@@ -18,10 +18,10 @@ class SamplingTest(unittest.TestCase):
                 for tsk in TaskScope:
                     getattr(self.sample.counters, counter)[sys][tsk] = hash(counter)
 
-        for metric in self.sample.metrics.__dict__:
+        for performance_metric in self.sample.performance_metrics.__dict__:
             for sys in SystemScope:
                 for tsk in TaskScope:
-                    getattr(self.sample.metrics, metric)[sys][tsk] = hash(metric)
+                    getattr(self.sample.performance_metrics, performance_metric)[sys][tsk] = hash(performance_metric)
 
         self.file_csv = "out/test_sample.csv"
 
@@ -39,11 +39,11 @@ class SamplingTest(unittest.TestCase):
                     hdr.append("{}_{}_{}".format(counter, sys.name.lower(), tsk.name.lower()))
                     row.append(hash(counter))
 
-        for metric in sorted(self.sample.metrics.__dict__):
+        for performance_metric in sorted(self.sample.performance_metrics.__dict__):
             for sys in SystemScope:
                 for tsk in TaskScope:
-                    hdr.append("{}_{}_{}".format(metric, sys.name.lower(), tsk.name.lower()))
-                    row.append(hash(metric))
+                    hdr.append("{}_{}_{}".format(performance_metric, sys.name.lower(), tsk.name.lower()))
+                    row.append(hash(performance_metric))
 
         shdr = ",".join(map(str, hdr))
         srow = ",".join(map(str, row))

@@ -8,7 +8,7 @@ from core.simulation.model.taskgen import ExponentialTaskgen as Taskgen
 from core.simulation.model.calendar import NextEventCalendar as Calendar
 from core.simulation.model.event import ActionScope
 from core.utils.guiutils import print_progress
-from core.metrics.stats import SimulationStatistics
+from core.metrics.simulation_metrics import SimulationMetrics
 from core.utils.file_utils import empty_file
 from core.simulation.simulation_mode import SimulationMode
 
@@ -53,7 +53,7 @@ class Simulation:
             self.batches = config_general["batches"]
             self.batchdim = config_general["batchdim"]
             self.closed_door_condition = lambda: self.closed_door_condition_performance_analysis()
-            self.print_progress = lambda: print_progress(self.statistics.n_batches, self.batches)
+            self.print_progress = lambda: print_progress(self.metrics.n_batches, self.batches)
             self.should_discard_transient_data = self.t_tran > 0.0
 
         else:
@@ -66,8 +66,8 @@ class Simulation:
         # Configuration - Randomization
         self.rndgen = getattr(rndgen, config_general["random"]["generator"])(config_general["random"]["seed"])
 
-        # The statistics
-        self.statistics = SimulationStatistics(self.batchdim)
+        # The simulation metrics
+        self.metrics = SimulationMetrics(self.batchdim)
 
         # Configuration - Tasks
         # Checks that the arrival process is Markovian (currently, the only one supported)
@@ -77,7 +77,7 @@ class Simulation:
 
         # Configuration - System (Cloudlet and Cloud)
         config_system = config["system"]
-        self.system = System(rndgen=self.rndgen, config=config_system, statistics=self.statistics)
+        self.system = System(rndgen=self.rndgen, config=config_system, metrics=self.metrics)
 
         # Configuration - Calendar
         # Notice that the calendar internally manages:
@@ -125,19 +125,19 @@ class Simulation:
             # Notice that the next event is always a possible event.
             event = self.calendar.get_next_event()
 
-            assert self.closed_door is False or event.type.act is ActionScope.COMPLETION
-
             # Check the closed-door condition
             self.closed_door = self.closed_door_condition()
 
-            # Submit the event to the system.
+            # Submit the event to the system if:
+            #   * the closed door condition is False
+            #   * the closed door condition is True, but the event is not an ARRIVAL
             # Notice that every submission generates some other events to be scheduled/unscheduled,
             # e.g., completions and interruptions (i.e., completions to be ignored).
-            events_to_schedule, events_to_unschedule = self.system.submit(event)
-
-            # Schedule/Unschedule response events
-            self.calendar.schedule(*events_to_schedule)
-            self.calendar.unschedule(*events_to_unschedule)
+            if self.closed_door is False or event.type.act is not ActionScope.ARRIVAL:
+                events_to_schedule, events_to_unschedule = self.system.submit(event)
+                # Schedule/Unschedule response events
+                self.calendar.schedule(*events_to_schedule)
+                self.calendar.unschedule(*events_to_unschedule)
 
             # If the last event was an arrival and the closed-door condition does not hold, schedule a new arrival
             # Notice that, impossible events are automatically ignored by the calendar
@@ -155,12 +155,12 @@ class Simulation:
                 # This operation can be performed only in PERFORMANCE_ANALYSIS mode,
                 # as TRANSIENT_ANALYSIS mode should never discard transient data.
                 if self.should_discard_transient_data:
-                    self.statistics.discard_data()
+                    self.metrics.discard_data()
                     self.should_discard_transient_data = False
 
                 # Sample statistics, according to sample period
                 if self.calendar.get_clock() >= self.t_last_sample + self.t_sample:
-                    sample = self.statistics.sample(self.calendar.get_clock())
+                    sample = self.metrics.sampling(self.calendar.get_clock())
                     self.t_last_sample = self.calendar.get_clock()
 
                     # Write sample on sample file, if specified.
@@ -187,7 +187,7 @@ class Simulation:
         The closed door condition holds true if the desired number of batches have been collected
         :return: true, if the closed door condition holds; false, otherwise.
         """
-        return self.statistics.n_batches >= self.batches
+        return self.metrics.n_batches >= self.batches
 
     def closed_door_condition_transient_analysis(self):
         """
@@ -195,7 +195,7 @@ class Simulation:
         The closed door condition holds true if the clock time passed the stop time.
         :return: true, if the closed door condition holds; false, otherwise.
         """
-        return self.calendar.get_clock() > self.t_stop
+        return self.calendar.get_clock() >= self.t_stop
 
     # ==================================================================================================================
     # REPORT
@@ -211,7 +211,7 @@ class Simulation:
         alpha = 1.0 - self.confidence
 
         # Report - General
-        r.add("general", "mode", self.mode)
+        r.add("general", "mode", self.mode.name)
         if self.mode is SimulationMode.TRANSIENT_ANALYSIS:
             r.add("general", "t_stop", self.t_stop)
         elif self.mode is SimulationMode.PERFORMANCE_ANALYSIS:
@@ -241,14 +241,20 @@ class Simulation:
         r.add("system/cloudlet", "threshold", self.system.cloudlet.threshold)
         for tsk in TaskScope.concrete():
             r.add("system/cloudlet", "service_{}_dist".format(tsk.name.lower()), self.system.cloudlet.rndservice.var[tsk].name)
-            for p in self.system.cloudlet.rndservice.par[tsk]:
-                r.add("system/cloudlet", "service_{}_param_{}".format(tsk.name.lower(), p), self.system.cloudlet.rndservice.par[tsk][p])
+            if self.system.cloudlet.rndservice.var[tsk] is Variate.EXPONENTIAL:
+                r.add("system/cloudlet", "service_{}_rate".format(tsk.name.lower()), 1.0/self.system.cloudlet.rndservice.par[tsk]["m"])
+            else:
+                for p in self.system.cloudlet.rndservice.par[tsk]:
+                    r.add("system/cloudlet", "service_{}_param_{}".format(tsk.name.lower(), p), self.system.cloudlet.rndservice.par[tsk][p])
 
         # Report - System/Cloud
         for tsk in TaskScope.concrete():
             r.add("system/cloud", "service_{}_dist".format(tsk.name.lower()), self.system.cloud.rndservice.var[tsk].name)
-            for p in self.system.cloud.rndservice.par[tsk]:
-                r.add("system/cloud", "service_{}_param_{}".format(tsk.name.lower(), p), self.system.cloud.rndservice.par[tsk][p])
+            if self.system.cloud.rndservice.var[tsk] is Variate.EXPONENTIAL:
+                r.add("system/cloud", "service_{}_rate".format(tsk.name.lower()), 1.0/self.system.cloud.rndservice.par[tsk]["m"])
+            else:
+                for p in self.system.cloud.rndservice.par[tsk]:
+                    r.add("system/cloud", "service_{}_param_{}".format(tsk.name.lower(), p), self.system.cloud.rndservice.par[tsk][p])
 
         for tsk in TaskScope.concrete():
             r.add("system/cloud", "setup_{}_dist".format(tsk.name.lower()), self.system.cloud.rndsetup.var[tsk].name)
@@ -257,8 +263,8 @@ class Simulation:
 
         # Report - Execution
         r.add("execution", "clock", self.calendar.get_clock())
-        r.add("execution", "collected_samples", self.statistics.n_samples)
-        r.add("execution", "collected_batches", self.statistics.n_batches)
+        r.add("execution", "collected_samples", self.metrics.n_samples)
+        r.add("execution", "collected_batches", self.metrics.n_batches)
 
         # Report - State
         for sys in sorted(self.system.state, key=lambda x: x.name):
@@ -266,15 +272,15 @@ class Simulation:
                 r.add("state", "{}_{}".format(sys.name.lower(), tsk.name.lower()), self.system.state[sys][tsk])
 
         # Report - Statistics
-        for metric in sorted(self.statistics.metrics.__dict__):
+        for metric in sorted(self.metrics.performance_metrics.__dict__):
             for sys in sorted(SystemScope, key=lambda x: x.name):
                 for tsk in sorted(TaskScope, key=lambda x: x.name):
                     r.add("statistics", "{}_{}_{}_mean".format(metric, sys.name.lower(), tsk.name.lower()),
-                          getattr(self.statistics.metrics, metric)[sys][tsk].mean())
+                          getattr(self.metrics.performance_metrics, metric)[sys][tsk].mean())
                     r.add("statistics", "{}_{}_{}_sdev".format(metric, sys.name.lower(), tsk.name.lower()),
-                          getattr(self.statistics.metrics, metric)[sys][tsk].sdev())
+                          getattr(self.metrics.performance_metrics, metric)[sys][tsk].sdev())
                     r.add("statistics", "{}_{}_{}_cint".format(metric, sys.name.lower(), tsk.name.lower()),
-                          getattr(self.statistics.metrics, metric)[sys][tsk].cint(alpha))
+                          getattr(self.metrics.performance_metrics, metric)[sys][tsk].cint(alpha))
 
         return r
 
@@ -295,23 +301,11 @@ class Simulation:
 if __name__ == "__main__":
     from core.simulation.model.config import get_default_configuration
 
-    # Transient Analysis
+    mode = SimulationMode.PERFORMANCE_ANALYSIS
 
-    config = get_default_configuration(SimulationMode.TRANSIENT_ANALYSIS)
+    config = get_default_configuration(mode)
 
-    simulation = Simulation(config, name="TRANSIENT_ANALYSIS")
-
-    simulation.run(show_progress=True)
-
-    report = simulation.generate_report()
-
-    print(report)
-
-    # Performance Analysis
-
-    config = get_default_configuration(SimulationMode.PERFORMANCE_ANALYSIS)
-
-    simulation = Simulation(config, name="PERFORMANCE_ANALYSIS")
+    simulation = Simulation(config, name=mode.name)
 
     simulation.run(show_progress=True)
 

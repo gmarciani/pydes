@@ -99,11 +99,11 @@ class SimulationCloudTest(unittest.TestCase):
             self.assertGreater(simulation_2.system.completed[task_type],
                                simulation_1.system.completed[task_type])
 
-        self.assertGreater(simulation_2.statistics.response.mean(),
-                           simulation_1.statistics.response.mean())
+        self.assertGreater(simulation_2.metrics.response.mean(),
+                           simulation_1.metrics.response.mean())
 
-        self.assertLess(simulation_2.statistics.throughput.mean(),
-                        simulation_1.statistics.throughput.mean())
+        self.assertLess(simulation_2.metrics.throughput.mean(),
+                        simulation_1.metrics.throughput.mean())
 
     @unittest.skip("Under Debugging")
     def test_workload_change_consistency(self):
@@ -134,11 +134,11 @@ class SimulationCloudTest(unittest.TestCase):
         simulation_2 = Simulation(config_2)
         simulation_2.run()
 
-        self.assertGreater(simulation_2.statistics.t_response.mean(),
-                           simulation_1.statistics.t_response.mean())
+        self.assertGreater(simulation_2.metrics.t_response.mean(),
+                           simulation_1.metrics.t_response.mean())
 
-        self.assertLess(simulation_2.statistics.throughput.mean(),
-                        simulation_1.statistics.throughput.mean())
+        self.assertLess(simulation_2.metrics.throughput.mean(),
+                        simulation_1.metrics.throughput.mean())
 
 
 if __name__ == "__main__":

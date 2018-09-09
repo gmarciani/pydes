@@ -27,19 +27,18 @@ class Sample:
             switched={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
             switched_completed={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
             switched_service={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
-            level_x={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
-            level_l={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope}
+            switched_service_lost={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
+            population_area={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope}
         )
 
         # Performance Metrics
-        self.metrics = SimpleNamespace(
+        self.performance_metrics = SimpleNamespace(
             response={sys: {tsk: 0.0 for tsk in TaskScope} for sys in SystemScope},
             throughput={sys: {tsk: 0.0 for tsk in TaskScope} for sys in SystemScope},
+            population={sys: {tsk: 0.0 for tsk in TaskScope} for sys in SystemScope},
             switched_ratio={sys: {tsk: 0.0 for tsk in TaskScope} for sys in SystemScope},
             switched_response={sys: {tsk: 0.0 for tsk in TaskScope} for sys in SystemScope},
-            switched_service_lost={sys: {tsk: 0.0 for tsk in TaskScope} for sys in SystemScope},
-            population={sys: {tsk: 0.0 for tsk in TaskScope} for sys in SystemScope},
-            utilization={sys: {tsk: 0.0 for tsk in TaskScope} for sys in SystemScope}
+            service_lost={sys: {tsk: 0.0 for tsk in TaskScope} for sys in SystemScope}
         )
 
     def save_csv(self, filename, append=False, skip_header=False):
@@ -59,11 +58,11 @@ class Sample:
                     header.append("{}_{}_{}".format(counter, sys.name.lower(), tsk.name.lower()))
                     sample.append(getattr(self.counters, counter)[sys][tsk])
 
-        for metric in sorted(self.metrics.__dict__):
+        for performance_metric in sorted(self.performance_metrics.__dict__):
             for sys in SystemScope:
                 for tsk in TaskScope:
-                    header.append("{}_{}_{}".format(metric, sys.name.lower(), tsk.name.lower()))
-                    sample.append(getattr(self.metrics, metric)[sys][tsk])
+                    header.append("{}_{}_{}".format(performance_metric, sys.name.lower(), tsk.name.lower()))
+                    sample.append(getattr(self.performance_metrics, performance_metric)[sys][tsk])
 
         data = [sample]
 

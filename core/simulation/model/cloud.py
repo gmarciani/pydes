@@ -15,13 +15,13 @@ class SimpleCloud:
     A Cloud subsystem.
     """
 
-    def __init__(self, rndgen, config, state, statistics):
+    def __init__(self, rndgen, config, state, metrics):
         """
         Create a new Cloud server.
         :param rndgen: (object) the multi-stream random number generator.
-        :param config: (dict) the configuration.
-        :param state: the system state.
-        :param statistics: the system statistics.
+        :param config: (dict) the Cloud configuration.
+        :param state: (dict) the Cloud state.
+        :param metrics: (SimulationMetrics) the simulation metrics.
         """
 
         # Randomization - Service
@@ -43,8 +43,11 @@ class SimpleCloud:
         # State
         self.state = state
 
-        # Statistics
-        self.statistics = statistics
+        # Timing
+        self.t_last_event = 0.0
+
+        # Metrics
+        self.metrics = metrics
 
     # ==================================================================================================================
     # EVENT SUBMISSION
@@ -61,18 +64,21 @@ class SimpleCloud:
         :param restart: (bool) if True, the arrival is a restarted task.
         :return: (float) the completion time.
         """
-        # Update state
-        self.state[tsk] += 1
-
         # Generate completion
         t_service = self.rndservice.generate(tsk) + (0.0 if not restart else self.rndsetup.generate(tsk))
         t_completion = t_now + t_service
 
         # Update statistics
-        self.statistics.counters.arrived[SystemScope.CLOUD][tsk] += 1
+        self.metrics.counters.arrived[SystemScope.CLOUD][tsk] += 1
         if restart:
-            self.statistics.counters.switched[SystemScope.CLOUD][tsk] += 1
-        #TODO INSERT HERE INTEGRAL LEVEL_X
+            self.metrics.counters.switched[SystemScope.CLOUD][tsk] += 1
+        self.metrics.counters.population_area[SystemScope.CLOUD][tsk] += (t_now - self.t_last_event) * self.state[tsk]
+
+        # Update state
+        self.state[tsk] += 1
+
+        # Update timing
+        self.t_last_event = t_now
 
         return t_completion
 
@@ -88,18 +94,22 @@ class SimpleCloud:
         # Check correctness
         assert self.state[tsk] > 0
 
-        # Update state
-        self.state[tsk] -= 1
-
+        # Compute served time
         t_served = t_now - t_arrival
 
         # Update statistics
-        self.statistics.counters.completed[SystemScope.CLOUD][tsk] += 1
-        self.statistics.counters.service[SystemScope.CLOUD][tsk] += t_served
+        self.metrics.counters.completed[SystemScope.CLOUD][tsk] += 1
+        self.metrics.counters.service[SystemScope.CLOUD][tsk] += t_served
         if switched:
-            self.statistics.counters.switched_completed[SystemScope.CLOUD][tsk] += 1
-            self.statistics.counters.switched_service[SystemScope.CLOUD][tsk] += t_served
-        # TODO INSERT HERE INTEGRAL LEVEL_X
+            self.metrics.counters.switched_completed[SystemScope.CLOUD][tsk] += 1
+            self.metrics.counters.switched_service[SystemScope.CLOUD][tsk] += t_served
+        self.metrics.counters.population_area[SystemScope.CLOUD][tsk] += (t_now - self.t_last_event) * self.state[tsk]
+
+        # Update state
+        self.state[tsk] -= 1
+
+        # Update timing
+        self.t_last_event = t_now
 
     # ==================================================================================================================
     # OTHER
@@ -110,16 +120,6 @@ class SimpleCloud:
         :return: True, if the Cloud is idle; False, otherwise.
         """
         return sum(self.state[tsk] for tsk in TaskScope.concrete()) == 0
-
-    def sample_population(self):
-        """
-        Register the sample for the mean population.
-        :return: None.
-        """
-        for tsk in TaskScope.concrete():
-            self.statistics.metrics.population[SystemScope.CLOUD][tsk].add_sample(self.state[tsk])
-        self.statistics.metrics.population[SystemScope.CLOUD][TaskScope.GLOBAL].add_sample(
-            sum(self.state[tsk] for tsk in TaskScope.concrete()))
 
     def __str__(self):
         """

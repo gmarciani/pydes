@@ -8,6 +8,7 @@ from core.random.rndvar import Variate
 from core.simulation.model.server_selection import SelectionRule
 import logging
 
+
 # Logging
 logger = logging.getLogger(__name__)
 
@@ -17,13 +18,13 @@ class SimpleCloudlet:
     A Cloudlet subsystem.
     """
 
-    def __init__(self, rndgen, config, state, statistics):
+    def __init__(self, rndgen, config, state, metrics):
         """
         Create a new Cloudlet.
         :param rndgen: (object) the multi-stream random number generator.
-        :param config: (dict) the configuration.
-        :param state: the system state.
-        :param statistics: the system statistics.
+        :param config: (dict) the Cloudlet configuration.
+        :param state: (dict) the Cloudlet state.
+        :param metrics: (SimulationMetrics) the simulation metrics.
         """
         # Randomization - Service
         self.rndservice = RandomComponent(
@@ -47,8 +48,11 @@ class SimpleCloudlet:
         # State
         self.state = state
 
-        # Statistics
-        self.statistics = statistics
+        # Timing
+        self.t_last_event = 0.0
+
+        # Metrics
+        self.metrics = metrics
 
     # ==================================================================================================================
     # EVENT SUBMISSION
@@ -67,16 +71,21 @@ class SimpleCloudlet:
         # Check correctness
         assert sum(self.state[tsk] for tsk in TaskScope.concrete()) < self.n_servers
 
-        # Update state
+        # Generate completion
         server_idx = self.server_selector.select_idle()
         if server_idx is None:
             raise RuntimeError("Cannot find server for arrival of task {} at time {}".format(tsk, t_now))
         t_completion = self.servers[server_idx].submit_arrival(tsk, t_now)
+
+        # Update metrics
+        self.metrics.counters.arrived[SystemScope.CLOUDLET][tsk] += 1
+        self.metrics.counters.population_area[SystemScope.CLOUDLET][tsk] += (t_now - self.t_last_event) * self.state[tsk]
+
+        # Update state
         self.state[tsk] += 1
 
-        # Update statistics
-        self.statistics.counters.arrived[SystemScope.CLOUDLET][tsk] += 1
-        #TODO insert level_x
+        # Update timing
+        self.t_last_event = t_now
 
         return t_completion
 
@@ -93,20 +102,24 @@ class SimpleCloudlet:
         # Check correctness
         assert self.state[tsk] > 0
 
-        # Update state
+        # Compute served time
         server_idx = self.server_selector.select_interruption(tsk)
         if server_idx is None:
             raise RuntimeError("Cannot find server for interruption of task {} at time {}".format(tsk, t_now))
         t_completion_to_ignore, t_arrival = self.servers[server_idx].submit_interruption(tsk, t_now)
-        self.state[tsk] -= 1
-
         t_served = t_now - t_arrival
 
-        # Update statistics
-        self.statistics.counters.switched[SystemScope.CLOUDLET][tsk] += 1
-        self.statistics.counters.switched_service[SystemScope.CLOUDLET][tsk] += t_served
-        self.statistics.counters.service[SystemScope.CLOUDLET][tsk] += t_served
-        #TODO INSERT LEVEL_x
+        # Update metrics
+        self.metrics.counters.switched[SystemScope.CLOUDLET][tsk] += 1
+        self.metrics.counters.switched_service_lost[SystemScope.CLOUDLET][tsk] += t_served
+        self.metrics.counters.service[SystemScope.CLOUDLET][tsk] += t_served
+        self.metrics.counters.population_area[SystemScope.CLOUDLET][tsk] += (t_now - self.t_last_event) * self.state[tsk]
+
+        # Update state
+        self.state[tsk] -= 1
+
+        # Update timing
+        self.t_last_event = t_now
 
         return t_completion_to_ignore, t_arrival
 
@@ -121,19 +134,23 @@ class SimpleCloudlet:
         # Check correctness
         assert self.state[tsk] > 0
 
-        # Update state
+        # Compute served time
         server_idx = self.find_completion_server_idx(tsk, t_now)
         if server_idx is None:
             raise RuntimeError("Cannot find server for completion of task {} at time {}".format(tsk, t_now))
         self.servers[server_idx].submit_completion()
-        self.state[tsk] -= 1
-
         t_served = t_now - t_arrival
 
-        # Update statistics
-        self.statistics.counters.completed[SystemScope.CLOUDLET][tsk] += 1
-        self.statistics.counters.service[SystemScope.CLOUDLET][tsk] += t_served
-        #TODO INSERT LEVEL_X
+        # Update metrics
+        self.metrics.counters.completed[SystemScope.CLOUDLET][tsk] += 1
+        self.metrics.counters.service[SystemScope.CLOUDLET][tsk] += t_served
+        self.metrics.counters.population_area[SystemScope.CLOUDLET][tsk] += (t_now - self.t_last_event) * self.state[tsk]
+
+        # Update state
+        self.state[tsk] -= 1
+
+        # Update timing
+        self.t_last_event = t_now
 
     # ==================================================================================================================
     # OTHER
@@ -157,16 +174,6 @@ class SimpleCloudlet:
             if server.task_type is task_type and server.t_completion == t_completion:
                 return idx
         return None
-
-    def sample_population(self):
-        """
-        Register the sample for the mean population.
-        :return: None.
-        """
-        for tsk in TaskScope.concrete():
-            self.statistics.metrics.population[SystemScope.CLOUDLET][tsk].add_sample(self.state[tsk])
-        self.statistics.metrics.population[SystemScope.CLOUDLET][TaskScope.GLOBAL].add_sample(
-            sum(self.state[tsk] for tsk in TaskScope.concrete()))
 
     def __str__(self):
         """
