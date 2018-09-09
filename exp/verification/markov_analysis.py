@@ -6,12 +6,8 @@ Results are stored in "out/markov_analysis" and can be visualized running the Ma
 from core.simulation.model.config import load_configuration
 from core.utils.logutils import ConsoleHandler
 from core.simulation.model.scope import TaskScope
-from core.utils import markovutils
-from core.utils import file_utils
+from core.markov import markovgen
 import logging
-import os
-from sympy import *
-
 
 # Configure logger
 logging.basicConfig(level=logging.INFO, handlers=[ConsoleHandler(logging.INFO)])
@@ -30,8 +26,19 @@ def run(config_path=CONFIG_PATH):
     :param config_path: (string) the path of the configuration file.
     :return: None
     """
+
+    # Load configuration
     config = load_configuration(config_path, norm=False)
 
+    # Validate configuration: Markovian assumption must hold true.
+    assert config["arrival"][TaskScope.TASK_1.name]["distribution"] == "EXPONENTIAL"
+    assert config["arrival"][TaskScope.TASK_2.name]["distribution"] == "EXPONENTIAL"
+    assert config["system"]["cloudlet"]["service"][TaskScope.TASK_1.name]["distribution"] == "EXPONENTIAL"
+    assert config["system"]["cloudlet"]["service"][TaskScope.TASK_2.name]["distribution"] == "EXPONENTIAL"
+    assert config["system"]["cloud"]["service"][TaskScope.TASK_1.name]["distribution"] == "EXPONENTIAL"
+    assert config["system"]["cloud"]["service"][TaskScope.TASK_2.name]["distribution"] == "EXPONENTIAL"
+
+    # Load parameters
     clt_n_servers = config["system"]["cloudlet"]["n_servers"]
     clt_threshold = config["system"]["cloudlet"]["threshold"]
     arrival_1 = config["arrival"][TaskScope.TASK_1.name]["parameters"]["r"]
@@ -42,24 +49,35 @@ def run(config_path=CONFIG_PATH):
     cld_service_2 = config["system"]["cloud"]["service"][TaskScope.TASK_2.name]["parameters"]["r"]
     t_setup = config["system"]["cloud"]["setup"][TaskScope.TASK_2.name]["parameters"]["m"]
 
-    logger.info("Launching Markov Chain generation with clt_n_servers={}, clt_threshold={}, arrival_1={}, arrival_2={}, clt_service_1={}, clt_service_2={}".format(
-        clt_n_servers, clt_threshold, arrival_1, arrival_2, clt_service_1, clt_service_2
-    ))
-
+    # Routing probabilities:
+    #   - a_clt_1: accepted 1st class traffic in the Cloudlet.
+    #   - a_clt_2: accepted 2nd class traffic in the Cloudlet.
+    #   - r: restarted 2nd class traffic from the Cloudlet to the Cloud.
+    #
+    # As the calculus of these routing probabilities is heavy, you can specify them here to skip it.
+    # If you want to compute them again, simply set them as None.
     a_clt_1 = 0.978326334857105
     a_clt_2 = 0.603529764734761
     r = 0.183573830264005
-    psi = 1/3
 
+    #a_clt_1 = None
+    #a_clt_2 = None
+    #r = None
+
+    # Quota of 2nd class tasks service time in Cloudlet lost before restart.
+    # This value can be estimated leveraging the simulator.
+    psi = 0.57594265793
+
+    # Compute routing probabilities if not yet computed.
     if (a_clt_1 is None or a_clt_2 is None or r is None):
-        MC = markovutils.generate_markov_chain(clt_n_servers, clt_threshold, arrival_1, arrival_2, clt_service_1, clt_service_2)
+        MC = markovgen.generate_markov_chain(clt_n_servers, clt_threshold, arrival_1, arrival_2, clt_service_1, clt_service_2)
         states = MC.get_states()
 
-        states_clt_1 = markovutils.compute_states_clt_1(states, clt_n_servers)
-        states_clt_2 = markovutils.compute_states_clt_2(states, clt_n_servers, clt_threshold)
-        states_clt_3 = markovutils.compute_states_clt_3(states, clt_n_servers, clt_threshold)
+        states_clt_1 = markovgen.compute_states_clt_1(states, clt_n_servers)
+        states_clt_2 = markovgen.compute_states_clt_2(states, clt_n_servers, clt_threshold)
+        states_clt_3 = markovgen.compute_states_clt_3(states, clt_n_servers, clt_threshold)
 
-        solutions = markovutils.solve(MC)
+        solutions = markovgen.solve(MC)
 
         a_clt_1 = 0
         for state_clt_1 in states_clt_1:
@@ -73,6 +91,8 @@ def run(config_path=CONFIG_PATH):
         for state_clt_3 in states_clt_3:
             r += solutions[state_clt_3.pretty_str()]
         r *= (arrival_1/(arrival_1+arrival_2))
+
+    # Report performance metrics
 
     # Routing Probabilities
     print("ROUTING PROBABILITIES")

@@ -1,11 +1,12 @@
 general:
-  t_stop: 100000  # the stop time for the simulation (sec) 1hour=3600, 1day=86400, 1week=604800, 1month=2.628e+6 (suggested: 604800)
-  t_tran: 50000  # the transient time (sec) (suggested: 50000)
-  # il batch si chiude quando raggiunge 512 campioni
-  # il numero di batch suggerito è 64
-  #n_batchdim: 512  # the number of samples within each batch (suggested: 512)
-  n_batch: 64  # the number of batches (suggested: 64)
-  t_sample: 100  # the sampling interval (sec) (suggested: 100)
+
+  mode: "PERFORMANCE_ANALYSIS" # simulation mode
+
+  batches: 64  # the number of batches (suggested: 64)
+  batchdim: 512  # the batch dimension (suggested: 512)
+  t_tran: 3600  # the transient time (sec) (suggested: 50000)
+
+  t_sample: 1000  # the sampling interval (sec) (suggested: 100)
   confidence: 0.95  # the level of confidence (suggested: 0.95)
   random:
     generator: "MarcianiMultiStream"  # the class name of the random generator

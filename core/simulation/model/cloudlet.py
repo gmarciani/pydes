@@ -75,8 +75,8 @@ class SimpleCloudlet:
         self.state[tsk] += 1
 
         # Update statistics
-        self.statistics.metrics.arrived[SystemScope.CLOUDLET][tsk].increment(1)
-        self.sample_mean_population()
+        self.statistics.counters.arrived[SystemScope.CLOUDLET][tsk] += 1
+        #TODO insert level_x
 
         return t_completion
 
@@ -100,9 +100,13 @@ class SimpleCloudlet:
         t_completion_to_ignore, t_arrival = self.servers[server_idx].submit_interruption(tsk, t_now)
         self.state[tsk] -= 1
 
+        t_served = t_now - t_arrival
+
         # Update statistics
-        self.statistics.metrics.switched[SystemScope.CLOUDLET][tsk].increment(1)
-        self.sample_mean_population()
+        self.statistics.counters.switched[SystemScope.CLOUDLET][tsk] += 1
+        self.statistics.counters.switched_service[SystemScope.CLOUDLET][tsk] += t_served
+        self.statistics.counters.service[SystemScope.CLOUDLET][tsk] += t_served
+        #TODO INSERT LEVEL_x
 
         return t_completion_to_ignore, t_arrival
 
@@ -127,9 +131,9 @@ class SimpleCloudlet:
         t_served = t_now - t_arrival
 
         # Update statistics
-        self.statistics.metrics.completed[SystemScope.CLOUDLET][tsk].increment(1)
-        self.statistics.metrics.service[SystemScope.CLOUDLET][tsk].increment(t_served)
-        self.sample_mean_population()
+        self.statistics.counters.completed[SystemScope.CLOUDLET][tsk] += 1
+        self.statistics.counters.service[SystemScope.CLOUDLET][tsk] += t_served
+        #TODO INSERT LEVEL_X
 
     # ==================================================================================================================
     # OTHER
@@ -154,7 +158,7 @@ class SimpleCloudlet:
                 return idx
         return None
 
-    def sample_mean_population(self):
+    def sample_population(self):
         """
         Register the sample for the mean population.
         :return: None.

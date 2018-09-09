@@ -4,14 +4,22 @@ import yaml
 from core.simulation.model.scope import TaskScope
 from core.random.rndvar import Variate
 from core.simulation.model.server_selection import SelectionRule
+from core.simulation.simulation_mode import SimulationMode
 
 
-default_configuration = {
+_default_configuration = {
 
     "general": {
-        "t_stop": 1000,  # the stop time for the simulation (s) 1hour=3600, 1day=86400, 1week=604800, 1month=2.628e+6
-        "t_tran": 0,  # the transient time
-        "n_batch": 1,  # the number of batches
+        #"mode": "PERFORMANCE_ANALYSIS",  # the simulation mode
+
+        # Required for TRANSIENT_ANALYSIS
+        #"t_stop": 3600,  # the stop time for the simulation (s) 1hour=3600, 1day=86400, 1week=604800, 1month=2.628e+6
+
+        # Required for PERFORMANCE_ANALYSIS
+        #"batches": 64,  # the number of batches
+        #"batchdim": 512,  # the batch dimension
+        #"t_tran": 0,  # the transient time
+
         "t_sample": 1,  # the sampling interval (sec)
         "confidence": 0.95,  # the level of confidence
         "random": {
@@ -90,13 +98,28 @@ default_configuration = {
 }
 
 
-def get_default_configuration():
+def get_default_configuration(simulation_mode):
     """
     Get a copy of default configuration.
+    :param simulation_mode (SimulationMode) the simulation mode of execution.
     :return: a copy of default configuration.
     """
-    config = copy.deepcopy(default_configuration)
+    config = copy.deepcopy(_default_configuration)
+
+    # Add configuration specific to transient analysis
+    if simulation_mode is SimulationMode.TRANSIENT_ANALYSIS:
+        config["general"]["mode"] = SimulationMode.TRANSIENT_ANALYSIS
+        config["general"]["t_stop"] = 3600
+
+    # Add configuration specific to performance analysis
+    elif simulation_mode is SimulationMode.PERFORMANCE_ANALYSIS:
+        config["general"]["mode"] = SimulationMode.PERFORMANCE_ANALYSIS
+        config["general"]["t_tran"] = 2000
+        config["general"]["batches"] = 64
+        config["general"]["batchdim"] = 512
+
     normalize(config)
+
     return config
 
 
@@ -141,15 +164,12 @@ def _normalize_random_config(entry):
 
 
 if __name__ == "__main__":
-    # Creation
-    config_1 = get_default_configuration()
-    config_2 = get_default_configuration()
 
-    # Equality check
-    print("Config 1 equals Config 2 (before editing): {}".format(config_1 == config_2))
-    config_2["general"]["t_stop"] = 25000
-    print("Config 1 equals Config 2 (after editing): {}".format(config_1 == config_2))
+    # Transient Analysis
+    config_1 = get_default_configuration(SimulationMode.TRANSIENT_ANALYSIS)
+    print(config_1)
 
-    config_3 = get_default_configuration()
-    print(config_3)
+    # Performance Analysis
+    config_2 = get_default_configuration(SimulationMode.PERFORMANCE_ANALYSIS)
+    print(config_2)
 

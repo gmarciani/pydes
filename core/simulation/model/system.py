@@ -84,7 +84,7 @@ class SimpleCloudletCloudSystem:
             raise ValueError("Unrecognized event: {}".format(event))
 
         # Update statistics (only population)
-        self.sample_mean_population()
+        #self.sample_mean_population()
 
         return response_events_to_schedule, response_events_to_unschedule
 
@@ -124,7 +124,8 @@ class SimpleCloudletCloudSystem:
 
                 logger.debug("{} restarted in CLOUD at {}".format(tsk_interrupt, t_now))
                 t_completion = self.cloud.submit_arrival(tsk_interrupt, t_now, restart=True)
-                e_completion = Event(EventType.of(ActionScope.COMPLETION, SystemScope.CLOUD, tsk_interrupt), t_completion, t_arrival=t_arrival_1, switched=True)
+                # TODO check t_arrival=t_arrival_1 or t_now
+                e_completion = Event(EventType.of(ActionScope.COMPLETION, SystemScope.CLOUD, tsk_interrupt), t_completion, t_arrival=t_now, switched=True)
                 e_to_schedule.append(e_completion)
 
                 logger.debug("{} sent to CLOUDLET at {}".format(tsk, t_now))

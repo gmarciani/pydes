@@ -40,7 +40,7 @@ class SystemScope(Enum):
 class TaskScope(Enum):
     """
     The scope ot tasks:
-        * GLOBAL (special scope used in statistics)
+        * GLOBAL (special scope used in statistics and task generation)
         * TASK_1
         * TASK_2
     """

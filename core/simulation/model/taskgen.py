@@ -19,13 +19,11 @@ class ExponentialTaskgen:
     A tasks generator for exponential inter-arrivals.
     """
 
-    def __init__(self, rndgen, config, t_stop=maxsize):
+    def __init__(self, rndgen, config):
         """
         Create a new tasks generator.
         :param rndgen: (object) the multi-stream random number generator.
         :param config: (dict) the arrival rates configuration.
-        :param t_stop: (float) the final stop time. Events with arrival time greater than stop time are not counted in
-        taskgen tate.
         """
         # Arrival rates
         self.rates = {tsk: 1.0 / config[tsk]["parameters"]["m"] for tsk in TaskScope.concrete()}
@@ -41,9 +39,6 @@ class ExponentialTaskgen:
 
         # State
         self.generated = {tsk: 0 for tsk in TaskScope.concrete()}
-
-        # Generation management
-        self.t_stop = t_stop
 
     def generate(self, t_clock):
         """
@@ -63,8 +58,7 @@ class ExponentialTaskgen:
         arrival = Event(self.event_types[tsk], t_event)
 
         # Update state
-        if t_event < self.t_stop:
-            self.generated[tsk] += 1
+        self.generated[tsk] += 1
 
         return arrival
 
@@ -82,91 +76,37 @@ class ExponentialTaskgen:
         return "Taskgen({}:{})".format(id(self), ", ".join(sb))
 
 
-class GeneralTaskgen:
-    """
-    A simple tasks generator.
-    """
+if __name__ == "__main__":
+    from core.random.rndgen import MarcianiMultiStream
+    from core.simulation.model import config
 
-    def __init__(self, rndgen, config, t_stop=maxsize):
-        """
-        Create a new tasks generator.
-        :param rndgen: (object) the multi-stream random number generator.
-        :param config: (dict) the configuration.
-        :param t_stop: (float) the final stop time. Events with arrival time greater than stop time are not counted in
-        taskgen tate.
-        """
-        # Randomization
-        self.rndgen = rndgen
-        self.rndarrival = RandomComponent(
-            gen=rndgen,
-            str={tsk: EventType.of(ActionScope.ARRIVAL, SystemScope.SYSTEM, tsk).value for tsk in TaskScope.concrete()},
-            var={tsk: config[tsk.name]["distribution"] for tsk in TaskScope.concrete()},
-            par={tsk: config[tsk.name]["parameters"] for tsk in TaskScope.concrete()}
-        )
+    rndgenerator = MarcianiMultiStream(123456789)
+    configuration = config.get_default_configuration()
 
-        # Events
-        self.event_types = {tsk: EventType.of(ActionScope.ARRIVAL, SystemScope.SYSTEM, tsk) for tsk in TaskScope.concrete()}
+    taskgen = ExponentialTaskgen(rndgenerator, configuration["arrival"])
 
-        # State
-        self.generated = {tsk: 0 for tsk in TaskScope.concrete()}
+    t_clock = 0
 
-        # Generation management
-        self.t_stop = t_stop
-        if all(var is Variate.EXPONENTIAL for var in self.rndarrival.var.values()):
-            self.lambda_tot = sum(1.0 / self.rndarrival.par[tsk]["m"] for tsk in TaskScope.concrete())
-            self.p_1 = (1.0 / self.rndarrival.par[TaskScope.TASK_1]["m"]) / self.lambda_tot
-            self._generate = self._generate_exponential
-        else:
-            raise NotImplementedError("The type selection for general arrival process has not been implemented, yet.")
+    while t_clock < 10000:
+        event = taskgen.generate(t_clock)
+        t_clock = event.time
 
-    def generate(self, t_clock):
-        """
-        Generate a new random arrival.
-        :param t_clock: (float) the current time.
-        :param tsk: (TaskType) the type of the task. Default: None
-        :return: (SimpleEvent) a new random arrival.
-        """
-        # Select the type of arrival and the corresponding arrival time
-        tsk, t_event = self._generate(t_clock)
+    rate_task_1 = taskgen.rates[TaskScope.TASK_1]
+    rate_task_2 = taskgen.rates[TaskScope.TASK_2]
+    rate_total = rate_task_1 + rate_task_2
 
-        # Generate the arrival event
-        arrival = Event(self.event_types[tsk], t_event)
+    generated_task_1 = taskgen.generated[TaskScope.TASK_1]
+    generated_task_2 = taskgen.generated[TaskScope.TASK_2]
+    generated_total = generated_task_1 + generated_task_2
 
-        # Update state
-        if t_event < self.t_stop:
-            self.generated[tsk] += 1
+    ratio_generated_tsk_1 = generated_task_1 / generated_total
+    ratio_generated_tsk_2 = generated_task_2 / generated_total
 
-        return arrival
+    ratio_rate_tsk_1 = rate_task_1 / rate_total
+    ratio_rate_tsk_2 = rate_task_2 / rate_total
 
-    def _generate_exponential(self, t_clock):
-        """
-        Generate random arrival event for exponential arrival process.
-        :param t_clock: (float) the current time.
-        :return: tsk, t_event
-        """
-        self.rndgen.stream(STREAM_ARRIVAL_TYPE)
-        u = self.rndgen.rnd()
-        tsk = TaskScope.TASK_1 if u <= self.p_1 else TaskScope.TASK_2
-        t_event = t_clock + exponential(m=(1.0 / self.lambda_tot), u=self.rndgen.rnd())
-        return tsk, t_event
+    print("ratio_rate_tsk_1: ", ratio_rate_tsk_1)
+    print("ratio_generated_tsk_1: ", ratio_generated_tsk_1)
 
-    def _generate_general(self, t_clock):
-        """
-        Generate random arrival event for general arrival process.
-        :param t_clock: (float) the current time.
-        :return: tsk, t_event
-        """
-        raise NotImplementedError("The type selection for general arrival process has not been implemented, yet.")
-
-    # ==================================================================================================================
-    # OTHER
-    # ==================================================================================================================
-
-    def __str__(self):
-        """
-        String representation.
-        :return: the string representation.
-        """
-        sb = ["{attr}={value}".format(attr=attr, value=self.__dict__[attr]) for attr in self.__dict__ if
-              not attr.startswith("__") and not callable(getattr(self, attr))]
-        return "Taskgen({}:{})".format(id(self), ", ".join(sb))
+    print("ratio_rate_tsk_2: ", ratio_rate_tsk_2)
+    print("ratio_generated_tsk_2: ", ratio_generated_tsk_2)

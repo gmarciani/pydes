@@ -1,24 +1,29 @@
 import unittest
-from core.simulation.model.stats import InstantaneousStatistics
+from core.metrics.stats import Sample
 from core.simulation.model.scope import SystemScope
 from core.simulation.model.scope import TaskScope
 
 
-class InstantaneousStatisticsTest(unittest.TestCase):
+class SamplingTest(unittest.TestCase):
 
     def setUp(self):
         """
         The test setup.
         :return: None
         """
-        self.stat = InstantaneousStatistics(0)
+        self.sample = Sample(0)
 
-        for metric in self.stat.metrics.__dict__:
+        for counter in self.sample.counters.__dict__:
             for sys in SystemScope:
                 for tsk in TaskScope:
-                    getattr(self.stat.metrics, metric)[sys][tsk] = hash(metric)
+                    getattr(self.sample.counters, counter)[sys][tsk] = hash(counter)
 
-        self.file_csv = "out/test_instantaneous_statistics.csv"
+        for metric in self.sample.metrics.__dict__:
+            for sys in SystemScope:
+                for tsk in TaskScope:
+                    getattr(self.sample.metrics, metric)[sys][tsk] = hash(metric)
+
+        self.file_csv = "out/test_sample.csv"
 
     def test_save_csv(self):
         """
@@ -28,7 +33,13 @@ class InstantaneousStatisticsTest(unittest.TestCase):
         hdr = ["time"]
         row = [0]
 
-        for metric in sorted(self.stat.metrics.__dict__):
+        for counter in sorted(self.sample.counters.__dict__):
+            for sys in SystemScope:
+                for tsk in TaskScope:
+                    hdr.append("{}_{}_{}".format(counter, sys.name.lower(), tsk.name.lower()))
+                    row.append(hash(counter))
+
+        for metric in sorted(self.sample.metrics.__dict__):
             for sys in SystemScope:
                 for tsk in TaskScope:
                     hdr.append("{}_{}_{}".format(metric, sys.name.lower(), tsk.name.lower()))
@@ -38,7 +49,7 @@ class InstantaneousStatisticsTest(unittest.TestCase):
         srow = ",".join(map(str, row))
         expected = "{}\n{}\n".format(shdr, srow)
 
-        self.stat.save_csv(self.file_csv)
+        self.sample.save_csv(self.file_csv)
 
         with open(self.file_csv, "r") as f:
             actual = f.read()

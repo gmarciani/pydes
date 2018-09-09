@@ -6,6 +6,7 @@ Results are stored in 'result.csv' and can be visualized running the Matlab scri
 from core.simulation.simulation import Simulation as Simulation
 from core.simulation.model.config import load_configuration
 from core.utils.logutils import ConsoleHandler
+from core.simulation.simulation_mode import SimulationMode
 import os
 import logging
 
@@ -21,7 +22,8 @@ CONFIG_PATH = "performance_analysis.yaml"
 OUTDIR = "out/performance_analysis"
 
 # Parameters
-THRESHOLDS = range(0, 21, 1)
+#THRESHOLDS = range(0, 21, 1)
+THRESHOLDS = [20]
 THRESHOLD_FOR_DISTRIBUTION = 20
 
 
@@ -29,6 +31,7 @@ def run(config_path=CONFIG_PATH):
     """
     Execute the experiment.
     :param config_path: (string) the path of the configuration file.
+    if false, launches a performance analysis for the given threshold.
     :return: None
     """
     config = load_configuration(config_path)
@@ -48,7 +51,7 @@ def run(config_path=CONFIG_PATH):
         config["system"]["cloudlet"]["threshold"] = threshold
         logger.info("Simulation {}/{} with threshold {}".format(simulation_counter, simulation_max, threshold))
         outdir = "{}/{}".format(OUTDIR, threshold) if threshold == THRESHOLD_FOR_DISTRIBUTION else None
-        simulation = Simulation(config, "SIMULATION-THRESHOLD-{}".format(threshold))
+        simulation = Simulation(config, name="SIMULATION-THRESHOLD-{}".format(threshold))
         simulation.run(outdir=outdir, show_progress=True)
         reportfilecsv = os.path.join(OUTDIR, "result.csv")
         reportfiletxt = os.path.join(OUTDIR, "result.txt")

@@ -1,10 +1,10 @@
+from core.metrics.confidence_interval import get_interval_estimation
 from math import sqrt
 
 
-class SimpleSampleStatistic:
+class WelfordAccumulator:
     """
-    A simple sample statistics calculator.
-    It calculates:
+    A simple sample statistic that leverages the one-pass Welford algorithm to calculate
         * sample mean
         * sample variance
         * sample standard deviation.
@@ -12,8 +12,11 @@ class SimpleSampleStatistic:
 
     def __init__(self):
         """
-        Create a new *SimpleStatisticsCalculator*.
+        Create a new measure.
+        :param unit (String) the measurement unit (Default: None).
         """
+
+        # Sample dimension
         self._n = 0  # the number of values
 
         # statistics
@@ -35,9 +38,9 @@ class SimpleSampleStatistic:
         :param value: the value to add.
         :return: None
         """
-        self._n += 1
 
         # update mean and variance, leveraging the Welford's algorithm
+        self._n += 1
         delta_value = value - self._mean
         self._variance += pow(delta_value, 2) * (1.0 * (self._n - 1) / self._n)
         self._mean += delta_value / self._n
@@ -70,6 +73,14 @@ class SimpleSampleStatistic:
         """
         return sqrt(self._variance / self._n)
 
+    def cint(self, alpha):
+        """
+        Return the confidence interval.
+        :param alpha: (float) the significance.
+        :return: the confidence interval.
+        """
+        return get_interval_estimation(self._n, self.sdev(), alpha)
+
     def __str__(self):
         """
         String representation.
@@ -77,7 +88,7 @@ class SimpleSampleStatistic:
         """
         sb = ["{attr}={value}".format(attr=attr, value=self.__dict__[attr]) for attr in self.__dict__ if
               not attr.startswith("__") and not callable(getattr(self, attr))]
-        return "SampleStatistics({}:{})".format(id(self), ", ".join(sb))
+        return "SampleMeasure({}:{})".format(id(self), ", ".join(sb))
 
     def __repr__(self):
         """

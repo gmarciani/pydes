@@ -8,19 +8,20 @@ from core.simulation.model.taskgen import ExponentialTaskgen as Taskgen
 from core.simulation.model.calendar import NextEventCalendar as Calendar
 from core.simulation.model.event import ActionScope
 from core.utils.guiutils import print_progress
-from core.simulation.model.stats import SimulationStatistics
+from core.metrics.stats import SimulationStatistics
 from core.utils.file_utils import empty_file
+from core.simulation.simulation_mode import SimulationMode
+
+from sys import maxsize as INFINITE
 import os
-from core.utils.logutils import get_logger
 
 
 # Logging
 #logger = get_logger(__name__)
 
-
 class Simulation:
     """
-    A simple simulation about Cloud computing.
+    A simple simulation of a two-layers Cloud computing system.
     """
 
     def __init__(self, config, name="SIMULATION-CLOUD-CLOUDLET"):
@@ -33,22 +34,46 @@ class Simulation:
 
         # Configuration - General
         config_general = config["general"]
-        self.t_stop = config["general"]["t_stop"]
-        self.t_tran = config["general"]["t_tran"]
-        self.n_batch = config_general["n_batch"]
-        self.t_batch = (self.t_stop - self.t_tran) / self.n_batch
+        self.mode = config_general["mode"]
+
+        # Configuration - Transient Analysis
+        if self.mode is SimulationMode.TRANSIENT_ANALYSIS:
+            self.t_stop = config["general"]["t_stop"]
+            self.t_tran = 0
+            self.batches = INFINITE
+            self.batchdim = 1
+            self.closed_door_condition = lambda: self.closed_door_condition_transient_analysis()
+            self.print_progress = lambda: print_progress(self.calendar.get_clock(), self.t_stop)
+            self.should_discard_transient_data = False
+
+        # Configuration - Performance Analysis
+        elif self.mode is SimulationMode.PERFORMANCE_ANALYSIS:
+            self.t_stop = INFINITE
+            self.t_tran = config["general"]["t_tran"]
+            self.batches = config_general["batches"]
+            self.batchdim = config_general["batchdim"]
+            self.closed_door_condition = lambda: self.closed_door_condition_performance_analysis()
+            self.print_progress = lambda: print_progress(self.statistics.n_batches, self.batches)
+            self.should_discard_transient_data = self.t_tran > 0.0
+
+        else:
+            raise RuntimeError("The current version supports only TRANSIENT_ANALYSIS and PERFORMANCE_ANALYSIS")
+
+        # Configuration - Sampling
+        self.t_sample = config["general"]["t_sample"]
         self.confidence = config_general["confidence"]
+
+        # Configuration - Randomization
         self.rndgen = getattr(rndgen, config_general["random"]["generator"])(config_general["random"]["seed"])
-        self.t_sample = config["general"]["t_sample"] if config["general"]["t_sample"] is not None else float("inf")
 
         # The statistics
-        self.statistics = SimulationStatistics(self.t_batch)
+        self.statistics = SimulationStatistics(self.batchdim)
 
         # Configuration - Tasks
         # Checks that the arrival process is Markovian (currently, the only one supported)
         if not all(variate is Variate.EXPONENTIAL for variate in [config["arrival"][tsk]["distribution"] for tsk in TaskScope.concrete()]):
             raise NotImplementedError("The current version supports only exponential arrivals")
-        self.taskgen = Taskgen(rndgen=self.rndgen, config=config["arrival"], t_stop=self.t_stop)
+        self.taskgen = Taskgen(rndgen=self.rndgen, config=config["arrival"])
 
         # Configuration - System (Cloudlet and Cloud)
         config_system = config["system"]
@@ -61,16 +86,11 @@ class Simulation:
         #   (ii.i) possible arrivals, i.e. arrivals with occurrence time lower than stop time.
         #   (ii.ii) departures of possible arrivals.
         # (iii) unscheduling of events to ignore, e.g. completion in Cloudlet of interrupted tasks.
-        self.calendar = Calendar(t_clock=0.0, t_stop=self.t_stop)
+        self.calendar = Calendar(t_clock=0.0)
 
         # Sampling management
         self.t_last_sample = 0.0
         self.sampling_file = None
-
-        # Batch management
-        self.curr_batch = 0
-        self.should_discard_transient_data = self.t_tran > 0.0
-        self.t_last_batch = 0.0
 
         # Simulation management
         self.closed_door = False
@@ -87,35 +107,28 @@ class Simulation:
         :return: None
         """
 
-        # Prepare the output files
+        # Prepare the sampling file
         if outdir is not None:
             self.sampling_file = os.path.join(outdir, "result.sampling.csv")
             empty_file(self.sampling_file)
-
-        # Simulation Start.
-        #logger.info("Simulation started")
 
         # Initialize first arrivals
         # Schedule the first events, i.e. task of type 1 and 2.
         # Notice that the event order by arrival time is managed internally by the Calendar.
         self.calendar.schedule(self.taskgen.generate(self.calendar.get_clock()))
 
-        # Run the simulation while the stop condition does not hold.
-        # The stop condition depends on the simulation scope:
-        #   * transient analysis: the simulation stops
-        while self.calendar.get_clock() < self.t_stop or not self.system.is_idle():
+        # Run the simulation until the stop condition holds true
+        while not self.stop_condition():
 
             # Get the next event and update the calendar clock.
             # Notice that the Calendar clock is automatically updated.
             # Notice that the next event is always a possible event.
             event = self.calendar.get_next_event()
-            #logger.debug("State: %s", self.system.state)
-            #logger.debug("Next: %s", event)
 
-            #assert self.closed_door is False or event.type.act is ActionScope.COMPLETION  # TODO eliminare
+            assert self.closed_door is False or event.type.act is ActionScope.COMPLETION
 
-            # Update the closed-door condition
-            self.closed_door = self.calendar.get_clock() >= self.t_stop
+            # Check the closed-door condition
+            self.closed_door = self.closed_door_condition()
 
             # Submit the event to the system.
             # Notice that every submission generates some other events to be scheduled/unscheduled,
@@ -133,29 +146,56 @@ class Simulation:
 
             # Simulation progress
             if show_progress:
-                print_progress(self.calendar.get_clock(), self.t_stop)
+                self.print_progress()
 
-            # If transient period has been passed...
+            # If transient period has been passed over ...
             if self.calendar.get_clock() > self.t_tran:
 
-                # If sampling data must be written, do it
-                if self.sampling_file is not None and self.calendar.get_clock() >= self.t_last_sample + self.t_sample:
-                    self.statistics.sample(self.calendar.get_clock()).save_csv(self.sampling_file, append=True)
-                    self.t_last_sample = self.calendar.get_clock()
-
-                # If not previously done, discard batch data collected during the transient period
+                # Discard batch data collected during the transient period (if configured and not previously done)
+                # This operation can be performed only in PERFORMANCE_ANALYSIS mode,
+                # as TRANSIENT_ANALYSIS mode should never discard transient data.
                 if self.should_discard_transient_data:
-                    self.statistics.discard_batch()
+                    self.statistics.discard_data()
                     self.should_discard_transient_data = False
 
-                # If batch timing dimension has been reached, record batch data
-                if self.calendar.get_clock() >= self.t_last_batch + self.t_batch:
-                    self.statistics.register_batch(self.calendar.get_clock())
-                    self.curr_batch += 1
-                    self.t_last_batch = self.calendar.get_clock()
+                # Sample statistics, according to sample period
+                if self.calendar.get_clock() >= self.t_last_sample + self.t_sample:
+                    sample = self.statistics.sample(self.calendar.get_clock())
+                    self.t_last_sample = self.calendar.get_clock()
 
-        # Simulation End.
-        #logger.info("Simulation completed")
+                    # Write sample on sample file, if specified.
+                    # This operation can be perfoemed only in TRANSIENT_ANALYSIS mode,
+                    # as only in this mode we are interested in instantaneous sampling.
+                    if self.sampling_file is not None:
+                        sample.save_csv(self.sampling_file, append=True)
+
+    # ==================================================================================================================
+    # REPORT
+    # ==================================================================================================================
+
+    def stop_condition(self):
+        """
+        Checks whether the stop condition holds true.
+        The stop condition holds true when the closed door condition hilds true and the system is idle.
+        :return: true, if the stop condition holds; false, otherwise.
+        """
+        return self.closed_door and self.system.is_idle()
+
+    def closed_door_condition_performance_analysis(self):
+        """
+        Checks whether the closed door condition holds true (PERFORMANCE_ANALYSYS).
+        The closed door condition holds true if the desired number of batches have been collected
+        :return: true, if the closed door condition holds; false, otherwise.
+        """
+        return self.statistics.n_batches >= self.batches
+
+    def closed_door_condition_transient_analysis(self):
+        """
+        Checks whether the closed door condition holds true (TRANSIENT_ANALYSIS).
+        The closed door condition holds true if the clock time passed the stop time.
+        :return: true, if the closed door condition holds; false, otherwise.
+        """
+        return self.calendar.get_clock() > self.t_stop
 
     # ==================================================================================================================
     # REPORT
@@ -171,10 +211,16 @@ class Simulation:
         alpha = 1.0 - self.confidence
 
         # Report - General
-        r.add("general", "t_stop", self.t_stop)
-        r.add("general", "t_tran", self.t_tran)
-        r.add("general", "n_batch", self.n_batch)
-        r.add("general", "t_batch", self.t_batch)
+        r.add("general", "mode", self.mode)
+        if self.mode is SimulationMode.TRANSIENT_ANALYSIS:
+            r.add("general", "t_stop", self.t_stop)
+        elif self.mode is SimulationMode.PERFORMANCE_ANALYSIS:
+            r.add("general", "t_tran", self.t_tran)
+            r.add("general", "batches", self.batches)
+            r.add("general", "batchdim", self.batchdim)
+        else:
+            raise RuntimeError("The current version supports only TRANSIENT_ANALYSIS and PERFORMANCE_ANALYSIS")
+        r.add("general", "confidence", self.confidence)
 
         # Report - Randomization
         r.add("randomization", "generator", self.rndgen.__class__.__name__)
@@ -209,6 +255,11 @@ class Simulation:
             for p in self.system.cloud.rndsetup.par[tsk]:
                 r.add("system/cloud", "service_{}_param_{}".format(tsk.name.lower(), p), self.system.cloud.rndsetup.par[tsk][p])
 
+        # Report - Execution
+        r.add("execution", "clock", self.calendar.get_clock())
+        r.add("execution", "collected_samples", self.statistics.n_samples)
+        r.add("execution", "collected_batches", self.statistics.n_batches)
+
         # Report - State
         for sys in sorted(self.system.state, key=lambda x: x.name):
             for tsk in sorted(self.system.state[sys], key=lambda x: x.name):
@@ -224,6 +275,7 @@ class Simulation:
                           getattr(self.statistics.metrics, metric)[sys][tsk].sdev())
                     r.add("statistics", "{}_{}_{}_cint".format(metric, sys.name.lower(), tsk.name.lower()),
                           getattr(self.statistics.metrics, metric)[sys][tsk].cint(alpha))
+
         return r
 
     # ==================================================================================================================
@@ -243,12 +295,23 @@ class Simulation:
 if __name__ == "__main__":
     from core.simulation.model.config import get_default_configuration
 
-    config = get_default_configuration()
+    # Transient Analysis
 
-    config["general"]["t_stop"] = 200
-    config["general"]["n_batch"] = 10
+    config = get_default_configuration(SimulationMode.TRANSIENT_ANALYSIS)
 
-    simulation = Simulation(config)
+    simulation = Simulation(config, name="TRANSIENT_ANALYSIS")
+
+    simulation.run(show_progress=True)
+
+    report = simulation.generate_report()
+
+    print(report)
+
+    # Performance Analysis
+
+    config = get_default_configuration(SimulationMode.PERFORMANCE_ANALYSIS)
+
+    simulation = Simulation(config, name="PERFORMANCE_ANALYSIS")
 
     simulation.run(show_progress=True)
 

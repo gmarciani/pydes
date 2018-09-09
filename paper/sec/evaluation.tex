@@ -133,41 +133,52 @@ Let us now focus on the \textit{performance evaluation}, taking into account the
 	\item \textit{switched response time} for tasks belonging to the $2^{nd}$ class.
 \end{enumerate}
 
+In our experiment we assume $S=N=20$, $k=64$ batches, batch dimension $b=512$ and initial seed $iseed=123456789$.
+%
+Theoretical results have been computed using the formulas presented in Section~\ref{sec:performance-modeling}, assuming $\psi=0.57594265793$.
+
 \begin{figure}
 	\begin{center}
 		\begin{tabular}{|c||c|c|}
 			\hline
-			Index & Theoretical & Experimental\\
+			Measure & Theoretical & Experimental\\
+			\hline
+			$a_{clt,1}$  & $0.978326334857105$ & $0.97911346521$ \\
+			$a_{clt_2}$  & $0.603529764734761$ & $0.60502880468$ \\
+			$r$          & $0.183573830264005$ & $0.15525744148$ \\
 			\hline
 			$E[N_{clt}]$  & $123456789$ & $123456789\pm 0.00342$ \\
-			$E[N_{1,clt}]$  & $123456789$ & $123456789\pm 0.00342$ \\
-			$E[N_{2,clt}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[N_{clt,1}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[N_{clt,2}]$  & $123456789$ & $123456789\pm 0.00342$ \\
 			$E[T_{clt}]$  & $123456789$ & $123456789\pm 0.00342$ \\
-			$E[T_{1,clt}]$  & $123456789$ & $123456789\pm 0.00342$ \\
-			$E[T_{2,clt}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[T_{clt,1}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[T_{clt,2}]$  & $123456789$ & $123456789\pm 0.00342$ \\
 			$X_{clt}$  & $123456789$ & $123456789\pm 0.00342$ \\
-			$X_{1,clt}$  & $123456789$ & $123456789\pm 0.00342$ \\
-			$X_{2,clt}$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$X_{clt,1}$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$X_{clt,2}$  & $123456789$ & $123456789\pm 0.00342$ \\
 			\hline
 			$E[N_{cld}]$  & $123456789$ & $123456789\pm 0.00342$ \\
-			$E[N_{1,cld}]$  & $123456789$ & $123456789\pm 0.00342$ \\
-			$E[N_{2,cld}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[N_{cld,1}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[N_{cld,2}]$  & $123456789$ & $123456789\pm 0.00342$ \\
 			$E[T_{cld}]$  & $123456789$ & $123456789\pm 0.00342$ \\
-			$E[T_{1,cld}]$  & $123456789$ & $123456789\pm 0.00342$ \\
-			$E[T_{2,cld}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[T_{cld,1}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[T_{cld,2}]$  & $123456789$ & $123456789\pm 0.00342$ \\
 			$X_{cld}$  & $123456789$ & $123456789\pm 0.00342$ \\
-			$X_{1,cld}$  & $123456789$ & $123456789\pm 0.00342$ \\
-			$X_{2,cld}$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$X_{cld,1}$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$X_{cld,2}$  & $123456789$ & $123456789\pm 0.00342$ \\
 			\hline
 			$E[N_{sys}]$  & $123456789$ & $123456789\pm 0.00342$ \\
-			$E[N_{1,sys}]$  & $123456789$ & $123456789\pm 0.00342$ \\
-			$E[N_{2,sys}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[N_{sys,1}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[N_{sys,2}]$  & $123456789$ & $123456789\pm 0.00342$ \\
 			$E[T_{sys}]$  & $123456789$ & $123456789\pm 0.00342$ \\
-			$E[T_{1,sys}]$  & $123456789$ & $123456789\pm 0.00342$ \\
-			$E[T_{2,sys}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[T_{sys,1}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[T_{sys,2}]$  & $123456789$ & $123456789\pm 0.00342$ \\
 			$X_{sys}$  & $123456789$ & $123456789\pm 0.00342$ \\
-			$X_{1,sys}$  & $123456789$ & $123456789\pm 0.00342$ \\
-			$X_{2,sys}$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$X_{sys,1}$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$X_{sys,2}$  & $123456789$ & $123456789\pm 0.00342$ \\
+			\hline
+			$E[T_{restarted}]$  & $123456789$ & $123456789\pm 0.00342$ \\
+			$E[RestartRatio]$  & $123456789$ & $123456789\pm 0.00342$ \\			
 			\hline
 		\end{tabular}
 	\end{center}
@@ -184,7 +195,9 @@ In this Section we show the distribution analysis of the Cloudlet global through
 In particular, we focus on the estimation of Probability Density Function (PDF) and the comparison between theoretical and experimental Cumulative Distribution Function (CDF).
 
 In Figure~\ref{fig:evaluation-distribution-analysis-pdf-throughput-cloudlet-global} and  Figure~\ref{fig:evaluation-distribution-analysis-cdf-throughput-cloudlet-global} we show the PDF estimation and the CDF analysis, respectively, for the global Cloudlet throughput when $S=N=20$, where we adopted the \textit{Freedman-Diaconis Rule} for the binning schema.
-Results show that the best fitting is the \textit{Normal Distribution} with parameters $A\approx4.357$ and $B\approx3546.917$.
+Results show that the best fitting is the \textit{Normal Distribution} with parameters $\mu\approx7.403$ and $\sigma\approx0.364$.
+%
+The Normal behavior here can be considered as a pretty good proof of effectiveness of the batch mean approach. 
 
 \begin{figure}
 	\includegraphics[width=\columnwidth]{fig/evaluation-distribution-analysis-pdf-throughput-cloudlet-global}

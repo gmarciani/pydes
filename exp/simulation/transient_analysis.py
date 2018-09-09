@@ -6,6 +6,7 @@ Results are stored in 'result.csv' and can be visualized running the Matlab scri
 from core.simulation.simulation import Simulation as Simulation
 from core.simulation.model.config import load_configuration
 from core.utils.logutils import ConsoleHandler
+from core.simulation.simulation_mode import SimulationMode
 import logging
 
 

@@ -1,5 +1,5 @@
 import unittest
-from core.simulation.model.stats import SimulationStatistics
+from core.metrics.stats import SimulationStatistics
 from core.simulation.model.scope import SystemScope
 from core.simulation.model.scope import TaskScope
 

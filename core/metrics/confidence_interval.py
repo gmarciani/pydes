@@ -4,7 +4,7 @@ from math import sqrt
 
 def get_interval_estimation(samsize, sdev, alpha):
     """
-    Get the interval estimation.
+    Returns the interval estimation.
     :param samsize: (int) the sample size.
     :param sdev: (float) the sample standard deviation.
     :param alpha: (float) the significance.

@@ -69,10 +69,10 @@ class SimpleCloud:
         t_completion = t_now + t_service
 
         # Update statistics
-        self.statistics.metrics.arrived[SystemScope.CLOUD][tsk].increment(1)
+        self.statistics.counters.arrived[SystemScope.CLOUD][tsk] += 1
         if restart:
-            self.statistics.metrics.switched[SystemScope.CLOUD][tsk].increment(1)
-        self.sample_mean_population()
+            self.statistics.counters.switched[SystemScope.CLOUD][tsk] += 1
+        #TODO INSERT HERE INTEGRAL LEVEL_X
 
         return t_completion
 
@@ -94,12 +94,12 @@ class SimpleCloud:
         t_served = t_now - t_arrival
 
         # Update statistics
-        self.statistics.metrics.completed[SystemScope.CLOUD][tsk].increment(1)
-        self.statistics.metrics.service[SystemScope.CLOUD][tsk].increment(t_served)
+        self.statistics.counters.completed[SystemScope.CLOUD][tsk] += 1
+        self.statistics.counters.service[SystemScope.CLOUD][tsk] += t_served
         if switched:
-            self.statistics.metrics.switched_completed[SystemScope.CLOUD][tsk].increment(1)
-            self.statistics.metrics.switched_service[SystemScope.CLOUD][tsk].increment(t_served)
-        self.sample_mean_population()
+            self.statistics.counters.switched_completed[SystemScope.CLOUD][tsk] += 1
+            self.statistics.counters.switched_service[SystemScope.CLOUD][tsk] += t_served
+        # TODO INSERT HERE INTEGRAL LEVEL_X
 
     # ==================================================================================================================
     # OTHER
@@ -111,7 +111,7 @@ class SimpleCloud:
         """
         return sum(self.state[tsk] for tsk in TaskScope.concrete()) == 0
 
-    def sample_mean_population(self):
+    def sample_population(self):
         """
         Register the sample for the mean population.
         :return: None.

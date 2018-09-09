@@ -202,24 +202,33 @@ In the considered simple case, the critical states are:
 Given the routing probabilities we can determine the following \textit{accepted workloads}:
 
 \begin{itemize}
-	\item Cloudlet: arrivals of tasks belonging to $j$-th class accepted in Cloudlet:
+	\item Cloudlet: arrival rate of tasks belonging to $j$-th class accepted in Cloudlet:
 	\begin{equation}
 	\lambda_{clt,j} = a_{clt,j}\lambda_{j}
 	\end{equation}
 	
-	\item Cloud: arrivals of tasks belonging to $j$-th class forwarded to Cloud:
+	\item Cloud: arrival rate of tasks belonging to $j$-th class forwarded to Cloud:
 	\begin{equation}
 	\lambda_{cld,j} = (1-a_{clt,j})\lambda_{j}
 	\end{equation}
 	
-	\item Preemption: tasks belonging to $2$-nd class preempted in Cloudlet and restarted in Cloud:
+	\item Restarts: rate of tasks belonging to $2^{nd}$ class interrupted in Cloudlet and restarted in Cloud:
 	\begin{equation}
-	\lambda_{p} = r(\lambda_{1}+\lambda_{2})
+	\lambda_{r} = r(\lambda_{1}+\lambda_{2})
 	\end{equation}
 \end{itemize}
 
 \paragraph{Performance metrics}
-Given the accepted workloads we can determine the following \textit{performance metrics for classed tasks in each subsystem}:
+Given the accepted workloads we can determine the following \textit{performance metrics for classed tasks in each subsystem}.
+%
+We assume here to know the constant $\psi$ defined in Equation~\ref{eqn:psi}, which represents the quota of lost time spent by $2^{nd}$ class tasks in Cloudlet before they are interrupted with respect to their expected service time\footnote{For example, if we would assume $\psi=0.5$ we are assuming that $2^{nd}$ class tasks are expected to be interrupted just after $50\%$ of their service time.}.
+%
+We are not able to determine $\psi$ from the Markov Chain, so we will assume the experimental value computed by the simulator. 
+
+\begin{equation} 
+\psi = \frac{service\;time\;spent\;before\;interruption}{total\;interruptions}
+\label{eqn:psi}
+\end{equation}
 
 \begin{itemize}
 	\item $1^{st}$ class in Cloudlet:
@@ -234,7 +243,7 @@ Given the accepted workloads we can determine the following \textit{performance 
 	\begin{equation} 
 	\begin{split}
 	E[T_{clt,2}] &= \frac{1}{\mu_{clt,2}} \\
-	E[N_{clt,2}] &= \lambda_{clt,2}E[T_{clt,2}]-\psi\lambda_{p}E[T_{clt,2}] \\
+	E[N_{clt,2}] &= \lambda_{clt,2}E[T_{clt,2}]-\lambda_{r}\psi E[T_{clt,2}] \\
 	\end{split}
 	\end{equation}
 	
@@ -246,27 +255,27 @@ Given the accepted workloads we can determine the following \textit{performance 
 	\end{split}
 	\end{equation}
 	
-	\item $2^{nd}$ class in Cloud (not preempted):
+	\item $2^{nd}$ class in Cloud (not restarted):
 	\begin{equation} 
 	\begin{split}
-	E[T_{cld,2}]^{[NP]} &= \frac{1}{\mu_{cld,2}} \\
-	E[N_{cld,2}]^{[NP]} &= \lambda_{cld,2}E[T_{cld,2}]^{[NP]} \\
+	E[T_{cld,2}]^{[NR]} &= \frac{1}{\mu_{cld,2}} \\
+	E[N_{cld,2}]^{[NR]} &= \lambda_{cld,2}E[T_{cld,2}]^{[NR]} \\
 	\end{split}
 	\end{equation}
 	
-	\item $2^{nd}$ class in Cloud (preempted):
+	\item $2^{nd}$ class in Cloud (restarted):
 	\begin{equation} 
 	\begin{split}
-	E[T_{cld,2}]^{[P]} &= E[T_{clt,2}]+E[T_{setup}]+\psi E[T_{cld,2}]^{[NP]} \\
-	E[N_{cld,2}]^{[P]} &= \lambda_{p}E[T_{cld,2}]^{[P]} \\
+	E[T_{cld,2}]^{[R]} &= \psi E[T_{clt,2}]+E[T_{setup}]+ E[T_{cld,2}]^{[NR]} \\
+	E[N_{cld,2}]^{[R]} &= \lambda_{r}E[T_{cld,2}]^{[R]} \\
 	\end{split}
 	\end{equation}
 	
-	\item $2^{nd}$ class in Cloud (not preempted and preempted):
+	\item $2^{nd}$ class in Cloud (both restarted and not restarted):
 	\begin{equation} 
 	\begin{split}
-	E[T_{cld,2}] &= \sum_{m=NP,P}\frac{E[N_{cld,2}]^{[m]}}{E[N_{cld,2}]}E[T_{cld,2}]^{[m]} \\
-	E[N_{cld,2}] &= \sum_{m=NP,P}E[N_{cld,2}]^{[m]} \\
+	E[T_{cld,2}] &= \sum_{m=NR,R}\frac{E[N_{cld,2}]^{[m]}}{E[N_{cld,2}]}E[T_{cld,2}]^{[m]} \\
+	E[N_{cld,2}] &= \sum_{m=NR,R}E[N_{cld,2}]^{[m]} \\
 	\end{split}
 	\end{equation}
 \end{itemize}
@@ -321,9 +330,22 @@ Thinking about the \textit{utilization of each subsystem}, the following hold tr
 
 
 \paragraph{Resolution}
-Given the \textit{analytical model} depicted in Figure~\ref{fig:analytical-model}, the resolution of the Markov Chain for the case $S=N=20$ allows us to determine the routing probabilities and performance metrics shown at the end of this paragraph.
+Given the \textit{analytical model} depicted in Figure~\ref{fig:analytical-model}, the resolution of the Markov Chain for the case $S=N=20$ allows us to determine routing probabilities and performance metrics.
 
-We solved the the \textit{analytical model} depicted in Figure~\ref{fig:analytical-model} leveraging (i) a \textit{Python script} that determines the transition matrix and the notable subsets of states, i.e. $S_{clt,1}$, $S_{clt,2}$ and $S_{clt,3}$, and (ii) a \textit{Matlab Live Script} that takes them as input and computes routing probabilities, accepted/preempted traffic and performance metrics.
+We solved the the \textit{analytical model} depicted in Figure~\ref{fig:analytical-model} leveraging a \textit{Python script} that 
+(i) receives as input the system configuration
+(ii) generates the Markov Chain representing the Cloudlet
+(iii) generates the system of equations from the Markov Chain
+(iv) computes limiting probabilities by solving the system
+(v) computes routing probabilities
+(vi) computes performance metrics and
+(vii) display a report of results.
+
+Analytical results are presented in Figure~\ref{tbl:evaluation}, along with their experimental counterpart.
+%
+We preferred to present analytical and experimental results in a unique common view, in order to provide the reader with an idea on how the simulator approximates analytical results.
+
+
 
 
 
@@ -390,6 +412,8 @@ We provide here a short description of the main software classes involved in our
 	\item \textit{RndGen}: instance of a fully-customizable multi-stream Lehmer pseudo-random number generator.
 	
 	\item \textit{Stats}: abstraction encapsulating all metrics involved in the simulation, responsible to make it easy to update metrics during the simulation loop. In particular, each subsystem receives as input a reference to this singleton in order to centralize the management of performance metrics.
+	
+	\item \textit{MarkovGen}: utility class to generate and solve the Markov Chain representing the Cloudlet. This class has been used to compute limiting state probabilities and routing probabilities.
 \end{itemize}
 
 
@@ -444,7 +468,7 @@ The verification has been carried out by evaluating the following consistency ch
 \subsection{Validation}
 It is well-known that model development should include a final validation step in order to assess the consistency of the model with the real system. 
 %
-As the simulation main purpose is insight, a widely adopted Turing-like technique is to place the computational model alongside with the real system and assess the consistency of performance indices.
+As the simulation main purpose is insight, a widely adopted Turing-like technique is to place the computational model alongside with the real system and assess the consistency of performance metrics.
 %
 Clearly, we cannot adopt this technique as we cannot compare the model with its real counterpart.
 %
