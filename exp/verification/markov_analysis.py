@@ -66,7 +66,7 @@ def run(config_path=CONFIG_PATH):
 
     # Quota of 2nd class tasks service time in Cloudlet lost before restart.
     # This value can be estimated leveraging the simulator.
-    psi = 0.57594265793
+    psi = 0.39077113824
 
     # Compute routing probabilities if not yet computed.
     if (a_clt_1 is None or a_clt_2 is None or r is None):

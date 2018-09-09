@@ -43,7 +43,8 @@ class Simulation:
             self.batches = INFINITE
             self.batchdim = 1
             self.closed_door_condition = lambda: self.closed_door_condition_transient_analysis()
-            self.print_progress = lambda: print_progress(self.calendar.get_clock(), self.t_stop)
+            self.print_progress = lambda: print_progress(self.calendar.get_clock(), self.t_stop,
+                                                         message="Clock: %d" % (self.calendar.get_clock()))
             self.should_discard_transient_data = False
 
         # Configuration - Performance Analysis
@@ -53,7 +54,9 @@ class Simulation:
             self.batches = config_general["batches"]
             self.batchdim = config_general["batchdim"]
             self.closed_door_condition = lambda: self.closed_door_condition_performance_analysis()
-            self.print_progress = lambda: print_progress(self.metrics.n_batches, self.batches)
+            self.print_progress = lambda: print_progress(self.metrics.n_batches, self.batches,
+                                                         message="Clock: %d | Batches: %d | CurrentBatchSamples: %d" %
+                                                                 (self.calendar.get_clock(), self.metrics.n_batches, self.metrics.curr_batchdim))
             self.should_discard_transient_data = self.t_tran > 0.0
 
         else:
@@ -301,7 +304,8 @@ class Simulation:
 if __name__ == "__main__":
     from core.simulation.model.config import get_default_configuration
 
-    mode = SimulationMode.PERFORMANCE_ANALYSIS
+    mode = SimulationMode.TRANSIENT_ANALYSIS
+    #mode = SimulationMode.PERFORMANCE_ANALYSIS
 
     config = get_default_configuration(mode)
 

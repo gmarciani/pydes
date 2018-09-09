@@ -9,7 +9,7 @@ from core.utils.logutils import get_logger
 logger = get_logger(__name__)
 
 
-def print_progress(iteration, total, prefix="PROGRESS", suffix="Complete", decimals=0, bar_length=50):
+def print_progress(iteration, total, prefix="PROGRESS", suffix="Complete", message="", decimals=0, bar_length=50):
     format_string = "{0:." + str(decimals) + "f}"
     percents = format_string.format(100 * (iteration / float(total)))
     filled_length = int(round(bar_length * iteration / float(total)))
@@ -17,7 +17,7 @@ def print_progress(iteration, total, prefix="PROGRESS", suffix="Complete", decim
 
     sys.stdout.flush()
 
-    sys.stdout.write("\r%s [%s] %s%s %s" % (prefix, bar, percents, "%", suffix))
+    sys.stdout.write("\r%s [%s] %s%s %s { %s }" % (prefix, bar, percents, "%", suffix, message))
 
 
 if __name__ == "__main__":

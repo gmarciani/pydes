@@ -39,10 +39,10 @@ def run(config_path=CONFIG_PATH):
     simulation_counter = 0
     simulation_max = len(THRESHOLDS)
 
-    logger.info("Launching performance analysis with t_stop={}, t_tran={}, n_batch={}, thresholds={}".format(
-        config["general"]["t_stop"],
+    logger.info("Launching performance analysis with t_tran={}, batches={}, batchdim={}, thresholds={}".format(
         config["general"]["t_tran"],
-        config["general"]["n_batch"],
+        config["general"]["batches"],
+        config["general"]["batchdim"],
         THRESHOLDS
     ))
 

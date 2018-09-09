@@ -108,12 +108,12 @@ def get_default_configuration(simulation_mode):
 
     # Add configuration specific to transient analysis
     if simulation_mode is SimulationMode.TRANSIENT_ANALYSIS:
-        config["general"]["mode"] = SimulationMode.TRANSIENT_ANALYSIS
+        config["general"]["mode"] = "TRANSIENT_ANALYSIS"
         config["general"]["t_stop"] = 3600
 
     # Add configuration specific to performance analysis
     elif simulation_mode is SimulationMode.PERFORMANCE_ANALYSIS:
-        config["general"]["mode"] = SimulationMode.PERFORMANCE_ANALYSIS
+        config["general"]["mode"] = "PERFORMANCE_ANALYSIS"
         config["general"]["t_tran"] = 2000
         config["general"]["batches"] = 10
         config["general"]["batchdim"] = 100
@@ -142,6 +142,7 @@ def normalize(config):
     :param config: the configuration.
     :return: None
     """
+    config["general"]["mode"] = SimulationMode[config["general"]["mode"] ]
     _normalize_random_config(config["arrival"])
     _normalize_random_config(config["system"]["cloudlet"]["service"])
     _normalize_random_config(config["system"]["cloud"]["service"])

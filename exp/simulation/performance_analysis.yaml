@@ -4,9 +4,9 @@ general:
 
   batches: 64  # the number of batches (suggested: 64)
   batchdim: 512  # the batch dimension (suggested: 512)
-  t_tran: 3600  # the transient time (sec) (suggested: 50000)
+  t_tran: 5000  # the transient time (sec) (suggested: 15000)
 
-  t_sample: 1000  # the sampling interval (sec) (suggested: 100)
+  t_sample: 10  # the sampling interval (sec) (suggested: 100)
   confidence: 0.95  # the level of confidence (suggested: 0.95)
   random:
     generator: "MarcianiMultiStream"  # the class name of the random generator
