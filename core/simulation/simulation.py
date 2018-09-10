@@ -151,8 +151,8 @@ class Simulation:
             if show_progress:
                 self.print_progress()
 
-            # If transient period has been passed over ...
-            if self.calendar.get_clock() > self.t_tran:
+            # If it is time to sample data ...
+            if event.type.act is ActionScope.COMPLETION:
 
                 # Discard batch data collected during the transient period (if configured and not previously done)
                 # This operation can be performed only in PERFORMANCE_ANALYSIS mode,
@@ -161,19 +161,16 @@ class Simulation:
                     self.metrics.discard_data()
                     self.should_discard_transient_data = False
 
-                # Sample statistics, according to sample period
-                if self.calendar.get_clock() >= self.t_last_sample + self.t_sample:
-                    sample = self.metrics.sampling(self.calendar.get_clock())
-                    self.t_last_sample = self.calendar.get_clock()
+                sample = self.metrics.sampling(self.calendar.get_clock())
 
-                    # Write sample on sample file, if specified.
-                    # This operation can be perfoemed only in TRANSIENT_ANALYSIS mode,
-                    # as only in this mode we are interested in instantaneous sampling.
-                    if self.sampling_file is not None:
-                        sample.save_csv(self.sampling_file, append=True)
+                # Write sample on sample file, if specified.
+                # This operation can be perfoemed only in TRANSIENT_ANALYSIS mode,
+                # as only in this mode we are interested in instantaneous sampling.
+                if self.sampling_file is not None:
+                    sample.save_csv(self.sampling_file, append=True)
 
     # ==================================================================================================================
-    # REPORT
+    # CONDITIONS
     # ==================================================================================================================
 
     def stop_condition(self):
@@ -200,14 +197,21 @@ class Simulation:
         """
         return self.calendar.get_clock() >= self.t_stop
 
+    def should_sample_data(self):
+        """
+        Checks whether it is time to sample data.
+        :return: true, if it is time to sample data; false, otherwise.
+        """
+        return self.calendar.get_clock() > self.t_tran
+
     # ==================================================================================================================
     # REPORT
     # ==================================================================================================================
 
     def generate_report(self):
         """
-        Generate the statistics report.
-        :return: (SimpleReport) the statistics report.
+        Generate the simulation report.
+        :return: (SimpleReport) the simulation report.
         """
         r = Report(self.name)
 

@@ -142,7 +142,7 @@ def normalize(config):
     :param config: the configuration.
     :return: None
     """
-    config["general"]["mode"] = SimulationMode[config["general"]["mode"] ]
+    config["general"]["mode"] = SimulationMode[config["general"]["mode"]]
     _normalize_random_config(config["arrival"])
     _normalize_random_config(config["system"]["cloudlet"]["service"])
     _normalize_random_config(config["system"]["cloud"]["service"])
