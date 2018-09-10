@@ -8,13 +8,35 @@ In this section we describe the performance model used to analyze the target sys
 % GOALS AND OBJECTIVES
 % %
 \subsection{Goals and Objectives}
-The main goals of simulation are about system tuning.
-In particular, we propose to determine with a $95\%$ level of confidence
+The main goals of simulation are about the system insights in terms of performance metrics.
+%
+In particular, considering $S=N$ we propose to evaluate system stationary and the following performance metrics with a $95\%$ level of confidence:
+
 \begin{itemize}
-	\item the response time as a function of the threshold $S$,
-	\item the throughput as a function of the threshold $S$,
-	\item the distribution of the response time when $S=N$ and
-	\item the threshold of the off-loading policy that minimizes the response time.
+	\item \textit{system response time} both global and per-class;
+	
+	\item \textit{response time} both global and per-class;
+	
+	\item \textit{Cloud response time} both global and per-class;
+	
+	\item \textit{system throughput} both global and per-class;
+	
+	\item \textit{Cloudlet throughput} both global and per-class;
+	
+	\item \textit{Cloud throughput} both global and per-class;
+	
+	\item \textit{interruption percentage} of the $2^{nd}$ class tasks;
+	
+	\item \textit{response time of interrupted tasks};
+	
+	\item \textit{system mean population} both global and per class;
+	
+	\item \textit{Cloudlet mean population} both global and per class;
+	
+	\item \textit{Cloud mean population} both global and per class;
+	
+	\item \textit{distribution of Cloudlet throughput} in terms of distribution fitting and cumulative distribution function.
+
 \end{itemize}
 
 
@@ -22,7 +44,7 @@ In particular, we propose to determine with a $95\%$ level of confidence
 % CONCEPTUAL MODEL
 % %
 \subsection{Conceptual Model}
-The conceptual model of the target system is depicted in Figure~\ref{fig:conceptual-model}.
+The conceptual model of the target system is the middle-level abstraction that makes the high-level architecture closer to the analytical model. We consider the conceptual model depicted in Figure~\ref{fig:conceptual-model}.
 
 \begin{figure}
 	\includegraphics[width=\columnwidth]{fig/conceptual-model}
@@ -35,9 +57,9 @@ The state space $S$ of a system is a comprehensive characterization of the syste
 The state space of the whole system is represented by the state space of its subsystems:
 
 \begin{itemize}
-	\item Cloudlet: $S_{clt} := \{(n_{clt,1},n_{clt,2})\in \mathcal{N}^{2}: n_{clt,1}+n_{clt,2}\leq N\}$, where $n_{clt,j}$ is the population of tasks belonging to the $j$-th class within the Cloudlet.
+	\item \textit{Cloudlet}: $S_{clt} := \{(n_{clt,1},n_{clt,2})\in \mathcal{N}^{2}: n_{clt,1}+n_{clt,2}\leq N\}$, where $n_{clt,j}$ is the population of tasks belonging to the $j$-th class within the Cloudlet.
 	
-	\item Cloud: $S_{cld} := \{(n_{cld,1},n_{cld,2})\in \mathcal{N}^{2}\}$, where $n_{cld,j}$ is the population of tasks belonging to the $j$-th class within the Cloud.
+	\item \textit{Cloud}: $S_{cld} := \{(n_{cld,1},n_{cld,2})\in \mathcal{N}^{2}\}$, where $n_{cld,j}$ is the population of tasks belonging to the $j$-th class within the Cloud.
 \end{itemize}
 
 \paragraph{Events space}
@@ -53,15 +75,25 @@ We consider the following events:
 	
 	\item $C_{cld,j}$: a task belonging to the $j$-th class is completed by the Cloud.
 	
-	\item $R_{2}$: a task belonging to the $2^{nd}$ class is stopped in the Cloudlet and restarted in the Cloud.
+	\item $R_{2}$: a task belonging to the $2^{nd}$ class is interrupted in the Cloudlet and restarted in the Cloud.
 \end{itemize}
 
 % %
 % SPECIFICATION MODEL
 % %
 \subsection{Specification Model}
+The typical modeling workflow requires to specify
+(i) the statistical analysis of data collected from the real system in order to determine the input model to drive simulations,
+(ii) the adopted simulation approach,
+(ii) the algorithms involved in computations and
+(iii) the analytical model and equations to determine performance metrics.
+
+Given the importance of the analytical model, we reserve a dedicated section for discussing about it.
+
+Regarding the simulation approach, we decided to adopt the \textit{next-event simulation method}, which is the most effective discrete-event method in terms of algorithmic modeling, time management and computational requirements.
 
 \paragraph{Statistical specifications}
+In our case we have been provided with the statistical characterization of the target system.
 Tasks belonging to the $j$-th class arrive to the system according to an exponential arrival process with rate $ \lambda_{j}$.
 The Cloudlet serves tasks belonging to the $j$-th class according to an exponential service process with rate $\mu_{clt,j}$; the Cloud serves tasks belonging to the $j$-th class according to an exponential service process with rate $\mu_{cld,j}$.
 We assume that 
@@ -84,7 +116,33 @@ E[T_{setup}] &=0.8\;sec \\
 \end{equation}
 
 \paragraph{Algorithmic specifications}
-The \textit{off-loading policy} implemented by the \textit{Cloudlet controller (CTRL)} is defined in Algorithm~\ref{alg:offloading-policy}
+From the point of view of algorithms involved in the simulation, we need to specify:
+
+\begin{itemize}
+	
+	\item \textit{off-loading algorithm}, which defines the off-loading policy implemented by the \textit{Cloudlet controller (CTRL)}, as defined in Algorithm~\ref{alg:offloading-policy}.
+	
+	\item \textit{simulation algorithm}, which defines the main execution flow of the simulator, as defined in Algorithm~\ref{alg:simulation}.
+\end{itemize}
+
+With reference to the simulation algorithm, we need to focus on the following aspects:
+
+\begin{itemize}
+	
+	\item \textit{arrival generation}: a new random arrival is generated every time an arrival is processed. As we need to submit classed arrival, we adopted Algorithm~\ref{alg:arrivals} whose statistical correctness relies on the properties of the exponential distribution.
+	
+	\item \textit{event submission}: when a new event is submitted to the system, system components (i) updates both their state (ii) update simulation counters and (iii) generate a random response event, i.e. completion event or an interruption event.
+	
+	\item \textit{stop condition}: when this condition holds true, the simulation is terminated. In particular, the logical definition is twofold:
+	When the simulator is used for transient analysis, the condition holds true when the simulation clock is greater than the stop time.
+	When the simulator is used for performance analysis, the condition holds true when the closed-door condition does and the system has reached the idle state.
+	
+	\item \textit{closed-door condition}: when this condition holds true, no more arrivals will be generated and system will only handle remaining completion until its state reaches the initial idle condition.
+	
+	\item \textit{sampling condition}: when this condition holds true, performance metrics should be sampled.
+	
+	\item \textit{metrics management}: when the system handles an event, it updates simulation counters, e.g. number of arrivals, service time, integral areas and so on. When the sampling condition holds true, those counters are used to opportunely computes a sample of performance metrics. Such a sample is used to update performance metrics collection, which leverages the \textit{one-pass Wellford algorithm, batch means and confidence intervals} using formulas specified in \cite{leemis2006discrete}.
+\end{itemize}
 
 \begin{algorithm}
 	\SetAlgoLined
@@ -98,25 +156,84 @@ The \textit{off-loading policy} implemented by the \textit{Cloudlet controller (
 		\eIf{$n_{clt,2} > 0$}{
 			accept on the Cloudlet, interrupt a $2^{nd}$ class task in the Cloudlet and restart it in the Cloud
 		}{
-		accept on Cloudlet
+			accept on Cloudlet
 		}
 	}
 	\If{arrival of class 2}{
 		\eIf{$n_{clt,1}+n_{clt,2}>=S$}{
 			send to the Cloud
 		}{
-		accept on the Cloudlet
+			accept on the Cloudlet
+		}
 	}
-	}
-	\caption{Off-loading policy.}
+	\caption{Off-loading.}
 	\label{alg:offloading-policy}
+\end{algorithm}
+
+\begin{algorithm}
+	\SetAlgoLined
+	
+	calendar.schedule\_arrival();
+	
+	\While{$\neg stop\_condition()$}{
+		e = calendar.next\_event();
+		
+		\If{$\neg close\_door\_condition() \vee e.type = completion$}{
+			e\_next = submit\_event(e);
+			
+			calendar.schedule(e\_next);
+		} 
+		\If{$\neg close\_door\_condition() \vee e.type = arrival$}{
+			calendar.schedule\_arrival();
+		} 
+		\If{$sampling\_condition()$}{
+			sample = sampling();
+			
+			update\_metrics(sample);
+		}
+	}
+\caption{Simulation.}
+\label{alg:simulation}
+\end{algorithm}
+
+\begin{algorithm}
+	\SetAlgoLined
+	
+	rndgen.stream(ARRIVAL)
+	
+	$p_{1}=\frac{\lambda_{1}}{\lambda_{1}+\lambda_{2}}$
+	
+	u = rndgen.uniform(0.0,1.0)
+	
+	\eIf{$u\leq p_{1}$}{
+		arrival\_type = TASK\_1
+		
+		rndgen.stream(ARRIVAL\_TASK\_1)
+		
+		$t_{inter-arrival}$ = rndgen.exponential($\lambda_{1}$)
+	}{
+		arrival\_type = TASK\_2
+		
+		rndgen.stream(ARRIVAL\_TASK\_2)
+		
+		$t_{inter-arrival}$ = rndgen.exponential($\lambda_{2}$)
+	}
+	
+	$t_{arrival}=t_{last\_arrival}+t_{inter-arrival}$
+
+	$t_{last\_arrival}=t_{arrival}$
+	
+	schedule(arrival\_type,$t_{arrival}$)
+	
+	\caption{Arrivals generation.}
+	\label{alg:arrivals}
 \end{algorithm}
 
 % %
 % ANALYTICAL MODEL
 % %
 \subsection{Analytical Model}
-In this Section we will define and solve the \textit{analytical model} of the system.
+In this Section we define and solve the \textit{analytical model} of the system.
 %
 In particular, we will first show the Markov Chain and flow balance equations for a very simple case, in order to introduce the reader to the structure of the chain with its critical states.
 %
@@ -202,17 +319,17 @@ In the considered simple case, the critical states are:
 Given the routing probabilities we can determine the following \textit{accepted workloads}:
 
 \begin{itemize}
-	\item Cloudlet: arrival rate of tasks belonging to $j$-th class accepted in Cloudlet:
+	\item \textit{Cloudlet}: arrival rate of tasks belonging to $j$-th class accepted in Cloudlet:
 	\begin{equation}
 	\lambda_{clt,j} = a_{clt,j}\lambda_{j}
 	\end{equation}
 	
-	\item Cloud: arrival rate of tasks belonging to $j$-th class forwarded to Cloud:
+	\item \textit{Cloud}: arrival rate of tasks belonging to $j$-th class forwarded to Cloud:
 	\begin{equation}
 	\lambda_{cld,j} = (1-a_{clt,j})\lambda_{j}
 	\end{equation}
 	
-	\item Restarts: rate of tasks belonging to $2^{nd}$ class interrupted in Cloudlet and restarted in Cloud:
+	\item \textit{Restarts}: rate of tasks belonging to $2^{nd}$ class interrupted in Cloudlet and restarted in Cloud:
 	\begin{equation}
 	\lambda_{r} = r(\lambda_{1}+\lambda_{2})
 	\end{equation}
@@ -221,14 +338,7 @@ Given the routing probabilities we can determine the following \textit{accepted 
 \paragraph{Performance metrics}
 Given the accepted workloads we can determine the following \textit{performance metrics for classed tasks in each subsystem}.
 %
-We assume here to know the constant $\psi$ defined in Equation~\ref{eqn:psi}, which represents the quota of lost time spent by $2^{nd}$ class tasks in Cloudlet before they are interrupted with respect to their expected service time\footnote{For example, if we would assume $\psi=0.5$ we are assuming that $2^{nd}$ class tasks are expected to be interrupted just after $50\%$ of their service time.}.
-%
-We are not able to determine $\psi$ from the Markov Chain, so we will assume the experimental value computed by the simulator. 
-
-\begin{equation} 
-\psi = \frac{service\;time\;spent\;before\;interruption}{total\;interruptions}
-\label{eqn:psi}
-\end{equation}
+We assume here to know the expected time lost in Cloudlet by $2^{nd}$ class tasks before their interruption. In particular, as we are not able to determine $E[T_{clt,2,lost}]$ from the Markov Chain, we will assume the experimental value computed by the simulator.
 
 \begin{itemize}
 	\item $1^{st}$ class in Cloudlet:
@@ -243,7 +353,7 @@ We are not able to determine $\psi$ from the Markov Chain, so we will assume the
 	\begin{equation} 
 	\begin{split}
 	E[T_{clt,2}] &= \frac{1}{\mu_{clt,2}} \\
-	E[N_{clt,2}] &= \lambda_{clt,2}E[T_{clt,2}]-\lambda_{r}\psi E[T_{clt,2}] \\
+	E[N_{clt,2}] &= \lambda_{clt,2}E[T_{clt,2}]-\lambda_{r} E[T_{clt,2,lost}] \\
 	\end{split}
 	\end{equation}
 	
@@ -266,7 +376,7 @@ We are not able to determine $\psi$ from the Markov Chain, so we will assume the
 	\item $2^{nd}$ class in Cloud (restarted):
 	\begin{equation} 
 	\begin{split}
-	E[T_{cld,2}]^{[R]} &= \psi E[T_{clt,2}]+E[T_{setup}]+ E[T_{cld,2}]^{[NR]} \\
+	E[T_{cld,2}]^{[R]} &= E[T_{setup}]+ E[T_{cld,2}]^{[NR]} \\
 	E[N_{cld,2}]^{[R]} &= \lambda_{r}E[T_{cld,2}]^{[R]} \\
 	\end{split}
 	\end{equation}
@@ -288,7 +398,7 @@ Then we can determine the following \textit{performance metrics for each subsyst
 	\begin{split}
 	E[T_{clt}] &= \sum_{j=1,2}\frac{E[N_{clt,j}]}{E[N_{clt}]}E[T_{clt,j}] \\
 	E[N_{clt}] &= \sum_{j=1,2}E[N_{clt,j}] \\
-	E[X_{clt}] &= \sum_{j=1,2}\lambda_{clt,j}-\lambda_{p} \\
+	E[X_{clt}] &= \sum_{j=1,2}\lambda_{clt,j}-\lambda_{r} \\
 	\end{split}
 	\end{equation}
 	
@@ -297,7 +407,7 @@ Then we can determine the following \textit{performance metrics for each subsyst
 	\begin{split}
 	E[T_{cld}] &= \sum_{j=1,2}\frac{E[N_{cld,j}]}{E[N_{cld}]}E[T_{cld,j}] \\
 	E[N_{cld}] &= \sum_{j=1,2}E[N_{cld,j}] \\
-	E[X_{cld}] &= \sum_{j=1,2}\lambda_{cld,j}+\lambda_{p} \\
+	E[X_{cld}] &= \sum_{j=1,2}\lambda_{cld,j}+\lambda_{r} \\
 	\end{split}
 	\end{equation}
 \end{itemize}
@@ -346,15 +456,11 @@ Analytical results are presented in Figure~\ref{tbl:evaluation}, along with thei
 We preferred to present analytical and experimental results in a unique common view, in order to provide the reader with an idea on how the simulator approximates analytical results.
 
 
-
-
-
 % %
 % COMPUTATIONAL MODEL
 % %
 \subsection{Computational Model}
 The proposed simulator has been designed following the \textit{next-event simulation} paradigm and has been implemented as a \textit{Python} application. The full open source code is available in a public Github repository \cite{gmarciani-pydes}.
-Representative examples of configuration and outputs are presented in Section~\ref{sec:usage}.
 
 \paragraph{Configuration}
 The simulation parameters can be fully configured with a YAML file loaded when the simulator starts up. In particular, the following parameters can be configured:
@@ -411,10 +517,19 @@ We provide here a short description of the main software classes involved in our
 	
 	\item \textit{RndGen}: instance of a fully-customizable multi-stream Lehmer pseudo-random number generator.
 	
-	\item \textit{Stats}: abstraction encapsulating all metrics involved in the simulation, responsible to make it easy to update metrics during the simulation loop. In particular, each subsystem receives as input a reference to this singleton in order to centralize the management of performance metrics.
+	\item \textit{SimulationMetrics}: abstraction encapsulating all counters and performance metrics involved in the simulation, responsible to make it easy to update metrics during the simulation loop. In particular, each subsystem receives as input a reference to this singleton in order to decentralize and isolate the updates of metrics leveraging the well-know IoC software design pattern.
 	
-	\item \textit{MarkovGen}: utility class to generate and solve the Markov Chain representing the Cloudlet. This class has been used to compute limiting state probabilities and routing probabilities.
+	\item \textit{BatchedMeasure}: an object that represents a measurement with both an instantaneous value and mean, standard deviation and confidence interval leveraging the batch means technique and the confidence interval estimation, as defined in \cite{leemis2006discrete}.
+	
+	\item \textit{WelfordAccumulator}: an object that is able to return in-place updated mean and standard deviation leveraging the \textit{one-pass Welford algorithm}. This object is widely adopted in our software, as it is used to update batch means.
+	
+	\item \textit{Sample}: an object that represents the instantaneous sample of simulation counters and performance metrics. It is used in our simulator to create a snapshot of metrics during the sampling process.
+	
+	\item \textit{AnalyticalSolver}: an object that is able to compute the analytical solution for the target system. In particular, this solver leverages our Markov Chain generator and an efficient symbolic solver for the resolution of flow-balance equations. The calculus of performance metrics is ruled by the same formulas specified in section dedicated to the analytical model.
 \end{itemize}
+
+\paragraph{Correctness}
+The correct behavior of mission critical classes, e.g. pseudo-random generator, batch means and others, has been \textit{unit-tested} with the built-in Python test suite.
 
 
 % %

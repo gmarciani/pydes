@@ -9,10 +9,13 @@ In this section we give an high level description of the target system.
 We consider the environment in Figure~\ref{fig:system-architecture}, which is characterized by:
 
 \begin{itemize}
-	\item  \textbf{workload:} mobile devices send to the system tasks partitioned in two classes.
+	\item  \textbf{workload:} mobile devices send to the system tasks that can be partitioned in two classes.
+	
 	\item \textbf{system:} a two-layers Fog-like system, made of:	
+	
 	\begin{itemize}
 		\item \textbf{Cloudlet:} upfront layer made of one-hop finite resources, having the ability to off-load tasks to the Cloud server, accordingly to an \textit{off-loading policy} based on the occupancy state of the Cloudlet. In particular, the Cloudlet may \textit{forward} incoming tasks to Cloud or \textit{restart} preempted tasks in Cloud with some \textit{overhead}.
+		
 		\item \textbf{Cloud:} backfront layer made of a remote Cloud server with virtually unlimited resources.
 		
 	\end{itemize}

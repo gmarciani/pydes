@@ -1,12 +1,9 @@
-from core.random.rndvar import Variate
 from core.simulation.model.event import SimpleEvent as Event
 from core.simulation.model.event import EventType
 from core.simulation.model.scope import SystemScope
 from core.simulation.model.scope import ActionScope
 from core.simulation.model.scope import TaskScope
-from core.random.rndcmp import RandomComponent
 from core.random.rndvar import exponential
-from sys import maxsize
 from core.utils.logutils import get_logger
 
 

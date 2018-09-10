@@ -2,7 +2,7 @@ general:
 
   mode: "TRANSIENT_ANALYSIS"  # simulation mode
 
-  t_stop: 3600  # the stop time for the simulation (sec) 1hour=3600, 1day=86400, 1week=604800, 1month=2.628e+6 (suggested: 100000)
+  t_stop: 1000  # the stop time for the simulation (sec) 1hour=3600, 1day=86400, 1week=604800, 1month=2.628e+6 (suggested: 100000)
 
   t_sample: 10  # the sampling interval (sec) (suggested: 100)
   confidence: 0.95  # the level of confidence (suggested: 0.95)

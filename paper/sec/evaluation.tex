@@ -82,39 +82,28 @@ The randomness has been assessed by the following tests:
 % PERFORMANCE ANALYSIS
 % %
 \subsection{Performance Analysis}
-Let us now consider the results about the performance recorded during the simulation of the target system.
-In all experiments we considered values stated in Section~\ref{sec:performance-modeling} with a preemption policy based on random selection.
+Let us now consider the experimental results about system performance recorded by our simulator.
+In all experiments we considered values stated in Section~\ref{sec:performance-modeling} with a preemption policy based on \textit{random selection}.
 
 \subsection{Transient Analysis}
 \label{sec:evaluation-transient-analysis}
-First, we conduct a \textit{transient analysis} to evaluate the stationary of the system and to estimate the duration of the transient period.
+First, we conduct a \textit{transient analysis} to evaluate the system stationary in order to (i) prove its convergence to the steady-state and (ii) estimate the duration of the transient period.
 %
 In fact, given a system that converges to stationary, the knowledge of the duration of the transient period is really important to conduct an effective performance evaluation. In particular, it allows the analyst to focus performance evaluation on a system in its stationary conditions.
 %
-In the transient analysis we focus on the global response time and mean population for the whole system.
-%
-We assess the transient period of the aforementioned metrics because their behavior can be considered a good representation of the dependency of the system from the initial state.
+In the transient analysis we focus on the global system throughput as it can be considered a good representation of the dependency of the system from the initial state.
 
 The following results have been produced by considering an ensemble of $5$ replications, where the $i+1$-th replication is initialized with the last seed of the $i$-th replication, so as to achieve the best decoupling between random sequences of different replications.
 
-In Figure \ref{fig:evaluation-transient-analysis-response-time} we show the transient analysis of the global response time in the whole system.
-%
-In Figure \ref{fig:evaluation-transient-analysis-mean-population} we show the transient analysis of the global mean population in the whole system.
+In Figure \ref{fig:evaluation-transient-analysis-throughput} we show the transient analysis of the global throughput in the whole system.
 
-The results show that the system is stationary.
-
-As we could image, each metric exposes a distinct transient period, e.g. the ratio of switched tasks converges faster than the mean population. Thus, we consider $\tau*=8\cdot 10^{4}\;sec$ as the final instant of the transient period, as in $\tau*$ we are sure that all metrics loosed their dependence on starting conditions.
+The results show that the system reaches the steady-state.
+This result is not surprising, because the presence of a stabilizing \textit{infinite-buffer centre}, i.e. the Cloud, largely compensates the possible instability of the \textit{thresholded finite-buffer centre}, i.e. the Cloudlet.
 
 \begin{figure}
-	\includegraphics[width=\columnwidth]{fig/evaluation-transient-analysis-response-time}
-	\caption{Transient analysis for global response time in the whole system.}
-	\label{fig:evaluation-transient-analysis-response-time}
-\end{figure}
-
-\begin{figure}
-	\includegraphics[width=\columnwidth]{fig/evaluation-transient-analysis-mean-population}
-	\caption{Transient analysis for global mean population in the whole system.}
-	\label{fig:evaluation-transient-analysis-mean-population}
+	\includegraphics[width=\columnwidth]{fig/evaluation-transient-analysis-throughput}
+	\caption{Transient analysis for global throughput in the whole system.}
+	\label{fig:evaluation-transient-analysis-throughput}
 \end{figure}
 
 
@@ -128,14 +117,16 @@ Let us now focus on the \textit{performance evaluation}, taking into account the
 	
 	\item \textit{population} both global and classed, both for the system as a whole and for each subsystem;
 	
-	\item \textit{switch ratio} for tasks belonging to the $2^{nd}$ class.
+	\item \textit{interrupted ratio} for tasks belonging to the $2^{nd}$ class.
 	
-	\item \textit{switched response time} for tasks belonging to the $2^{nd}$ class.
+	\item \textit{interrupted response time} for tasks belonging to the $2^{nd}$ class.
 \end{enumerate}
 
 In our experiment we assume $S=N=20$, $k=64$ batches, batch dimension $b=512$ and initial seed $iseed=123456789$.
 %
-Theoretical results have been computed using the formulas presented in Section~\ref{sec:performance-modeling}, assuming $\psi=0.57594265793$.
+Theoretical results have been computed using the formulas presented in Section~\ref{sec:performance-modeling}, assuming the experimentally computed value $E[T_{clt,2,lost}]=1.47445;s.$.
+
+In Table
 
 \begin{figure}
 	\begin{center}
@@ -145,7 +136,19 @@ Theoretical results have been computed using the formulas presented in Section~\
 			\hline
 			$a_{clt,1}$  & $0.978326334857105$ & $0.97911346521$ \\
 			$a_{clt_2}$  & $0.603529764734761$ & $0.60502880468$ \\
-			$r$          & $0.183573830264005$ & $0.15525744148$ \\
+			$r$          & $0.183573830264005$ & $0.15525744148$ \\	
+			\hline
+		\end{tabular}
+	\end{center}
+	\caption{Routing probabilities: comparison between the theoretical result, computed with the analytical model, and the experimental result, computed leveraging our simulator.}
+	\label{tbl:evaluation-routing-probabilities}
+\end{figure}
+
+\begin{figure}
+	\begin{center}
+		\begin{tabular}{|c||c|c|}
+			\hline
+			Measure & Theoretical & Experimental\\
 			\hline
 			$E[N_{clt}]$  & $123456789$ & $123456789\pm 0.00342$ \\
 			$E[N_{clt,1}]$  & $123456789$ & $123456789\pm 0.00342$ \\
@@ -178,12 +181,12 @@ Theoretical results have been computed using the formulas presented in Section~\
 			$X_{sys,2}$  & $123456789$ & $123456789\pm 0.00342$ \\
 			\hline
 			$E[T_{restarted}]$  & $123456789$ & $123456789\pm 0.00342$ \\
-			$E[RestartRatio]$  & $123456789$ & $123456789\pm 0.00342$ \\			
+			$RestartRatio$  & $123456789$ & $123456789\pm 0.00342$ \\			
 			\hline
 		\end{tabular}
 	\end{center}
-	\caption{Evaluation of performance metrics with comparison between analytical results and experimental ones with level of confidence $95\%$.}
-	\label{tbl:evaluation}
+	\caption{Performance metrics: comparison between the theoretical result, computed with the analytical model, and the experimental result with level of confidence $95\%$, computed leveraging our simulator.}
+	\label{tbl:evaluation-performance-metrics}
 \end{figure}
 
 %%
@@ -192,12 +195,12 @@ Theoretical results have been computed using the formulas presented in Section~\
 \subsection{Distribution Analysis}
 \label{sec:evaluation-distribution-analysis}
 In this Section we show the distribution analysis of the Cloudlet global throughput. 
-In particular, we focus on the estimation of Probability Density Function (PDF) and the comparison between theoretical and experimental Cumulative Distribution Function (CDF).
+In particular, we focus on both (i) the Probability Density Function (PDF) estimation leveraging distribution fitting, and (ii) the comparison between theoretical and experimental Cumulative Distribution Function (CDF).
 
 In Figure~\ref{fig:evaluation-distribution-analysis-pdf-throughput-cloudlet-global} and  Figure~\ref{fig:evaluation-distribution-analysis-cdf-throughput-cloudlet-global} we show the PDF estimation and the CDF analysis, respectively, for the global Cloudlet throughput when $S=N=20$, where we adopted the \textit{Freedman-Diaconis Rule} for the binning schema.
 Results show that the best fitting is the \textit{Normal Distribution} with parameters $\mu\approx7.403$ and $\sigma\approx0.364$.
 %
-The Normal behavior here can be considered as a pretty good proof of effectiveness of the batch mean approach. 
+The Normal behavior shown here can be considered as a further good proof of both the system stationary and the effectiveness of the batch means as a tool to study steady-state statistics.
 
 \begin{figure}
 	\includegraphics[width=\columnwidth]{fig/evaluation-distribution-analysis-pdf-throughput-cloudlet-global}

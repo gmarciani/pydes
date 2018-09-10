@@ -151,13 +151,13 @@ class Simulation:
             if show_progress:
                 self.print_progress()
 
-            # If it is time to sample data ...
-            if event.type.act is ActionScope.COMPLETION:
+            # Sample data when a completion event occurs
+            if self.closed_door is False and event.type.act is ActionScope.COMPLETION:
 
                 # Discard batch data collected during the transient period (if configured and not previously done)
                 # This operation can be performed only in PERFORMANCE_ANALYSIS mode,
                 # as TRANSIENT_ANALYSIS mode should never discard transient data.
-                if self.should_discard_transient_data:
+                if self.should_discard_transient_data and self.calendar.get_clock() > self.t_tran:
                     self.metrics.discard_data()
                     self.should_discard_transient_data = False
 
@@ -196,13 +196,6 @@ class Simulation:
         :return: true, if the closed door condition holds; false, otherwise.
         """
         return self.calendar.get_clock() >= self.t_stop
-
-    def should_sample_data(self):
-        """
-        Checks whether it is time to sample data.
-        :return: true, if it is time to sample data; false, otherwise.
-        """
-        return self.calendar.get_clock() > self.t_tran
 
     # ==================================================================================================================
     # REPORT
