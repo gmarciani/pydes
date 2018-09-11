@@ -49,7 +49,7 @@ class SimpleCloudlet:
         self.state = state
 
         # Timing
-        self.t_last_event = 0.0
+        self.t_last_event = {tsk: 0.0 for tsk in TaskScope.concrete()}
 
         # Metrics
         self.metrics = metrics
@@ -79,13 +79,13 @@ class SimpleCloudlet:
 
         # Update metrics
         self.metrics.counters.arrived[SystemScope.CLOUDLET][tsk] += 1
-        self.metrics.counters.population_area[SystemScope.CLOUDLET][tsk] += (t_now - self.t_last_event) * self.state[tsk]
+        self.metrics.counters.population_area[SystemScope.CLOUDLET][tsk] += (t_now - self.t_last_event[tsk]) * self.state[tsk]
 
         # Update state
         self.state[tsk] += 1
 
         # Update timing
-        self.t_last_event = t_now
+        self.t_last_event[tsk] = t_now
 
         return t_completion
 
@@ -113,13 +113,13 @@ class SimpleCloudlet:
         self.metrics.counters.switched[SystemScope.CLOUDLET][tsk] += 1
         self.metrics.counters.switched_service_lost[SystemScope.CLOUDLET][tsk] += t_served
         self.metrics.counters.service[SystemScope.CLOUDLET][tsk] += t_served
-        self.metrics.counters.population_area[SystemScope.CLOUDLET][tsk] += (t_now - self.t_last_event) * self.state[tsk]
+        self.metrics.counters.population_area[SystemScope.CLOUDLET][tsk] += (t_now - self.t_last_event[tsk]) * self.state[tsk]
 
         # Update state
         self.state[tsk] -= 1
 
         # Update timing
-        self.t_last_event = t_now
+        self.t_last_event[tsk] = t_now
 
         return t_completion_to_ignore, t_arrival
 
@@ -144,13 +144,13 @@ class SimpleCloudlet:
         # Update metrics
         self.metrics.counters.completed[SystemScope.CLOUDLET][tsk] += 1
         self.metrics.counters.service[SystemScope.CLOUDLET][tsk] += t_served
-        self.metrics.counters.population_area[SystemScope.CLOUDLET][tsk] += (t_now - self.t_last_event) * self.state[tsk]
+        self.metrics.counters.population_area[SystemScope.CLOUDLET][tsk] += (t_now - self.t_last_event[tsk]) * self.state[tsk]
 
         # Update state
         self.state[tsk] -= 1
 
         # Update timing
-        self.t_last_event = t_now
+        self.t_last_event[tsk] = t_now
 
     # ==================================================================================================================
     # OTHER

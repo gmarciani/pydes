@@ -44,7 +44,7 @@ class SimpleCloud:
         self.state = state
 
         # Timing
-        self.t_last_event = 0.0
+        self.t_last_event = {tsk: 0.0 for tsk in TaskScope.concrete()}
 
         # Metrics
         self.metrics = metrics
@@ -72,13 +72,13 @@ class SimpleCloud:
         self.metrics.counters.arrived[SystemScope.CLOUD][tsk] += 1
         if restart:
             self.metrics.counters.switched[SystemScope.CLOUD][tsk] += 1
-        self.metrics.counters.population_area[SystemScope.CLOUD][tsk] += (t_now - self.t_last_event) * self.state[tsk]
+        self.metrics.counters.population_area[SystemScope.CLOUD][tsk] += (t_now - self.t_last_event[tsk]) * self.state[tsk]
 
         # Update state
         self.state[tsk] += 1
 
         # Update timing
-        self.t_last_event = t_now
+        self.t_last_event[tsk] = t_now
 
         return t_completion
 
@@ -103,13 +103,13 @@ class SimpleCloud:
         if switched:
             self.metrics.counters.switched_completed[SystemScope.CLOUD][tsk] += 1
             self.metrics.counters.switched_service[SystemScope.CLOUD][tsk] += t_served
-        self.metrics.counters.population_area[SystemScope.CLOUD][tsk] += (t_now - self.t_last_event) * self.state[tsk]
+        self.metrics.counters.population_area[SystemScope.CLOUD][tsk] += (t_now - self.t_last_event[tsk]) * self.state[tsk]
 
         # Update state
         self.state[tsk] -= 1
 
         # Update timing
-        self.t_last_event = t_now
+        self.t_last_event[tsk] = t_now
 
     # ==================================================================================================================
     # OTHER

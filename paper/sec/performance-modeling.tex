@@ -281,7 +281,7 @@ r_{clt,2} & = \sum_{s\in S_{clt,3}} \pi_{s} \Big(\frac{\lambda_{2}}{\lambda_{1}+
 
 
 \paragraph{Markov Chain}
-Assuming Poisson arrivals and exponential services, we can determine the Markov Chain whose resolution allows us to compute the routing probabilities shown in Equation~\ref{eqn:routing-probabilities}.
+As the Markovian condition holds true for our system, i.e. Poisson arrivals\footnote{same as Exponential inter-arrivals.} and Exponential services, we can determine the Markov Chain\footnote{If the Markovian condition is not satisfied, Markov Chain solution must be considered only an approximation.} whose resolution allows us to compute the routing probabilities shown in Equation~\ref{eqn:routing-probabilities}.
 
 In Figure~\ref{eqn:analytical-model-markov} we show the Markov Chain with the associated flow balance equations listed in Equation~\ref{eqn:analytical-model-markov}.
 For sake of simplicity, we consider here the simple case with $N=S=2$ in order to (i) give an idea of the system of equations to be solved and (ii) graphically recognize the critical states. In fact, the representation fo the Markov Chain and the associated equations would be inpractical for the case $N=S=20$, due to the combinatorial explosion of the state space.
