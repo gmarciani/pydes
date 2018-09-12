@@ -6,7 +6,6 @@ Results are stored in 'result.csv' and can be visualized running the Matlab scri
 from core.simulation.simulation import Simulation as Simulation
 from core.simulation.model.config import load_configuration
 from core.utils.logutils import ConsoleHandler
-from core.simulation.simulation_mode import SimulationMode
 import os
 import logging
 
@@ -22,8 +21,8 @@ CONFIG_PATH = "performance_analysis.yaml"
 OUTDIR = "out/performance_analysis"
 
 # Parameters
-#THRESHOLDS = range(0, 21, 2)
-THRESHOLDS = [20]
+THRESHOLDS = range(0, 21, 2)
+#THRESHOLDS = [20]
 THRESHOLD_FOR_DISTRIBUTION = 20
 
 
