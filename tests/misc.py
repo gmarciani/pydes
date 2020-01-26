@@ -1,5 +1,5 @@
-from core.random.rndgen import MarcianiMultiStream
-from core.random.rndvar import Variate
+from core.rnd.rndgen import MarcianiMultiStream
+from core.rnd.rndvar import Variate
 from core.simulation.model.scope import TaskScope
 
 rndgen = MarcianiMultiStream()

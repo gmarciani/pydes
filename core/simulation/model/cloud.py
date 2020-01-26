@@ -1,7 +1,7 @@
 from core.simulation.model.event import EventType
 from core.simulation.model.scope import SystemScope
 from core.simulation.model.scope import ActionScope
-from core.random.rndcmp import RandomComponent
+from core.rnd.rndcmp import RandomComponent
 import logging
 
 # Logging
@@ -18,7 +18,7 @@ class SimpleCloud:
     def __init__(self, rndgen, config, state, metrics):
         """
         Create a new Cloud server.
-        :param rndgen: (object) the multi-stream random number generator.
+        :param rndgen: (object) the multi-stream rnd number generator.
         :param config: (dict) the Cloud configuration.
         :param state: (dict) the Cloud state.
         :param metrics: (SimulationMetrics) the simulation metrics.

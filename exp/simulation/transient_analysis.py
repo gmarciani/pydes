@@ -21,7 +21,8 @@ CONFIG_PATH = "transient_analysis.yaml"
 OUTDIR = "out/transient_analysis"
 
 # Parameters
-REPLICATIONS = 5
+#REPLICATIONS = 5
+REPLICATIONS = 2
 
 
 def run(config_path=CONFIG_PATH, replications=REPLICATIONS):

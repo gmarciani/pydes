@@ -3,7 +3,7 @@ from core.simulation.model.event import EventType
 from core.simulation.model.scope import SystemScope
 from core.simulation.model.scope import ActionScope
 from core.simulation.model.scope import TaskScope
-from core.random.rndvar import exponential
+from core.rnd.rndvar import exponential
 from core.utils.logutils import get_logger
 
 
@@ -19,7 +19,7 @@ class ExponentialTaskgen:
     def __init__(self, rndgen, config):
         """
         Create a new tasks generator.
-        :param rndgen: (object) the multi-stream random number generator.
+        :param rndgen: (object) the multi-stream rnd number generator.
         :param config: (dict) the arrival rates configuration.
         """
         # Arrival rates
@@ -39,10 +39,10 @@ class ExponentialTaskgen:
 
     def generate(self, t_clock):
         """
-        Generate a new random arrival.
+        Generate a new rnd arrival.
         :param t_clock: (float) the current time.
         :param tsk: (TaskType) the type of the task. Default: None
-        :return: (SimpleEvent) a new random arrival.
+        :return: (SimpleEvent) a new rnd arrival.
         """
         # Select the type of arrival and the corresponding arrival time
         self.rndgen.stream(self.stream[TaskScope.GLOBAL])
@@ -74,7 +74,7 @@ class ExponentialTaskgen:
 
 
 if __name__ == "__main__":
-    from core.random.rndgen import MarcianiMultiStream
+    from core.rnd.rndgen import MarcianiMultiStream
     from core.simulation.model import config
 
     rndgenerator = MarcianiMultiStream(123456789)

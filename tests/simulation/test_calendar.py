@@ -2,7 +2,7 @@ import unittest
 from core.simulation.model.calendar import NextEventCalendar
 from core.simulation.model.event import SimpleEvent as Event
 from core.simulation.model.event import EventType
-from core.random.rndgen import MarcianiMultiStream
+from core.rnd.rndgen import MarcianiMultiStream
 
 
 class CalendarTest(unittest.TestCase):

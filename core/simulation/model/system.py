@@ -19,7 +19,7 @@ class SimpleCloudletCloudSystem:
     def __init__(self, rndgen, config, metrics):
         """
         Create a new system.
-        :param rndgen: (object) the multi-stream random number generator.
+        :param rndgen: (object) the multi-stream rnd number generator.
         :param config: (dictionary) the System configuration.
         :param metrics: (SimulationMetrics) the simulation metrics.
         """

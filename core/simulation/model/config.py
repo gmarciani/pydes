@@ -2,7 +2,7 @@ import copy
 import yaml
 
 from core.simulation.model.scope import TaskScope
-from core.random.rndvar import Variate
+from core.rnd.rndvar import Variate
 from core.simulation.model.server_selection import SelectionRule
 from core.simulation.simulation_mode import SimulationMode
 
@@ -22,9 +22,9 @@ _default_configuration = {
 
         "t_sample": 1,  # the sampling interval (sec)
         "confidence": 0.95,  # the level of confidence
-        "random": {
-            "generator": "MarcianiMultiStream",  # the class name of the random generator
-            "seed": 123456789  # the initial seed for the random generator
+        "rnd": {
+            "generator": "MarcianiMultiStream",  # the class name of the rnd generator
+            "seed": 123456789  # the initial seed for the rnd generator
         }
     },
 
@@ -130,7 +130,7 @@ def load_configuration(filename, norm=True):
     :return: (Configuration) the configuration.
     """
     with open(filename, "r") as config_file:
-        config = yaml.load(config_file)
+        config = yaml.load(config_file, Loader=yaml.FullLoader)
     if norm:
         normalize(config)
     return config
@@ -152,11 +152,12 @@ def normalize(config):
 
 def _normalize_random_config(entry):
     """
-    Normalize the random entry.
-    :param entry: the random entry.
+    Normalize the rnd entry.
+    :param entry: the rnd entry.
     :return: None
     """
     for tsk in entry.keys():
+        if isinstance(tsk, TaskScope): continue
         entry[tsk]["distribution"] = Variate[entry[tsk]["distribution"]]
         if entry[tsk]["distribution"] is Variate.EXPONENTIAL and "r" in entry[tsk]["parameters"]:
             entry[tsk]["parameters"]["m"] = 1.0 / entry[tsk]["parameters"]["r"]

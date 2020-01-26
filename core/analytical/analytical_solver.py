@@ -2,7 +2,7 @@ from core.analytical.analytical_solution import AnalyticalSolution
 from core.utils.logutils import ConsoleHandler
 from core.simulation.model.scope import TaskScope
 from core.utils.report import SimpleReport as Report
-from core.random.rndvar import Variate
+from core.rnd.rndvar import Variate
 from core.simulation.model.scope import SystemScope
 from core.markov import markovgen
 import logging

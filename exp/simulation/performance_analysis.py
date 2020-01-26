@@ -21,10 +21,11 @@ CONFIG_PATH = "performance_analysis.yaml"
 OUTDIR = "out/performance_analysis"
 
 # Parameters
-THRESHOLDS = range(0, 21, 2)
+#THRESHOLDS = range(0, 21, 2)
+THRESHOLDS = [3]
+THRESHOLD_FOR_DISTRIBUTION = 3
 #THRESHOLDS = [20]
-THRESHOLD_FOR_DISTRIBUTION = 20
-
+#THRESHOLD_FOR_DISTRIBUTION = 20
 
 def run(config_path=CONFIG_PATH):
     """

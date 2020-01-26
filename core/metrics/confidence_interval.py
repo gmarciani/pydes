@@ -1,4 +1,4 @@
-from core.random.rndf import idfStudent
+from core.rnd.rndf import idfStudent
 from math import sqrt
 
 

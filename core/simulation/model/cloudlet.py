@@ -3,8 +3,8 @@ from core.simulation.model.event import EventType
 from core.simulation.model.scope import SystemScope
 from core.simulation.model.scope import ActionScope
 from core.simulation.model.scope import TaskScope
-from core.random.rndcmp import RandomComponent
-from core.random.rndvar import Variate
+from core.rnd.rndcmp import RandomComponent
+from core.rnd.rndvar import Variate
 from core.simulation.model.server_selection import SelectionRule
 import logging
 
@@ -21,7 +21,7 @@ class SimpleCloudlet:
     def __init__(self, rndgen, config, state, metrics):
         """
         Create a new Cloudlet.
-        :param rndgen: (object) the multi-stream random number generator.
+        :param rndgen: (object) the multi-stream rnd number generator.
         :param config: (dict) the Cloudlet configuration.
         :param state: (dict) the Cloudlet state.
         :param metrics: (SimulationMetrics) the simulation metrics.

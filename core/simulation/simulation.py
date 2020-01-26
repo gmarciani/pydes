@@ -1,9 +1,9 @@
-from core.random.rndvar import Variate
+from core.rnd.rndvar import Variate
 from core.simulation.model.system import SimpleCloudletCloudSystem as System
 from core.simulation.model.scope import SystemScope
 from core.simulation.model.scope import TaskScope
 from core.utils.report import SimpleReport as Report
-from core.random import rndgen
+from core.rnd import rndgen
 from core.simulation.model.taskgen import ExponentialTaskgen as Taskgen
 from core.simulation.model.calendar import NextEventCalendar as Calendar
 from core.simulation.model.event import ActionScope

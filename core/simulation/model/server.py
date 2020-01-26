@@ -1,11 +1,11 @@
 from enum import Enum, unique
 
-from core.random.rndcmp import RandomComponent
+from core.rnd.rndcmp import RandomComponent
 from core.simulation.model.event import EventType
 from core.simulation.model.scope import SystemScope
 from core.simulation.model.scope import TaskScope
 from core.simulation.model.scope import ActionScope
-from core.random.rndvar import Variate
+from core.rnd.rndvar import Variate
 from core.utils.logutils import get_logger
 from copy import deepcopy
 
@@ -31,7 +31,7 @@ class SimpleServer:
     def __init__(self, rndservice, idx):
         """
         Create a new Server.
-        :param rndservice: (RandomComponent) random component for the service process.
+        :param rndservice: (RandomComponent) rnd component for the service process.
         :param idx: (int) the server index.
         """
         # Server Index (used in randomization)

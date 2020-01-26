@@ -8,7 +8,7 @@ class AccumulatorTest(unittest.TestCase):
 
     def test_mean_sdev_int_array(self):
         """
-        Test the calculation of mean and standard deviation, using an array of random integer values.
+        Test the calculation of mean and standard deviation, using an array of rnd integer values.
         :return: None
         """
 

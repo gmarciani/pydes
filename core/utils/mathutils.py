@@ -3,7 +3,7 @@ Utilities for math and statistics.
 """
 
 import math
-from core.random import rndf
+from core.rnd import rndf
 
 
 def gcd(a, b):

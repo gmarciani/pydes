@@ -50,10 +50,10 @@ cloud:
 
 ## Experiments
 
-In package 'experiments/random' you can find experiments about multi-stream Lehmer pseudo-random generator.
-In package 'experiments/simulation' you can find experiments about the simulated system.
+In package 'exp/random' you can find experiments about multi-stream Lehmer pseudo-random generator.
+In package 'exp/simulation' you can find experiments about the simulated system.
 
-* random/modulus:
+Run the experiments and visualize results through the MATLAB Live Script `pmcsn.mlx`.
 
 
 

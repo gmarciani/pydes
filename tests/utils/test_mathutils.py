@@ -1,6 +1,6 @@
 import unittest
 from core.utils import mathutils
-from core.random import rndf
+from core.rnd import rndf
 
 
 class MathUtilsTest(unittest.TestCase):

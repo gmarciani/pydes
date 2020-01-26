@@ -9,7 +9,7 @@ class BatchMeansTest(unittest.TestCase):
 
     def test_int(self):
         """
-        Test the calculation of mean and standard deviation leveraging batch means on random integer samples.
+        Test the calculation of mean and standard deviation leveraging batch means on rnd integer samples.
         :return: None
         """
 
