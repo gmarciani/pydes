@@ -27,6 +27,7 @@ system:
     n_servers: 20  # the number of servers
     threshold: 20  # the occupancy threshold
     server_selection: "RANDOM"  # the server-selection rule
+    algorithm: "ALGORITHM_2"  # the controller algorithm
     service:
       TASK_1:  # the service process for tasks of type 1 (exponential with rate 0.45 tasks/sec)
         distribution: "EXPONENTIAL"

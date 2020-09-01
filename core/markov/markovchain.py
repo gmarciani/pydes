@@ -1,3 +1,8 @@
+from graphviz import Digraph
+import itertools
+import operator
+
+
 class MarkovState:
     def __init__(self, value):
         self.value = value
@@ -23,6 +28,14 @@ class MarkovState:
         if not isinstance(other, MarkovState):
             return False
         return self.value == other.value
+
+    def __lt__(self, other):
+        if not isinstance(other, MarkovState):
+            return False
+        return self.value < other.value
+
+    def __getitem__(self, item):
+        return self.value
 
 
 class MarkovLink:
@@ -87,6 +100,26 @@ class MarkovChain:
                 row.append(link_value)
             tmatrix.append(row)
         return tmatrix, states
+
+    def render_graph(self, filename):
+        graph = Digraph()
+        graph.attr(rankdir="LR")
+
+        it = itertools.groupby(sorted(self.states), operator.itemgetter(0))
+        groups_of_states = [list(s) for _,s in it]
+
+        print(groups_of_states)
+
+        for group_of_states in groups_of_states:
+            with graph.subgraph() as subgraph:
+                #subgraph.attr(rank="min")
+                for state in group_of_states:
+                    subgraph.node(str(state))
+
+        for link in self.links:
+            graph.edge(str(link.tail), str(link.head), str(link.value))
+
+        graph.render(filename=filename)
 
     def __str__(self):
         return "States: {}\nLinks: {}\n".format(self.states, self.links)

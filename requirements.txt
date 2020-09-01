@@ -1,2 +1,7 @@
 numpy
+sympy
+graphviz
 pyyaml
+click
+pyfiglet
+colored

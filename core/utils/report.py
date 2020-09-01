@@ -8,7 +8,7 @@ from core.utils.file_utils import create_dir_tree, empty_file
 from core.utils.csv_utils import save_csv
 
 
-PREC = 5
+PREC = 10
 WIDTH = 63
 PART = 4/6
 

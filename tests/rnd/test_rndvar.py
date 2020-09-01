@@ -1,6 +1,5 @@
 import unittest
 from core.rnd.rndgen import MarcianiMultiStream
-from core.rnd.rndcmp import RandomComponent
 from core.rnd.rndvar import Variate
 from statistics import mean, variance
 from math import exp
@@ -14,11 +13,12 @@ class RndvarTest(unittest.TestCase):
         :return: None.
         """
         self.rndgen = MarcianiMultiStream()
-        self.samsize = 10000
+        self.samsize = 50000
         self.err = 0.05
         self.makeAssertion = False
 
         self.varparams = {
+            Variate.DETERMINISTIC: dict(v=0.9),
             Variate.BERNOULLI: dict(p=0.8),
             Variate.BINOMIAL: dict(n=5, p=0.8),
             Variate.CHISQUARE: dict(n=5),
@@ -35,6 +35,7 @@ class RndvarTest(unittest.TestCase):
         }
 
         self.check_mean = {
+            Variate.DETERMINISTIC: lambda v: v,
             Variate.BERNOULLI: lambda p: p,
             Variate.BINOMIAL: lambda n, p: n * p,
             Variate.CHISQUARE: lambda n: n,
@@ -51,6 +52,7 @@ class RndvarTest(unittest.TestCase):
         }
 
         self.check_variance = {
+            Variate.DETERMINISTIC: lambda v: 0,
             Variate.BERNOULLI: lambda p: p * (1.0 - p),
             Variate.BINOMIAL: lambda n, p: n * p * (1.0 - p),
             Variate.CHISQUARE: lambda n: 2.0 * n,
@@ -75,7 +77,7 @@ class RndvarTest(unittest.TestCase):
             params = self.varparams[variate]
             sample = list()
             for i in range(self.samsize):
-                rndvalue = Variate[variate.name].vargen.generate(u=self.rndgen, **params)
+                rndvalue = Variate[variate.name].generator.generate(u=self.rndgen, **params)
                 sample.append(rndvalue)
 
             expected_mean = self.check_mean[variate](**params)
@@ -97,6 +99,7 @@ class RndvarTest(unittest.TestCase):
                                      self.err * expected_variance,
                                      "Variance error for variate {}: expected {} got {}"
                                      .format(variate.name, expected_variance, actual_variance))
+
 
 if __name__ == "__main__":
     unittest.main()

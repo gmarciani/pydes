@@ -5,6 +5,7 @@ from core.simulation.model.scope import TaskScope
 from core.rnd.rndvar import Variate
 from core.simulation.model.server_selection import SelectionRule
 from core.simulation.simulation_mode import SimulationMode
+from core.simulation.model.controller import ControllerAlgorithm
 
 
 _default_configuration = {
@@ -48,6 +49,7 @@ _default_configuration = {
             "n_servers": 20,  # the number of servers
             "threshold": 20,  # the occupancy threshold
             "server_selection": "ORDER",  # the server-selection rule
+            "controller_algorithm": "ALGORITHM_2",
             "service": {
                 "TASK_1": {
                     "distribution": "EXPONENTIAL",
@@ -98,7 +100,7 @@ _default_configuration = {
 }
 
 
-def get_default_configuration(simulation_mode):
+def get_default_configuration(simulation_mode=SimulationMode.PERFORMANCE_ANALYSIS):
     """
     Get a copy of default configuration.
     :param simulation_mode (SimulationMode) the simulation mode of execution.
@@ -109,6 +111,7 @@ def get_default_configuration(simulation_mode):
     # Add configuration specific to transient analysis
     if simulation_mode is SimulationMode.TRANSIENT_ANALYSIS:
         config["general"]["mode"] = "TRANSIENT_ANALYSIS"
+        config["general"]["replications"] = 5
         config["general"]["t_stop"] = 3600
 
     # Add configuration specific to performance analysis
@@ -127,6 +130,7 @@ def load_configuration(filename, norm=True):
     """
     Load the configuration from a file.
     :param filename: (string) the file name.
+    :param norm: (bool) if True, configuration is normalized.
     :return: (Configuration) the configuration.
     """
     with open(filename, "r") as config_file:
@@ -148,6 +152,7 @@ def normalize(config):
     _normalize_random_config(config["system"]["cloud"]["service"])
     _normalize_random_config(config["system"]["cloud"]["setup"])
     config["system"]["cloudlet"]["server_selection"] = SelectionRule[config["system"]["cloudlet"]["server_selection"]]
+    config["system"]["cloudlet"]["controller_algorithm"] = ControllerAlgorithm[config["system"]["cloudlet"]["controller_algorithm"]]
 
 
 def _normalize_random_config(entry):
@@ -156,7 +161,7 @@ def _normalize_random_config(entry):
     :param entry: the rnd entry.
     :return: None
     """
-    for tsk in entry.keys():
+    for tsk in list(entry):
         if isinstance(tsk, TaskScope): continue
         entry[tsk]["distribution"] = Variate[entry[tsk]["distribution"]]
         if entry[tsk]["distribution"] is Variate.EXPONENTIAL and "r" in entry[tsk]["parameters"]:

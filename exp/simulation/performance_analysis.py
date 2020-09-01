@@ -5,60 +5,49 @@ Results are stored in 'result.csv' and can be visualized running the Matlab scri
 
 from core.simulation.simulation import Simulation as Simulation
 from core.simulation.model.config import load_configuration
-from core.utils.logutils import ConsoleHandler
+from core.utils.dictutils import merge
 import os
 import logging
 
 
 # Configure logger
-logging.basicConfig(level=logging.INFO, handlers=[ConsoleHandler(logging.INFO)])
 logger = logging.getLogger(__name__)
 
 # Configuration
-CONFIG_PATH = "performance_analysis.yaml"
+DEFAULT_CONFIG_PATH = "performance_analysis.yaml"
 
 # Results
-OUTDIR = "out/performance_analysis"
+DEFAULT_OUTDIR = "out/performance_analysis"
 
 # Parameters
-#THRESHOLDS = range(0, 21, 2)
-THRESHOLDS = [3]
-THRESHOLD_FOR_DISTRIBUTION = 3
-#THRESHOLDS = [20]
-#THRESHOLD_FOR_DISTRIBUTION = 20
+DEFAULT_PARAMETERS = {}
 
-def run(config_path=CONFIG_PATH):
+
+def run(config_path=DEFAULT_CONFIG_PATH, outdir=DEFAULT_OUTDIR, parameters=DEFAULT_PARAMETERS):
     """
     Execute the experiment.
     :param config_path: (string) the path of the configuration file.
-    if false, launches a performance analysis for the given threshold.
+    :param outdir: (string) the path of the output directory.
+    :param parameters: (dict) parameters to overwrite.
     :return: None
     """
-    config = load_configuration(config_path)
 
-    simulation_counter = 0
-    simulation_max = len(THRESHOLDS)
+    config = merge(load_configuration(config_path), parameters)
 
-    logger.info("Launching performance analysis with t_tran={}, batches={}, batchdim={}, thresholds={}".format(
-        config["general"]["t_tran"],
-        config["general"]["batches"],
-        config["general"]["batchdim"],
-        THRESHOLDS
-    ))
+    logger.info("Launching performance analysis with configuration:\n{}".format(config))
 
-    for threshold in THRESHOLDS:
-        simulation_counter += 1
-        config["system"]["cloudlet"]["threshold"] = threshold
-        logger.info("Simulation {}/{} with threshold {}".format(simulation_counter, simulation_max, threshold))
-        outdir = "{}/{}".format(OUTDIR, threshold) if threshold == THRESHOLD_FOR_DISTRIBUTION else None
-        simulation = Simulation(config, name="SIMULATION-THRESHOLD-{}".format(threshold))
-        simulation.run(outdir=outdir, show_progress=True)
-        reportfilecsv = os.path.join(OUTDIR, "result.csv")
-        reportfiletxt = os.path.join(OUTDIR, "result.txt")
-        report = simulation.generate_report()
-        report.save_txt(reportfiletxt, append=True, empty=(simulation_counter == 1))
-        report.save_csv(reportfilecsv, append=True, empty=(simulation_counter == 1))
+    simulation = Simulation(config)
+    simulation.run(outdir=outdir, show_progress=True)
+    reportfilecsv = os.path.join(outdir, "result.csv")
+    reportfiletxt = os.path.join(outdir, "result.txt")
+    report = simulation.generate_report()
+    report.save_txt(reportfiletxt, append=False, empty=True)
+    report.save_csv(reportfilecsv, append=False, empty=True)
 
 
 if __name__ == "__main__":
-    run()
+    config_path = DEFAULT_CONFIG_PATH
+    outdir = DEFAULT_OUTDIR
+    parameters = DEFAULT_PARAMETERS
+
+    run(config_path, outdir, parameters)

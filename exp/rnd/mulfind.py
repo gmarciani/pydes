@@ -1,16 +1,11 @@
 """
 EXPERIMENT
 
-Find suitable FP, MC, FP/MC multipliers for a multi-stream Lehmer pseudo-rnd generator.
+Find suitable FP, MC, FP/MC multipliers for a multi-stream Lehmer pseudo-random generator.
 Input: the modulus, should be prime.
-Output: FP, MC, FP/MC multipliers and the best FP/MC multiplier, if exists.
+Output: FP, MC, FP/MC multipliers and the smallest/largest FP/MC multiplier, if exists.
 
-Results (largest FP/MC multiplier):
-    * 127 (8 bit modulus): 14
-    * 32191 (16 bit modulus): 16095
-    * 2147483647 (32 bit modulus):
-
-Notes: results are stored in folder 'out'.
+Notes: results are stored in folder 'out/mulfind'.
 """
 from core.rnd.inspection import multiplier_check
 from core.utils.report import SimpleReport
@@ -25,11 +20,10 @@ logger = get_logger(__name__)
 
 # Parameters (Default)
 DEFAULT_MODULUS = 2147483647
-DEFAULT_MULTIPLIER = 50812
 DEFAULT_OUTDIR = "out/mulfind"
 
 
-def experiment(modulus, outdir=DEFAULT_OUTDIR):
+def run(modulus, outdir=DEFAULT_OUTDIR):
 
     filename = path.join(outdir, "mod{}".format(modulus))
 
@@ -45,9 +39,9 @@ def experiment(modulus, outdir=DEFAULT_OUTDIR):
         if candidate in mc_multipliers:
             fpmc_multipliers.append(candidate)
 
-    logger.info("Computing largest/smallest FP/MC Multipliers for Modulus {}".format(modulus))
-    largest_fpmc_multiplier = max(fpmc_multipliers, default=None)
+    logger.info("Computing smallest/largest FP/MC Multipliers for Modulus {}".format(modulus))
     smallest_fpmc_multiplier = min(fpmc_multipliers, default=None)
+    largest_fpmc_multiplier = max(fpmc_multipliers, default=None)
 
     # Save raw data
     save_list_of_numbers(filename + "_mc.txt", mc_multipliers)
@@ -75,4 +69,4 @@ if __name__ == "__main__":
     moduli = [401, 2147483647]
 
     for modulus in moduli:
-        experiment(modulus=modulus, outdir=DEFAULT_OUTDIR)
+        run(modulus=modulus, outdir=DEFAULT_OUTDIR)

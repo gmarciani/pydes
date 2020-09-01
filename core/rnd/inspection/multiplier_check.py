@@ -39,7 +39,7 @@ def get_fp_multipliers(modulus):
         print_progress(i, modulus)
 
     if first_fpm is not None:
-        if first_fpm is 1:
+        if first_fpm == 1:
             fp_multipliers.append(first_fpm)
         generated_fpm = generate_fp_multipliers(first_fpm, modulus)
         fp_multipliers.extend(generated_fpm)

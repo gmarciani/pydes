@@ -11,6 +11,8 @@ from core.utils.guiutils import print_progress
 from core.metrics.simulation_metrics import SimulationMetrics
 from core.utils.file_utils import empty_file
 from core.simulation.simulation_mode import SimulationMode
+from core.simulation.model.controller import ControllerAlgorithm
+from math import floor
 
 from sys import maxsize as INFINITE
 import os
@@ -38,7 +40,7 @@ class Simulation:
 
         # Configuration - Transient Analysis
         if self.mode is SimulationMode.TRANSIENT_ANALYSIS:
-            self.t_stop = config["general"]["t_stop"]
+            self.t_stop = config_general["t_stop"]
             self.t_tran = 0
             self.batches = INFINITE
             self.batchdim = 1
@@ -50,7 +52,7 @@ class Simulation:
         # Configuration - Performance Analysis
         elif self.mode is SimulationMode.PERFORMANCE_ANALYSIS:
             self.t_stop = INFINITE
-            self.t_tran = config["general"]["t_tran"]
+            self.t_tran = config_general["t_tran"]
             self.batches = config_general["batches"]
             self.batchdim = config_general["batchdim"]
             self.closed_door_condition = lambda: self.closed_door_condition_performance_analysis()
@@ -62,15 +64,12 @@ class Simulation:
         else:
             raise RuntimeError("The current version supports only TRANSIENT_ANALYSIS and PERFORMANCE_ANALYSIS")
 
-        # Configuration - Sampling
-        self.t_sample = config["general"]["t_sample"]
-        self.confidence = config_general["confidence"]
-
         # Configuration - Randomization
         self.rndgen = getattr(rndgen, config_general["random"]["generator"])(config_general["random"]["seed"])
 
         # The simulation metrics
         self.metrics = SimulationMetrics(self.batchdim)
+        self.confidence = config_general["confidence"]
 
         # Configuration - Tasks
         # Checks that the arrival process is Markovian (currently, the only one supported)
@@ -92,6 +91,8 @@ class Simulation:
         self.calendar = Calendar(t_clock=0.0)
 
         # Sampling management
+        self.sampling = True if "t_sample" in config_general else False
+        self.t_sample = config_general.get("t_sample", None)
         self.t_last_sample = 0.0
         self.sampling_file = None
 
@@ -107,11 +108,12 @@ class Simulation:
         Run the simulation.
         :param outdir (string) the directory for output files (Default: None)
         :param show_progress (bool) if True, print the simulation real time progress bar.
+        :param sampling (bool) if True, save samples into a dedicated file. (Default:False)
         :return: None
         """
 
-        # Prepare the sampling file
-        if outdir is not None:
+        # Initialize sampling
+        if self.sampling is True:
             self.sampling_file = os.path.join(outdir, "result.sampling.csv")
             empty_file(self.sampling_file)
 
@@ -144,30 +146,23 @@ class Simulation:
 
             # If the last event was an arrival and the closed-door condition does not hold, schedule a new arrival
             # Notice that, impossible events are automatically ignored by the calendar
-            if event.type.act is ActionScope.ARRIVAL and not self.closed_door:
+            if event.type.act is ActionScope.ARRIVAL and self.closed_door is False:
                 self.calendar.schedule(self.taskgen.generate(self.calendar.get_clock()))
 
             # Simulation progress
             if show_progress:
                 self.print_progress()
 
-            # Sample data when a completion event occurs
-            if self.closed_door is False and event.type.act is ActionScope.COMPLETION:
+            # Discard batch data collected during the transient period, if configured
+            if self.discard_transient_data_condition():
+                self.metrics.discard_data()
+                self.should_discard_transient_data = False
 
-                # Discard batch data collected during the transient period (if configured and not previously done)
-                # This operation can be performed only in PERFORMANCE_ANALYSIS mode,
-                # as TRANSIENT_ANALYSIS mode should never discard transient data.
-                if self.should_discard_transient_data and self.calendar.get_clock() > self.t_tran:
-                    self.metrics.discard_data()
-                    self.should_discard_transient_data = False
-
+            # Sampling
+            if self.sampling_condition(event):
                 sample = self.metrics.sampling(self.calendar.get_clock())
-
-                # Write sample on sample file, if specified.
-                # This operation can be perfoemed only in TRANSIENT_ANALYSIS mode,
-                # as only in this mode we are interested in instantaneous sampling.
-                if self.sampling_file is not None:
-                    sample.save_csv(self.sampling_file, append=True)
+                sample.save_csv(self.sampling_file, append=True)
+                self.t_last_sample = sample.time
 
     # ==================================================================================================================
     # CONDITIONS
@@ -183,7 +178,7 @@ class Simulation:
 
     def closed_door_condition_performance_analysis(self):
         """
-        Checks whether the closed door condition holds true (PERFORMANCE_ANALYSYS).
+        Checks whether the closed door condition holds true (PERFORMANCE_ANALYSIS).
         The closed door condition holds true if the desired number of batches have been collected
         :return: true, if the closed door condition holds; false, otherwise.
         """
@@ -196,6 +191,27 @@ class Simulation:
         :return: true, if the closed door condition holds; false, otherwise.
         """
         return self.calendar.get_clock() >= self.t_stop
+
+    def discard_transient_data_condition(self):
+        """
+        Checks whether the discard transient data condition holds true.
+        The discard transient data condition holds true if it is enabled and the clock time passed the transient time.
+        :return: true, if the discard transient data condition holds; false, otherwise.
+        """
+        return self.should_discard_transient_data and self.calendar.get_clock() > self.t_tran
+
+    def sampling_condition(self, event):
+        """
+        Checks whether the sampling condition holds true.
+        The sampling condition holds true if sampling is enabled it is enabled and the clock time passed the transient time.
+        :return: true, if the discard transient data condition holds; false, otherwise.
+        """
+        t_clock_rounded = floor(self.calendar.get_clock())
+        t_last_sample_rounded = floor(self.t_last_sample)
+        return self.sampling is True and \
+               event.type.act is ActionScope.COMPLETION and \
+               t_clock_rounded % self.t_sample == 0 and \
+               t_clock_rounded != t_last_sample_rounded
 
     # ==================================================================================================================
     # REPORT
@@ -238,7 +254,9 @@ class Simulation:
 
         # Report - System/Cloudlet
         r.add("system/cloudlet", "n_servers", self.system.cloudlet.n_servers)
-        r.add("system/cloudlet", "threshold", self.system.cloudlet.threshold)
+        r.add("system/cloudlet", "controller_algorithm", self.system.cloudlet.controller.controller_algorithm)
+        if self.system.cloudlet.controller.controller_algorithm is ControllerAlgorithm.ALGORITHM_2:
+            r.add("system/cloudlet", "threshold", self.system.cloudlet.threshold)
         for tsk in TaskScope.concrete():
             r.add("system/cloudlet", "service_{}_dist".format(tsk.name.lower()), self.system.cloudlet.rndservice.var[tsk].name)
             if self.system.cloudlet.rndservice.var[tsk] is Variate.EXPONENTIAL:

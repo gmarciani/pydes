@@ -2,6 +2,7 @@ general:
 
   mode: "TRANSIENT_ANALYSIS"  # simulation mode
 
+  replications: 5  # number of replications (suggested: 5)
   t_stop: 1000  # the stop time for the simulation (sec) 1hour=3600, 1day=86400, 1week=604800, 1month=2.628e+6 (suggested: 100000)
 
   t_sample: 10  # the sampling interval (sec) (suggested: 100)
@@ -24,7 +25,8 @@ system:
   cloudlet:
     n_servers: 20  # the number of servers
     threshold: 20  # the occupancy threshold
-    server_selection: "ORDER"  # the server-selection rule
+    server_selection: "RANDOM"  # the server-selection rule
+    algorithm: "ALGORITHM_2"  # the controller algorithm
     service:
       TASK_1:  # the service process for tasks of type 1 (exponential with rate 0.45 tasks/sec)
         distribution: "EXPONENTIAL"

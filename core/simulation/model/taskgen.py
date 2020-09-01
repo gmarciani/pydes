@@ -83,14 +83,18 @@ if __name__ == "__main__":
     taskgen = ExponentialTaskgen(rndgenerator, configuration["arrival"])
 
     t_clock = 0
+    t_stop = 100000
 
-    while t_clock < 10000:
+    while t_clock < t_stop:
         event = taskgen.generate(t_clock)
         t_clock = event.time
 
     rate_task_1 = taskgen.rates[TaskScope.TASK_1]
     rate_task_2 = taskgen.rates[TaskScope.TASK_2]
     rate_total = rate_task_1 + rate_task_2
+
+    probability_task_1 = rate_task_1 / rate_total
+    probability_task_2 = rate_task_2 / rate_total
 
     generated_task_1 = taskgen.generated[TaskScope.TASK_1]
     generated_task_2 = taskgen.generated[TaskScope.TASK_2]
@@ -99,11 +103,17 @@ if __name__ == "__main__":
     ratio_generated_tsk_1 = generated_task_1 / generated_total
     ratio_generated_tsk_2 = generated_task_2 / generated_total
 
-    ratio_rate_tsk_1 = rate_task_1 / rate_total
-    ratio_rate_tsk_2 = rate_task_2 / rate_total
+    generation_rate_tsk_1 = generated_task_1 / t_stop
+    generation_rate_tsk_2 = generated_task_2 / t_stop
 
-    print("ratio_rate_tsk_1: ", ratio_rate_tsk_1)
+    print("rate_task_1: ", rate_task_1)
+    print("rate_task_2: ", rate_task_2)
+    print("rate_total: ", rate_total)
+
+    print("probability_task_1: ", probability_task_1)
     print("ratio_generated_tsk_1: ", ratio_generated_tsk_1)
+    print("generation_rate_tsk_1: ", generation_rate_tsk_1)
 
-    print("ratio_rate_tsk_2: ", ratio_rate_tsk_2)
+    print("probability_task_2: ", probability_task_2)
     print("ratio_generated_tsk_2: ", ratio_generated_tsk_2)
+    print("generation_rate_tsk_2: ", generation_rate_tsk_2)

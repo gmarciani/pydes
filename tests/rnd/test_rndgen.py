@@ -1,35 +1,44 @@
 import unittest
-from core.rnd.rndgen import MarcianiMultiStream
+from core.rnd.rndgen import MarcianiSingleStream, MarcianiMultiStream
 
 
 class RndgenTest(unittest.TestCase):
 
-    def test_rnd_32bit(self):
+    def test_rnd_single_stream(self):
         """
-        Verify the correctness of the Lehmer rnd nunber generator.
+        Verify the correctness of the Lehmer rnd number generator: MarcianiSingleStream
         :return: None
         """
+        MODULUS = 2147483647
+        MULTIPLIER = 48271
+        SEED = 1
+
         CHECK_VALUE = 399268537
         CHECK_ITERS = 10000
-        JUMPER = 22925
 
-        ok = False
-
-        generator = MarcianiMultiStream(1)
-
-        #rndgen.select_stream(0)
-        #rndgen.put_seed(1)
-        for i in range(0, CHECK_ITERS):
+        generator = MarcianiSingleStream(iseed=SEED)
+        for _ in range(0, CHECK_ITERS):
             generator.rnd()
-        x = generator.get_seed()
-        ok = (x == CHECK_VALUE)
+        if generator.get_seed() != CHECK_VALUE:
+            raise RuntimeError("{} is not correct!".format(generator.__class__.__name__))
 
-        generator.stream(1)
-        generator.plant_seeds(1)
-        x = generator.get_seed()
-        ok = (ok is True) and (x == JUMPER)
+    def test_rnd_multi_stream(self):
+        """
+        Verify the correctness of the Lehmer rnd number generator: MarcianiMultiStream
+        :return: None
+        """
+        MODULUS = 2147483647
+        MULTIPLIER = 48271
+        SEED = 1
 
-        self.assertTrue(ok, "The implementation of rndgen (32bit) is not correct.")
+        CHECK_VALUE = 399268537
+        CHECK_ITERS = 10000
+
+        generator = MarcianiMultiStream(iseed=SEED)
+        for _ in range(0, CHECK_ITERS):
+            generator.rnd()
+        if generator.get_seed() != CHECK_VALUE:
+            raise RuntimeError("{} is not correct!".format(generator.__class__.__name__))
 
 
 if __name__ == "__main__":

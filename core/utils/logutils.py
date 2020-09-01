@@ -6,7 +6,7 @@ import logging
 import sys
 
 
-FORMATTER = logging.Formatter("%(levelname)6s: %(message)s")
+FORMATTER = logging.Formatter("%(asctime)-15s [%(levelname)s] %(message)s")
 LEVEL = logging.INFO
 
 
@@ -51,3 +51,7 @@ def get_logger(name):
     """
     logging.basicConfig(level=LEVEL, handlers=[ConsoleHandler(LEVEL, FORMATTER)])
     return logging.getLogger(name)
+
+
+def set_log_level(logger, level):
+    logger.setLevel(level)

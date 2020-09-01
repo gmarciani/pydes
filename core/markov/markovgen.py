@@ -94,7 +94,7 @@ def generate_equations(MC):
 
 def generate_sympy_equations(eqns):
     """
-    Generate sympy flow equations from the MArkov chain.
+    Generate sympy flow equations from the Markov chain.
     :param M: (MarkovChain) the Markov Chain.
     :return: the list of equations
     """
@@ -212,8 +212,8 @@ def compute_states_clt_3(states, clt_n_servers, clt_threshold):
 
 
 if __name__ == "__main__":
-    N = 2
-    S = 2
+    N = 3
+    S = 3
     l1 = 1
     l2 = 3
     m1 = 2
@@ -224,3 +224,4 @@ if __name__ == "__main__":
     M, S = MC.transition_matrix()
     print(matrixs(M))
     print(S)
+    MC.render_graph("out")

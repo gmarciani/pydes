@@ -4,7 +4,7 @@ EXPERIMENT
 Extremes Test of Randomness.
 
 Input: 
-    * the multi-stream pseudo-rnd number generator, characterized by its modulus and multiplier.
+    * the multi-stream pseudo-random number generator, characterized by its modulus and multiplier.
     * the sample size (should be >= 10 * bins).
     * the number of bins (should be >= 1000).
     * the power (should be >= 2).
@@ -12,12 +12,7 @@ Input:
 
 Output: the extreme behaviour of the generator for each of its stream.
 
-Results:
-    * (2147483647, 16807): not good
-    * (2147483647, 48271): good
-    * (2147483647, 50812): good
-
-Notes: results are stored in folder 'out' and can be visualized by running the Matlab script 'extremes.m'.
+Notes: results are stored in folder 'out/extremes'.
 """
 from core.rnd.rndgen import MarcianiMultiStream
 from core.rnd.randomness import extremes as test
@@ -30,7 +25,11 @@ from core.utils.csv_utils import save_csv
 logger = get_logger(__name__)
 
 # Parameters (Default)
-DEFAULT_GENERATOR = MarcianiMultiStream()
+DEFAULT_MODULUS = 2147483647
+DEFAULT_MULTIPLIER = 50812
+DEFAULT_STREAMS = 256
+DEFAULT_JUMPER = 29872
+DEFAULT_GENERATOR = MarcianiMultiStream(modulus=DEFAULT_MODULUS, multiplier=DEFAULT_MULTIPLIER, jumper=DEFAULT_JUMPER, streams=DEFAULT_STREAMS)
 DEFAULT_SAMSIZE = 10000  # >=  10*BINS
 DEFAULT_BINS = 1000  # >= 1000
 DEFAULT_D = 5  # >= 2
@@ -38,14 +37,14 @@ DEFAULT_CONFIDENCE = 0.95  # >= 0.95
 DEFAULT_OUTDIR = "out/extremes"
 
 
-def experiment(g, samsize, bins, confidence, d, outdir):
+def run(g, samsize, bins, confidence, d, outdir):
 
     logger.info(
         "Extremes Test for Modulus {} Multiplier {} Streams {} Jumper {} Bins {} Samsize {} D {} Confidence {}"
         .format(g.get_modulus(), g.get_multiplier(), g.get_nstreams(), g.get_jumper(), bins, samsize, d, confidence))
 
-    filename = path.join(outdir, "mod{}_mul{}"
-                         .format(g.get_modulus(), g.get_multiplier(), g.get_nstreams(), g.get_jumper()))
+    filename = path.join(outdir, "mod{}_mul{}_str{}"
+                         .format(g.get_modulus(), g.get_multiplier(), g.get_nstreams()))
 
     # Statistics: [(stream_1, chi_1),(stream_2,chi_2),...,(stream_n,chi_n)]
     data = test.statistics(g, samsize, bins, d)
@@ -68,6 +67,7 @@ def experiment(g, samsize, bins, confidence, d, outdir):
     r.add("Generator", "Streams", g.get_nstreams())
     r.add("Generator", "Modulus", g.get_modulus())
     r.add("Generator", "Multiplier", g.get_multiplier())
+    r.add("Generator", "Jumper", g.get_jumper())
     r.add("Generator", "Seed", g.get_initial_seed())
     r.add("Test Parameters", "Sample Size", samsize)
     r.add("Test Parameters", "Bins", bins)
@@ -105,5 +105,5 @@ if __name__ == "__main__":
     for i in range(len(multipliers)):
         multiplier = multipliers[i]
         jumper = jumpers[i]
-        generator = MarcianiMultiStream(modulus=modulus, multiplier=multiplier, jumper=jumper, streams=256)
-        experiment(generator, samsize, bins, confidence, d, DEFAULT_OUTDIR)
+        generator = MarcianiMultiStream(modulus=modulus, multiplier=multiplier, jumper=jumper, streams=streams)
+        run(generator, samsize, bins, confidence, d, DEFAULT_OUTDIR)

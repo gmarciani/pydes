@@ -1,0 +1,58 @@
+general:
+
+  mode: "PERFORMANCE_ANALYSIS" # simulation mode
+
+  batches: 64  # the number of batches (suggested: 64)
+  batchdim: 128  # the batch dimension (suggested: 512)
+  t_tran: 3000  # the transient time (sec) (suggested: 1000)
+
+  t_sample: 10  # the sampling interval (sec) (suggested: 100)
+  confidence: 0.95  # the level of confidence (suggested: 0.95)
+  random:
+    generator: "MarcianiMultiStream"  # the class name of the rnd generator
+    seed: 123456789  # the initial seed for the rnd generator
+
+arrival:
+  TASK_1:  # the arrival process for tasks of type 1 (exponential with rate 6 tasks/sec)
+    distribution: "EXPONENTIAL"
+    parameters:
+      r: 6.00
+  TASK_2:  # the arrival process for tasks of type 2 (exponential with rate 6.25 tasks/sec)
+    distribution: "EXPONENTIAL"
+    parameters:
+      r: 6.25
+
+system:
+  cloudlet:
+    n_servers: 20  # the number of servers
+    server_selection: "RANDOM"  # the server-selection rule
+    controller_algorithm: "ALGORITHM_2"  # the controller algorithm
+    threshold: 20  # the occupancy threshold
+    service:
+      TASK_1:  # the service process for tasks of type 1 (exponential with rate 0.45 tasks/sec)
+        distribution: "EXPONENTIAL"
+        parameters:
+          r: 0.45
+      TASK_2:  # the service process for tasks of type 2 (exponential with rate 0.27 tasks/sec)
+        distribution: "EXPONENTIAL"
+        parameters:
+          r: 0.27
+  cloud:
+      service:
+        TASK_1:  # the service process for tasks of type 1 (exponential with rate 0.25 tasks/sec)
+          distribution: "EXPONENTIAL"
+          parameters:
+            r: 0.25
+        TASK_2:  # the service process for tasks of type 2 (exponential with rate 0.22 tasks/sec)
+          distribution: "EXPONENTIAL"
+          parameters:
+            r: 0.22
+      setup:
+        TASK_1:  # the service process for tasks of type 1 (deterministic with value 0 sec)
+          distribution: "DETERMINISTIC"
+          parameters:
+            v: 0
+        TASK_2:  # the service process for tasks of type 2 (exponential with mean 0.8 sec)
+          distribution: "EXPONENTIAL"
+          parameters:
+            m: 0.8

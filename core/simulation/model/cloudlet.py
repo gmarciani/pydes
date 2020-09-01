@@ -4,8 +4,7 @@ from core.simulation.model.scope import SystemScope
 from core.simulation.model.scope import ActionScope
 from core.simulation.model.scope import TaskScope
 from core.rnd.rndcmp import RandomComponent
-from core.rnd.rndvar import Variate
-from core.simulation.model.server_selection import SelectionRule
+from core.simulation.model.controller import ControllerAlgorithm, ControllerAlgorithm1, ControllerAlgorithm2
 import logging
 
 
@@ -36,17 +35,25 @@ class SimpleCloudlet:
 
         # Servers
         self.n_servers = config["n_servers"]
-        self.threshold = config["threshold"]
         self.servers = [Server(self.rndservice, i) for i in range(self.n_servers)]
         self.server_selector = config["server_selection"].selector(self.servers)
 
-        if not (0 <= self.threshold <= self.n_servers):
-            raise ValueError(
-                "Invalid threhsold: should be >= 0 and <= n_servers, but threshold is {} and n_servers is {}".format(
-                    self.threshold, self.n_servers))
-
         # State
         self.state = state
+
+        # Controller
+        controller_algorithm = config["controller_algorithm"]
+        if controller_algorithm is ControllerAlgorithm.ALGORITHM_1:
+            self.controller = ControllerAlgorithm1(self.state, self.n_servers)
+        elif controller_algorithm is ControllerAlgorithm.ALGORITHM_2:
+            self.threshold = config["threshold"]
+            self.controller = ControllerAlgorithm2(self.state, self.n_servers, self.threshold)
+            if not (0 <= self.threshold <= self.n_servers):
+                raise ValueError(
+                    "Invalid threshold: should be >= 0 and <= n_servers, but threshold is {} and n_servers is {}".format(
+                        self.threshold, self.n_servers))
+        else:
+            raise ValueError("Unrecognized controller algorithm type {}".format(controller_algorithm))
 
         # Timing
         self.t_last_event = {tsk: 0.0 for tsk in TaskScope.concrete()}

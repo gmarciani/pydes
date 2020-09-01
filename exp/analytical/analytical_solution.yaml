@@ -10,8 +10,8 @@ arrival:
 
 system:
   cloudlet:
-    n_servers: 20  # the number of servers
-    threshold: 20  # the occupancy threshold
+    n_servers: 3  # the number of servers
+    threshold: 3  # the occupancy threshold
     service:
       TASK_1:  # the service process for tasks of type 1 (exponential with rate 0.45 tasks/sec)
         distribution: "EXPONENTIAL"

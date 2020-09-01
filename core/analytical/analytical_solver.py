@@ -4,12 +4,14 @@ from core.simulation.model.scope import TaskScope
 from core.utils.report import SimpleReport as Report
 from core.rnd.rndvar import Variate
 from core.simulation.model.scope import SystemScope
+from core.simulation.model.controller import ControllerAlgorithm
 from core.markov import markovgen
 import logging
 
 # Configure logger
 logging.basicConfig(level=logging.INFO, handlers=[ConsoleHandler(logging.INFO)])
 logger = logging.getLogger(__name__)
+
 
 class AnalyticalSolver:
     """
@@ -33,17 +35,18 @@ class AnalyticalSolver:
 
         # Dimensions
         self.clt_n_servers = self.config["system"]["cloudlet"]["n_servers"]
-        self.clt_threshold = self.config["system"]["cloudlet"]["threshold"]
+        self.clt_controller_algorithm = self.config["system"]["cloudlet"]["controller_algorithm"]
+        if self.clt_controller_algorithm is ControllerAlgorithm.ALGORITHM_1:
+            self.clt_threshold = None
+        else:
+            self.clt_threshold = self.config["system"]["cloudlet"]["threshold"]
 
         # Arrivals
         self.arrival_rates = {tsk: self.config["arrival"][tsk.name]["parameters"]["r"] for tsk in TaskScope.concrete()}
         self.service_rates = {sys: {tsk: self.config["system"][sys.name.lower()]["service"][tsk.name]["parameters"]["r"] for tsk in TaskScope.concrete()} for sys in SystemScope.subsystems()}
         self.t_setup = self.config["system"]["cloud"]["setup"][TaskScope.TASK_2.name]["parameters"]["m"]
 
-        print(self.arrival_rates)
-        print(self.service_rates)
-        print(self.t_setup)
-
+        self.markov_chain = None
         self.solution = None
 
     def solve(self, routing_a_clt_1=None, routing_a_clt_2=None, routing_r=None, t_lost_clt_2=None):
@@ -59,18 +62,18 @@ class AnalyticalSolver:
 
         # Compute routing probabilities (if not yet computed).
         if routing_a_clt_1 is None or routing_a_clt_2 is None or routing_r is None:
-            MC = markovgen.generate_markov_chain(self.clt_n_servers, self.clt_threshold,
+            self.markov_chain = markovgen.generate_markov_chain(self.clt_n_servers, self.clt_threshold,
                                                  self.arrival_rates[TaskScope.TASK_1],
                                                  self.arrival_rates[TaskScope.TASK_2],
                                                  self.service_rates[SystemScope.CLOUDLET][TaskScope.TASK_1],
                                                  self.service_rates[SystemScope.CLOUDLET][TaskScope.TASK_2])
-            states = MC.get_states()
+            states = self.markov_chain.get_states()
 
             states_clt_1 = markovgen.compute_states_clt_1(states, self.clt_n_servers)
             states_clt_2 = markovgen.compute_states_clt_2(states, self.clt_n_servers, self.clt_threshold)
             states_clt_3 = markovgen.compute_states_clt_3(states, self.clt_n_servers, self.clt_threshold)
 
-            solutions = markovgen.solve(MC)
+            solutions = markovgen.solve(self.markov_chain)
 
             routing_a_clt_1 = 0
             for state_clt_1 in states_clt_1:
@@ -134,10 +137,10 @@ class AnalyticalSolver:
         X_sys_2 = X_clt_2 + X_cld_2
         X_sys = X_sys_1 + X_sys_2
 
-        logger.info("routing_a_clt_1 = %f" % routing_a_clt_1)
-        logger.info("routing_a_clt_2 = %f" % routing_a_clt_2)
-        logger.info("routing_r = %f" % routing_r)
-        logger.info("T_lost_clt_2 = %f" % T_lost_clt_2)
+        #logger.info("routing_a_clt_1 = %f" % routing_a_clt_1)
+        #logger.info("routing_a_clt_2 = %f" % routing_a_clt_2)
+        #logger.info("routing_r = %f" % routing_r)
+        #logger.info("T_lost_clt_2 = %f" % T_lost_clt_2)
 
         self.solution = AnalyticalSolution()
 
@@ -192,6 +195,7 @@ class AnalyticalSolver:
 
         # Report - System/Cloudlet
         r.add("system/cloudlet", "n_servers", self.clt_n_servers)
+        r.add("system/cloudlet", "controller_algorithm", self.clt_controller_algorithm)
         r.add("system/cloudlet", "threshold", self.clt_threshold)
         for tsk in TaskScope.concrete():
             r.add("system/cloudlet", "service_{}_dist".format(tsk.name.lower()), Variate.EXPONENTIAL.name)

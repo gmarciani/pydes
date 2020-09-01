@@ -4,9 +4,20 @@ Utilities for CLI.
 
 import sys
 from core.utils.logutils import get_logger
+from pyfiglet import Figlet
+from colored import fg, attr
 
 
 logger = get_logger(__name__)
+
+
+def get_splash():
+    """
+    Returns the Splash Screen as ASCII Art.
+    :return: The Splash Screen.
+    """
+    f = Figlet(font="slant")
+    return "%s %s %s" % (fg('yellow'), f.renderText("PyDES"), attr(0))
 
 
 def print_progress(iteration, total, prefix="PROGRESS", suffix="Complete", message="", decimals=0, bar_length=50):
@@ -17,18 +28,20 @@ def print_progress(iteration, total, prefix="PROGRESS", suffix="Complete", messa
 
     sys.stdout.flush()
 
-    sys.stdout.write("\r%s [%s] %s%s %s { %s }" % (prefix, bar, percents, "%", suffix, message))
+    sys.stdout.write("\r%s [%s] %s%% %s (%d/%d) { %s }" % (prefix, bar, percents, suffix, iteration, total, message or "no message"))
 
 
 if __name__ == "__main__":
+    print(get_splash())
+
     from time import sleep
 
     tot = 1000
 
     logger.info("Start")
 
-    for i in range(tot+100):
-        sleep(0.1/tot)
-        print_progress(i+1, tot)
+    for i in range(tot+1):
+        sleep(1/tot)
+        print_progress(i, tot)
 
     logger.info("End")
