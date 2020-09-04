@@ -114,6 +114,15 @@ for algorithm in $ALGORITHMS; do
 done;
 ```
 
+### Analytical Solution
+```
+./pydes.py solve-cloud-cloudlet --config config/analytical_solution_1.yaml --outdir out/analytical_solution/algorithm_1
+```
+
+```
+./pydes.py solve-cloud-cloudlet --config config/analytical_solution_2.yaml --outdir out/analytical_solution/algorithm_2
+```
+
 ## Authors
 Giacomo Marciani, [mgiacomo@amazon.com](mailto:mgiacomo@amazon.com)
 
