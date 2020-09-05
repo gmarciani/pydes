@@ -5,7 +5,7 @@ from core.simulation.model.controller import ControllerAlgorithm
 
 INDICES = ["population", "response", "throughput"]
 SYSTEM_SCOPES = [scope.name.lower() for scope in SystemScope]
-TASK_SCOPES = [scope.name.lower() for scope in TaskScope.concrete()]
+TASK_SCOPES = [scope.name.lower() for scope in TaskScope]
 
 
 def validate(analytical_result_path, simulation_result_path):
