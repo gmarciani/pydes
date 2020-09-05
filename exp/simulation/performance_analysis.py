@@ -10,16 +10,12 @@ import os
 import logging
 
 
-# Configure logger
+# Logging
 logger = logging.getLogger(__name__)
 
-# Configuration
+# Defaults
 DEFAULT_CONFIG_PATH = "performance_analysis.yaml"
-
-# Results
 DEFAULT_OUTDIR = "out/performance_analysis"
-
-# Parameters
 DEFAULT_PARAMETERS = {}
 
 

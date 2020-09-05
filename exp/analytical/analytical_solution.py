@@ -8,15 +8,12 @@ from core.utils.dictutils import merge
 import logging
 import os
 
-# Configure logger
+# Logging
 logger = logging.getLogger(__name__)
 
-# Configuration
+# Defaults
 DEFAULT_CONFIG_PATH = "analytical_solution.yaml"
-
-# Results
 DEFAULT_OUTDIR = "out/analytical_solution"
-
 DEFAULT_PARAMETERS = {}
 
 

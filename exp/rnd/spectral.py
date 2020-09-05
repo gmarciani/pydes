@@ -21,19 +21,12 @@ from core.utils.logutils import get_logger
 # Logging
 logger = get_logger(__name__)
 
-
-# Generator
+# Defaults
 DEFAULT_MODULUS = 2147483647
 DEFAULT_MULTIPLIER = 50812
 DEFAULT_GENERATOR = MarcianiSingleStream(modulus=DEFAULT_MODULUS, multiplier=DEFAULT_MULTIPLIER)
-
-# Sample size
 DEFAULT_SAMSIZE = DEFAULT_MODULUS - 1
-
-# Zoom interval
 DEFAULT_INTERVAL = (0.0, 0.001)
-
-# Directory for results
 DEFAULT_OUTDIR = "out/spectral"
 
 

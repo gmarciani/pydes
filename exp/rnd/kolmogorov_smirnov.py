@@ -25,7 +25,7 @@ from core.utils.logutils import get_logger
 # Logging
 logger = get_logger(__name__)
 
-# Parameters (Default)
+# Defaults
 DEFAULT_MODULUS = 2147483647
 DEFAULT_MULTIPLIER = 50812
 DEFAULT_STREAMS = 256
@@ -34,7 +34,6 @@ DEFAULT_GENERATOR= MarcianiMultiStream(modulus=DEFAULT_MODULUS, multiplier=DEFAU
 DEFAULT_TEST = "extremes"
 DEFAULT_TEST_PARAMS = dict(samsize=10000, bins=1000, confidence=0.95, d=5)
 DEFAULT_OUTDIR = "out/kolmogorov-smirnov"
-
 SUPPORTED_TESTS = ("extremes")
 
 

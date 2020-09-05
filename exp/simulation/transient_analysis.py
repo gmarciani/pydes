@@ -9,16 +9,12 @@ from core.utils.dictutils import merge
 import logging
 
 
-# Configure logger
+# Logging
 logger = logging.getLogger(__name__)
 
-# Configuration
+# Defaults
 DEFAULT_CONFIG_PATH = "transient_analysis.yaml"
-
-# Results
 DEFAULT_OUTDIR = "out/transient_analysis"
-
-# Parameters
 DEFAULT_PARAMETERS = {}
 
 

@@ -15,7 +15,7 @@ from core.utils.logutils import get_logger
 # Logging
 logger = get_logger(__name__)
 
-# Parameters (Default)
+# Defaults
 DEFAULT_BITS = 32
 DEFAULT_OUTDIR = "out/modulus"
 

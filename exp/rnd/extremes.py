@@ -24,7 +24,7 @@ from core.utils.csv_utils import save_csv
 # Logging
 logger = get_logger(__name__)
 
-# Parameters (Default)
+# Defaults
 DEFAULT_MODULUS = 2147483647
 DEFAULT_MULTIPLIER = 50812
 DEFAULT_STREAMS = 256
