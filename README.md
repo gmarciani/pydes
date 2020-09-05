@@ -114,6 +114,14 @@ for algorithm in $ALGORITHMS; do
 done;
 ```
 
+```
+./pydes.py simulation-performance --config config/performance_analysis_2.yaml --outdir out/performance_analysis/algorithm_2/threshold_3 --parameters '{"system":{"cloudlet": {"n_servers": 3, "threshold": 3}}}'
+```
+
+```
+./pydes.py simulation-performance --config config/performance_analysis_2.yaml --outdir out/performance_analysis/algorithm_2/threshold_3 --parameters '{"general": {"batches": 32, "batchdim": 32}, "system":{"cloudlet": {"n_servers": 3, "threshold": 3}}}'
+```
+
 ### Analytical Solution
 ```
 ./pydes.py solve-cloud-cloudlet --config config/analytical_solution_1.yaml --outdir out/analytical_solution/algorithm_1

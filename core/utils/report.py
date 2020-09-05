@@ -117,7 +117,7 @@ class SimpleReport(object):
         for section in self.params:
             for p in self.params[section]:
                 header.append("{}_{}".format(section, p[0]))
-                row.append(p[1])
+                row.append(str(round(p[1], PREC)) if isinstance(p[1], float) else str(p[1]))
         data = [row]
         save_csv(filename, header, data, append, skip_header, empty)
 
@@ -137,6 +137,6 @@ class SimpleReport(object):
         for section in self.params.items():
             s += fmt_section.format(section[0])
             for p in section[1]:
-                s += fmt_value.format(str(p[0]), str(round(p[1], PREC) if isinstance(p[1], float) else str(p[1])))
+                s += fmt_value.format(str(p[0]), str(round(p[1], PREC)) if isinstance(p[1], float) else str(p[1]))
 
         return s

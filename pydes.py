@@ -5,7 +5,7 @@ from os import path
 from core.utils import guiutils
 from core.utils import logutils
 from exp.rnd import modulus, mulfind, mulcheck, jumpfind, spectral, extremes, kolmogorov_smirnov
-from exp.simulation import transient_analysis, performance_analysis
+from exp.simulation import transient_analysis, performance_analysis, validation
 from exp.analytical import analytical_solution
 from core.rnd.rndgen import MarcianiSingleStream, MarcianiMultiStream
 import json
@@ -126,24 +126,24 @@ def test_kolmogorov_smirnov(ctx, modulus, multiplier, jumper, streams, test, tes
     logger.info("Completed: {}".format(kolmogorov_smirnov.__file__))
 
 
-@main.command(help="Simulation Transient: Cloud-Cloudlet.")
+@main.command(help="Simulate (Transient Analysis): Cloud-Cloudlet.")
 @click.option("--config", default=transient_analysis.DEFAULT_CONFIG_PATH, show_default=True, type=click.Path(exists=True), help="Configuration.")
 @click.option("--outdir", default=transient_analysis.DEFAULT_OUTDIR, show_default=True, type=click.Path(exists=False), help="Output directory.")
 @click.option("--parameters", default=transient_analysis.DEFAULT_PARAMETERS, show_default=True, type=str, help="Parameters (JSON), e.g. {'system': {'cloudlet': {'threshold': 20}}}.")
 @click.pass_context
-def simulation_transient(ctx, config, outdir, parameters):
+def simulate_transient(ctx, config, outdir, parameters):
     logger.info("Executing: {}".format(transient_analysis.__file__))
     logger.info("Arguments: config={} | outdir={} | parameters={}".format(config, outdir, parameters))
     transient_analysis.run(config, outdir, json.loads(str(parameters)))
     logger.info("Completed: {}".format(transient_analysis.__file__))
 
 
-@main.command(help="Simulation Performance: Cloud-Cloudlet.")
+@main.command(help="Simulate (Performance Analysis): Cloud-Cloudlet.")
 @click.option("--config", default=performance_analysis.DEFAULT_CONFIG_PATH, show_default=True, type=click.Path(exists=True), help="Configuration.")
 @click.option("--outdir", default=performance_analysis.DEFAULT_OUTDIR, show_default=True, type=click.Path(exists=False), help="Output directory.")
 @click.option("--parameters", default=performance_analysis.DEFAULT_PARAMETERS, show_default=True, type=str, help="Parameters (JSON), e.g. {'system': {'cloudlet': {'threshold': 20}}}.")
 @click.pass_context
-def simulation_performance(ctx, config, outdir, parameters):
+def simulate_performance(ctx, config, outdir, parameters):
     logger.info("Executing: {}".format(performance_analysis.__file__))
     logger.info("Arguments: config={} | outdir={} | parameters={}".format(config, outdir, parameters))
     performance_analysis.run(config, outdir, json.loads(str(parameters)))
@@ -159,6 +159,18 @@ def solve_cloud_cloudlet(ctx, config, outdir):
     logger.info("Arguments: config={} | outdir={}".format(config, outdir))
     analytical_solution.run(config, outdir)
     logger.info("Completed: {}".format(analytical_solution.__file__))
+
+
+@main.command(help="Validate: Cloud-Cloudlet.")
+@click.option("--analytical-result", default=validation.DEFAULT_ANALYTICAL_RESULT_PATH, show_default=True, type=click.Path(exists=True), help="Analytical result.")
+@click.option("--simulation-result", default=validation.DEFAULT_SIMULATION_RESULT_PATH, show_default=True, type=click.Path(exists=True), help="Simulation result.")
+@click.option("--outdir", default=validation.DEFAULT_OUTDIR, show_default=True, type=click.Path(exists=False), help="Output directory.")
+@click.pass_context
+def validate_cloud_cloudlet(ctx, analytical_result, simulation_result, outdir):
+    logger.info("Executing: {}".format(validation.__file__))
+    logger.info("Arguments: analytical_result={} | simulation_result={} | outdir={}".format(analytical_result, simulation_result, outdir))
+    validation.run(analytical_result, simulation_result, outdir)
+    logger.info("Completed: {}".format(validation.__file__))
 
 
 if __name__ == "__main__":

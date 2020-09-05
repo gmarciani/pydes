@@ -3,6 +3,7 @@ Utilities for CSV file management.
 """
 
 from core.utils.file_utils import create_dir_tree, is_empty_file, empty_file
+from csv import DictReader
 
 
 CHAR_TO_REPLACE = [" ", "/"]
@@ -45,3 +46,18 @@ def str_csv(s):
     for c in CHAR_TO_REPLACE:
         s = s.replace(c, "_")
     return s.lower()
+
+
+def read_csv(file_path):
+    """
+    Creates a list of dictionaries from a CSV file.
+    :param file_path: (str) the CSV file path.
+    :return: (list(dict)) the list of dictionaries containing the CSV data.
+    """
+    dict_list = []
+
+    with open(file_path, "r") as f:
+        for line in DictReader(f):
+            dict_list.append(line)
+
+    return dict_list
