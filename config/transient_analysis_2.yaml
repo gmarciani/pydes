@@ -15,7 +15,7 @@ arrival:
   TASK_1:  # the arrival process for tasks of type 1 (exponential with rate 6 tasks/sec)
     distribution: "EXPONENTIAL"
     parameters:
-      r: 6.00
+      r: 4.00
   TASK_2:  # the arrival process for tasks of type 2 (exponential with rate 6.25 tasks/sec)
     distribution: "EXPONENTIAL"
     parameters:

@@ -14,8 +14,7 @@ class RndvarTest(unittest.TestCase):
         """
         self.rndgen = MarcianiMultiStream()
         self.samsize = 50000
-        self.err = 0.05
-        self.makeAssertion = False
+        self.err = 0.015
 
         self.varparams = {
             Variate.DETERMINISTIC: dict(v=0.9),
@@ -68,37 +67,69 @@ class RndvarTest(unittest.TestCase):
             Variate.UNIFORM: lambda a, b: pow(b - a, 2.0) / 12.0
         }
 
-    def test_parametric_variates(self):
+    def test_bernoulli(self):
+        self.__execute_test_on_variate(Variate.BERNOULLI)
+
+    def test_binomial(self):
+        self.__execute_test_on_variate(Variate.BINOMIAL)
+
+    def test_chisquare(self):
+        self.__execute_test_on_variate(Variate.CHISQUARE)
+
+    def test_deterministic(self):
+        self.__execute_test_on_variate(Variate.DETERMINISTIC)
+
+    def test_equilikely(self):
+        self.__execute_test_on_variate(Variate.EQUILIKELY)
+
+    def test_erlang(self):
+        self.__execute_test_on_variate(Variate.ERLANG)
+
+    def test_exponential(self):
+        self.__execute_test_on_variate(Variate.EXPONENTIAL)
+
+    def test_geometric(self):
+        self.__execute_test_on_variate(Variate.GEOMETRIC)
+
+    def test_lognormal(self):
+        self.__execute_test_on_variate(Variate.LOGNORMAL)
+
+    def test_normal(self):
+        self.__execute_test_on_variate(Variate.NORMAL)
+
+    def test_pascal(self):
+        self.__execute_test_on_variate(Variate.PASCAL)
+
+    def test_poisson(self):
+        self.__execute_test_on_variate(Variate.POISSON)
+
+    def test_student(self):
+        self.__execute_test_on_variate(Variate.STUDENT)
+
+    def test_uniform(self):
+        self.__execute_test_on_variate(Variate.UNIFORM)
+
+    def __execute_test_on_variate(self, variate):
         """
         Verify the correctness of the rnd variates generation.
         :return: None
         """
-        for variate in Variate:
-            params = self.varparams[variate]
-            sample = list()
-            for i in range(self.samsize):
-                rndvalue = Variate[variate.name].generator.generate(u=self.rndgen, **params)
-                sample.append(rndvalue)
+        params = self.varparams[variate]
+        sample = list()
+        for i in range(self.samsize):
+            rndvalue = Variate[variate.name].generator.generate(u=self.rndgen, **params)
+            sample.append(rndvalue)
 
-            expected_mean = self.check_mean[variate](**params)
-            actual_mean = mean(sample)
-            print("{}: expected mean {}, got {}".format(variate.name, expected_mean, actual_mean))
+        expected_mean = self.check_mean[variate](**params)
+        actual_mean = mean(sample)
+        actual_mean_error = abs(actual_mean - expected_mean) / expected_mean if expected_mean != 0 else abs(actual_mean - expected_mean)
 
-            if self.makeAssertion:
-                self.assertLessEqual(abs(expected_mean - actual_mean) / expected_mean,
-                                     self.err * expected_mean,
-                                     "Mean error for variate {}: expected {} got {}"
-                                     .format(variate.name, expected_mean, actual_mean))
+        expected_variance = self.check_variance[variate](**params)
+        actual_variance = variance(sample)
+        actual_variance_error = abs(actual_variance - expected_variance) / expected_variance if expected_variance != 0 else abs(actual_variance - expected_variance)
 
-            expected_variance = self.check_variance[variate](**params)
-            actual_variance = variance(sample)
-            print("{}: expected variance {}, got {}".format(variate.name, expected_variance, actual_variance))
-
-            if self.makeAssertion:
-                self.assertLessEqual(abs(expected_variance - actual_variance) / expected_variance,
-                                     self.err * expected_variance,
-                                     "Variance error for variate {}: expected {} got {}"
-                                     .format(variate.name, expected_variance, actual_variance))
+        self.assertLessEqual(actual_mean_error, self.err)
+        self.assertLessEqual(actual_variance_error, self.err)
 
 
 if __name__ == "__main__":

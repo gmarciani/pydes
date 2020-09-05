@@ -1,6 +1,7 @@
 from core.simulation.model.scope import SystemScope, TaskScope
 from core.utils.csv_utils import read_csv
 from core.utils.report import SimpleReport as Report
+from core.simulation.model.controller import ControllerAlgorithm
 
 INDICES = ["population", "response", "throughput"]
 SYSTEM_SCOPES = [scope.name.lower() for scope in SystemScope]
@@ -73,7 +74,7 @@ def validate(analytical_result_path, simulation_result_path):
 
 
 def __verify_model_settings(analytical_result, simulation_result):
-    system_keys = (
+    system_keys = [
         "arrival_arrival_task_1_dist", "arrival_arrival_task_1_rate",
         "arrival_arrival_task_2_dist", "arrival_arrival_task_2_rate",
 
@@ -83,13 +84,16 @@ def __verify_model_settings(analytical_result, simulation_result):
         "system_cloud_service_task_2_dist", "system_cloud_service_task_2_rate",
         "system_cloud_setup_task_2_dist", "system_cloud_service_task_2_param_m",
 
-        "system_cloudlet_n_servers", "system_cloudlet_controller_algorithm", "system_cloudlet_threshold",
-    )
+        "system_cloudlet_n_servers", "system_cloudlet_controller_algorithm"
+    ]
+
+    if analytical_result["system_cloudlet_controller_algorithm"] == ControllerAlgorithm.ALGORITHM_2:
+        system_keys.append("system_cloudlet_threshold")
 
     for k in system_keys:
         analytical_value = analytical_result[k]
         simulation_value = simulation_result[k]
-        assert simulation_result[k] == analytical_result[k], \
+        assert analytical_value == simulation_value, \
             "System characteristics must be equal: difference found in key {} with analytical value {} and simulation value {}" \
                 .format(k, analytical_value, simulation_value)
 

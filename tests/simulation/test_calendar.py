@@ -9,7 +9,7 @@ class CalendarTest(unittest.TestCase):
 
     def test_scheduling_simple(self):
         """
-        Verify the correctness f scheduling, without unscheduling.
+        Verify the correctness of scheduling, without unscheduling.
         :return: None
         """
         rndgen = MarcianiMultiStream()

@@ -33,7 +33,7 @@ _default_configuration = {
         "TASK_1": {
             "distribution": "EXPONENTIAL",
             "parameters": {
-                "r": 6.00  # the arrival rate for tasks of type 1 (tasks/s)
+                "r": 4.00  # the arrival rate for tasks of type 1 (tasks/s)
             }
         },
         "TASK_2": {

@@ -114,21 +114,44 @@ for algorithm in $ALGORITHMS; do
 done;
 ```
 
-```
-./pydes.py simulation-performance --config config/performance_analysis_2.yaml --outdir out/performance_analysis/algorithm_2/threshold_3 --parameters '{"system":{"cloudlet": {"n_servers": 3, "threshold": 3}}}'
-```
+#### Algorithm 1
 
 ```
-./pydes.py simulation-performance --config config/performance_analysis_2.yaml --outdir out/performance_analysis/algorithm_2/threshold_3 --parameters '{"general": {"batches": 32, "batchdim": 32}, "system":{"cloudlet": {"n_servers": 3, "threshold": 3}}}'
+./pydes.py simulate-performance --config config/performance_analysis_1.yaml --outdir out/performance_analysis/algorithm_1 --parameters '{"general": {"batches": 64, "batchdim": 128}, "system":{"cloudlet": {"n_servers": 20}}}'
+```
+
+#### Algorithm 2
+
+```
+./pydes.py simulate-performance --config config/performance_analysis_2.yaml --outdir out/performance_analysis/algorithm_2/threshold_20 --parameters '{"general": {"batches": 64, "batchdim": 128}, "system":{"cloudlet": {"n_servers": 20, "threshold": 20}}}'
 ```
 
 ### Analytical Solution
+
+#### Algorithm 1
+
 ```
 ./pydes.py solve-cloud-cloudlet --config config/analytical_solution_1.yaml --outdir out/analytical_solution/algorithm_1
 ```
 
+#### Algorithm 2
+
 ```
-./pydes.py solve-cloud-cloudlet --config config/analytical_solution_2.yaml --outdir out/analytical_solution/algorithm_2
+./pydes.py solve-cloud-cloudlet --config config/analytical_solution_2.yaml --outdir out/analytical_solution/algorithm_2/threshold_20
+```
+
+### Validation
+
+#### Algorithm 1
+
+```
+./pydes.py validate-cloud-cloudlet --analytical-result out/analytical_solution/algorithm_1/result.csv --simulation-result out/performance_analysis/algorithm_1/result.csv --outdir out/validation/algorithm_1
+```
+
+#### Algorithm 2
+
+```
+./pydes.py validate-cloud-cloudlet --analytical-result out/analytical_solution/algorithm_2/threshold_20/result.csv --simulation-result out/performance_analysis/algorithm_2/threshold_20/result.csv --outdir out/validation/algorithm_2/threshold_20
 ```
 
 ## Authors

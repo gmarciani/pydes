@@ -16,11 +16,11 @@ class RndgenTest(unittest.TestCase):
         CHECK_VALUE = 399268537
         CHECK_ITERS = 10000
 
-        generator = MarcianiSingleStream(iseed=SEED)
+        generator = MarcianiSingleStream(modulus=MODULUS, multiplier=MULTIPLIER, iseed=SEED)
         for _ in range(0, CHECK_ITERS):
             generator.rnd()
-        if generator.get_seed() != CHECK_VALUE:
-            raise RuntimeError("{} is not correct!".format(generator.__class__.__name__))
+
+        self.assertEqual(generator.get_seed(), CHECK_VALUE, "{} is not correct!".format(generator.__class__.__name__))
 
     def test_rnd_multi_stream(self):
         """
@@ -30,15 +30,17 @@ class RndgenTest(unittest.TestCase):
         MODULUS = 2147483647
         MULTIPLIER = 48271
         SEED = 1
+        STREAMS = 128
+        JUMPER = 40509
 
         CHECK_VALUE = 399268537
         CHECK_ITERS = 10000
 
-        generator = MarcianiMultiStream(iseed=SEED)
+        generator = MarcianiMultiStream(modulus=MODULUS, multiplier=MULTIPLIER, streams=STREAMS, jumper=JUMPER, iseed=SEED)
         for _ in range(0, CHECK_ITERS):
             generator.rnd()
-        if generator.get_seed() != CHECK_VALUE:
-            raise RuntimeError("{} is not correct!".format(generator.__class__.__name__))
+
+        self.assertEqual(generator.get_seed(), CHECK_VALUE, "{} is not correct!".format(generator.__class__.__name__))
 
 
 if __name__ == "__main__":

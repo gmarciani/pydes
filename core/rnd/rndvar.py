@@ -45,6 +45,17 @@ def chisquare(n, u):
     return x
 
 
+def deterministic(v, u):
+    """
+    Generates a deterministic variate.
+    :param v: (float) deterministic value.
+    :param u: (float) rnd number in (0,1).
+    :return: (float) the ChiSquare(n) rnd variate.
+    """
+    # u is intentionally unused
+    return v
+
+
 def equilikely(a, b, u):
     """
     Generates an Equilikely rnd variate in *[a,b]*.
@@ -242,7 +253,7 @@ class Variate(Enum):
     BERNOULLI = VariateGenerator(bernoulli)
     BINOMIAL = VariateGenerator(binomial)
     CHISQUARE = VariateGenerator(chisquare)
-    DETERMINISTIC = DeterministicGenerator
+    DETERMINISTIC = VariateGenerator(deterministic)
     EQUILIKELY = VariateGenerator(equilikely)
     ERLANG = VariateGenerator(erlang)
     EXPONENTIAL = VariateGenerator(exponential)
