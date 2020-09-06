@@ -7,10 +7,6 @@ from core.simulation.model.scope import TaskScope
 class SamplingTest(unittest.TestCase):
 
     def setUp(self):
-        """
-        The test setup.
-        :return: None
-        """
         self.sample = Sample(0)
 
         for counter in self.sample.counters.__dict__:

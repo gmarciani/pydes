@@ -7,10 +7,6 @@ from core.simulation.model.scope import TaskScope
 class SimulationMetricsTest(unittest.TestCase):
 
     def setUp(self):
-        """
-        The test setup.
-        :return: None
-        """
         self.simulation_metrics = SimulationMetrics(10)
 
         for metric in self.simulation_metrics.performance_metrics.__dict__:
