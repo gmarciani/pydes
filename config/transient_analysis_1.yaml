@@ -4,9 +4,8 @@ general:
 
   replications: 5  # number of replications (suggested: 5)
   t_stop: 3000  # the stop time for the simulation (sec) 1hour=3600, 1day=86400, 1week=604800, 1month=2.628e+6 (suggested: 100000)
-
-  t_sample: 10  # the sampling interval (sec) (suggested: 100)
   confidence: 0.95  # the level of confidence (suggested: 0.95)
+
   random:
     generator: "MarcianiMultiStream"  # the class name of the rnd generator
     seed: 123456789  # the initial seed for the rnd generator

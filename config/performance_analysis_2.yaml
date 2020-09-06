@@ -3,11 +3,9 @@ general:
   mode: "PERFORMANCE_ANALYSIS" # simulation mode
 
   batches: 64  # the number of batches (suggested: 64)
-  batchdim: 128  # the batch dimension (suggested: 512)
-  t_tran: 3000  # the transient time (sec) (suggested: 1000)
-
-  t_sample: 10  # the sampling interval (sec) (suggested: 100)
+  batchdim: 512  # the batch dimension (suggested: 512)
   confidence: 0.95  # the level of confidence (suggested: 0.95)
+
   random:
     generator: "MarcianiMultiStream"  # the class name of the rnd generator
     seed: 123456789  # the initial seed for the rnd generator
@@ -16,7 +14,7 @@ arrival:
   TASK_1:  # the arrival process for tasks of type 1 (exponential with rate 6 tasks/sec)
     distribution: "EXPONENTIAL"
     parameters:
-      r: 4.00
+      r: 6.00
   TASK_2:  # the arrival process for tasks of type 2 (exponential with rate 6.25 tasks/sec)
     distribution: "EXPONENTIAL"
     parameters:
