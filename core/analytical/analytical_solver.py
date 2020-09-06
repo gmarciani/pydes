@@ -29,7 +29,8 @@ class AnalyticalSolver:
 
         self.config = config
         self.markov_chain = None
-        self.states_probability = None
+        self.states_probabilities = None
+        self.routing_probabilities = None
         self.solution = None
 
         self.__validate_markovianity()
@@ -63,56 +64,66 @@ class AnalyticalSolver:
         else:
             raise ValueError("Unrecognized controller algorithm: {}".format(self.clt_controller_algorithm))
 
-        self.states_probability = self.markov_chain.solve()
-
-        routing_accepted_clt_1, routing_accepted_clt_2, routing_accepted_clt_2_restarted = self.__compute_routing_probabilities()
+        self.states_probabilities = self.markov_chain.solve()
+        self.routing_probabilities = self.__compute_routing_probabilities()
 
         # Compute the average time lost by 2nd class tasks in Cloudlet (if not yet computed).
         factor_service_lost_clt_2 = 0.5
         T_lost_clt_2 = t_lost_clt_2 if t_lost_clt_2 is not None else factor_service_lost_clt_2 * (1.0 / self.service_rates[SystemScope.CLOUDLET][TaskScope.TASK_2])
 
         # Accepted Traffic
-        lambda_clt_1 = routing_accepted_clt_1 * self.arrival_rates[TaskScope.TASK_1]
-        lambda_clt_2 = routing_accepted_clt_2 * self.arrival_rates[TaskScope.TASK_2]
-        lambda_cld_1 = (1.0 - routing_accepted_clt_1) * self.arrival_rates[TaskScope.TASK_1]
-        lambda_cld_2 = (1.0 - routing_accepted_clt_2) * self.arrival_rates[TaskScope.TASK_2]
+        lambda_clt_1 = self.routing_probabilities["routing_accepted_clt_1"] * self.arrival_rates[TaskScope.TASK_1]
+        lambda_clt_2 = self.routing_probabilities["routing_accepted_clt_2"] * self.arrival_rates[TaskScope.TASK_2]
+        lambda_cld_1 = (1.0 - self.routing_probabilities["routing_accepted_clt_1"]) * self.arrival_rates[TaskScope.TASK_1]
+        lambda_cld_2 = (1.0 - self.routing_probabilities["routing_accepted_clt_2"]) * self.arrival_rates[TaskScope.TASK_2]
 
         # Restarted Traffic
-        lambda_r = routing_accepted_clt_2_restarted * (self.arrival_rates[TaskScope.TASK_1] + self.arrival_rates[TaskScope.TASK_2])  # may be: routing_accepted_clt_2_restarted * (self.arrival_rates[TaskScope.TASK_2])
+        lambda_r = self.routing_probabilities["routing_accepted_clt_2_restarted"] * (self.arrival_rates[TaskScope.TASK_1] + self.arrival_rates[TaskScope.TASK_2])  # may be: routing_accepted_clt_2_restarted * (self.arrival_rates[TaskScope.TASK_2])
+
+        # Tasks probabilities
+        p_1 = self.arrival_rates[TaskScope.TASK_1] / (self.arrival_rates[TaskScope.TASK_1] + self.arrival_rates[TaskScope.TASK_2])
+        p_2 = self.arrival_rates[TaskScope.TASK_2] / (self.arrival_rates[TaskScope.TASK_1] + self.arrival_rates[TaskScope.TASK_2])
 
         # Performance Metrics: Cloudlet
-        T_clt_1 = 1.0 / self.service_rates[SystemScope.CLOUDLET][TaskScope.TASK_1]
-        N_clt_1 = lambda_clt_1 * T_clt_1
-        T_clt_2 = 1.0 / self.service_rates[SystemScope.CLOUDLET][TaskScope.TASK_2]
-        N_clt_2 = (lambda_clt_2 * T_clt_2) - (lambda_r * T_lost_clt_2)
+        N_clt_1 = sum(state.value[0] * self.states_probabilities[state.pretty_str()] for state in self.markov_chain.get_states())  #  may be: lambda_clt_1 * T_clt_1
+        N_clt_2 = sum(state.value[1] * self.states_probabilities[state.pretty_str()] for state in self.markov_chain.get_states())  #  may be: (lambda_clt_2 * T_clt_2) - (lambda_r * T_lost_clt_2)
         N_clt = N_clt_1 + N_clt_2
+
+        T_clt_1 = 1.0 / self.service_rates[SystemScope.CLOUDLET][TaskScope.TASK_1]
+        T_clt_2 = 1.0 / self.service_rates[SystemScope.CLOUDLET][TaskScope.TASK_2]
         T_clt = ((N_clt_1 / N_clt) * T_clt_1) + ((N_clt_2 / N_clt) * T_clt_2)
-        X_clt_1 = lambda_clt_1
-        X_clt_2 = lambda_clt_2 - lambda_r
+
+        X_clt_1 = lambda_clt_1  #  may be: N_clt_1 / T_clt_1
+        X_clt_2 = lambda_clt_2 - lambda_r  #  may be: N_clt_2 / T_clt_2
         X_clt = X_clt_1 + X_clt_2
 
         # Performance Metrics: Cloud
         T_cld_1 = 1.0 / self.service_rates[SystemScope.CLOUD][TaskScope.TASK_1]
-        N_cld_1 = lambda_cld_1 * T_cld_1
         T_cld_2_np = 1.0 / self.service_rates[SystemScope.CLOUD][TaskScope.TASK_2]
+        T_cld_2_p = T_cld_2_np + self.t_setup  # may be: T_cld_2_np + self.t_setup + T_lost_cld_2
+
+        N_cld_1 = lambda_cld_1 * T_cld_1
         N_cld_2_np = lambda_cld_2 * T_cld_2_np
-        T_cld_2_p = T_cld_2_np + self.t_setup # may be: T_cld_2_np + self.t_setup + T_lost_cld_2
         N_cld_2_p = lambda_r * T_cld_2_p
         N_cld_2 = N_cld_2_np + N_cld_2_p
-        T_cld_2 = ((N_cld_2_np / N_cld_2) * T_cld_2_np) + ((N_cld_2_p / N_cld_2) * T_cld_2_p)
         N_cld = N_cld_1 + N_cld_2
+
+        T_cld_2 = ((N_cld_2_np / N_cld_2) * T_cld_2_np) + ((N_cld_2_p / N_cld_2) * T_cld_2_p)
         T_cld = ((N_cld_1 / N_cld) * T_cld_1) + ((N_cld_2 / N_cld) * T_cld_2)
+
         X_cld_1 = lambda_cld_1
         X_cld_2 = lambda_cld_2 + lambda_r
         X_cld = X_cld_1 + X_cld_2
 
         # Performance Metrics: System
-        N_sys_1 = N_clt_1 + N_cld_1
-        N_sys_2 = N_cld_1 + N_cld_2
-        N_sys = N_clt + N_cld
-        T_sys_1 = ((N_clt_1 / N_sys) * T_clt_1) + ((N_cld_1 / N_sys) * T_cld_1)
-        T_sys_2 = ((N_clt_2 / N_sys) * T_clt_2) + ((N_cld_2 / N_sys) * T_cld_2)
-        T_sys = ((N_clt / N_sys) * T_clt) + ((N_cld / N_sys) * T_cld)
+        N_sys = N_clt_1 + N_cld_1 + N_cld_1 + N_cld_2
+        N_sys_1 = p_1 * N_sys
+        N_sys_2 = p_2 * N_sys
+
+        T_sys_1 = ((N_clt_1 / N_sys_1) * T_clt_1) + ((N_cld_1 / N_sys_1) * T_cld_1)
+        T_sys_2 = ((N_clt_2 / N_sys_2) * T_clt_2) + ((N_cld_2 / N_sys_2) * T_cld_2)
+        T_sys = ((N_sys_1 / N_sys) * T_sys_1) + ((N_sys_2 / N_sys) * T_sys_2)
+
         X_sys_1 = X_clt_1 + X_cld_1
         X_sys_2 = X_clt_2 + X_cld_2
         X_sys = X_sys_1 + X_sys_2
@@ -153,6 +164,12 @@ class AnalyticalSolver:
         self.solution.performance_metrics.throughput[SystemScope.CLOUD][TaskScope.GLOBAL] = X_cld
 
     def __compute_routing_probabilities(self):
+        routing_probabilities = dict(
+            routing_accepted_clt_1=0.0,
+            routing_accepted_clt_2=0.0,
+            routing_accepted_clt_2_restarted=0.0
+        )
+
         states = self.markov_chain.get_states()
 
         if self.clt_controller_algorithm is ControllerAlgorithm.ALGORITHM_1:
@@ -167,26 +184,20 @@ class AnalyticalSolver:
             raise ValueError("Unrecognized controller algorithm: {}".format(self.clt_controller_algorithm))
 
         # Probability to accept a task of type 1 into the Cloudlet
-        routing_accepted_clt_1 = 0.0
         for state_clt_1 in states_accepted_clt_1:
-            routing_accepted_clt_1 += self.states_probability[state_clt_1.pretty_str()]
+            routing_probabilities["routing_accepted_clt_1"] += self.states_probabilities[state_clt_1.pretty_str()]
 
         # Probability to accept a task of type 2 into the Cloudlet
-        routing_accepted_clt_2 = 0.0
         for state_clt_2 in states_accepted_clt_2:
-            routing_accepted_clt_2 += self.states_probability[state_clt_2.pretty_str()]
+            routing_probabilities["routing_accepted_clt_2"] += self.states_probabilities[state_clt_2.pretty_str()]
 
         # Probability to interrupt a task of type 2 from the Cloudlet and restart it into the Cloud
-        routing_accepted_clt_2_restarted = 0.0
-        for state_clt_3 in states_accepted_clt_2_restarted:
-            routing_accepted_clt_2_restarted += self.states_probability[state_clt_3.pretty_str()]
-        routing_accepted_clt_2_restarted *= (self.arrival_rates[TaskScope.TASK_1] / (
+        for state_clt_2_restarted in states_accepted_clt_2_restarted:
+            routing_probabilities["routing_accepted_clt_2_restarted"] += self.states_probabilities[state_clt_2_restarted.pretty_str()]
+        routing_probabilities["routing_accepted_clt_2_restarted"] *= (self.arrival_rates[TaskScope.TASK_1] / (
                     self.arrival_rates[TaskScope.TASK_1] + self.arrival_rates[TaskScope.TASK_2]))
 
-        logger.info("routing_accepted_clt_1={}, routing_accepted_clt_2={}, routing_accepted_clt_2_restarted={}"
-                    .format(routing_accepted_clt_1, routing_accepted_clt_2, routing_accepted_clt_2_restarted))
-
-        return routing_accepted_clt_1, routing_accepted_clt_2, routing_accepted_clt_2_restarted
+        return routing_probabilities
 
     def __validate_markovianity(self):
         assert self.config["arrival"][TaskScope.TASK_1.name]["distribution"] == "EXPONENTIAL"
@@ -214,7 +225,7 @@ class AnalyticalSolver:
 
         # Report - System/Cloudlet
         r.add("system/cloudlet", "n_servers", self.clt_n_servers)
-        r.add("system/cloudlet", "controller_algorithm", self.clt_controller_algorithm)
+        r.add("system/cloudlet", "controller_algorithm", self.clt_controller_algorithm.name)
         if self.clt_controller_algorithm is ControllerAlgorithm.ALGORITHM_2:
             r.add("system/cloudlet", "threshold", self.clt_threshold)
         for tsk in TaskScope.concrete():
@@ -237,7 +248,11 @@ class AnalyticalSolver:
                           getattr(self.solution.performance_metrics, performance_metric)[sys][tsk])
 
         # Report - States Probability
-        for state in sorted(self.states_probability):
-            r.add("states probability", state, self.states_probability[state])
+        for state in sorted(self.states_probabilities):
+            r.add("states probability", state, self.states_probabilities[state])
+
+        # Report - Routing Probability
+        for probability, value in self.routing_probabilities.items():
+            r.add("routing probability", probability, value)
 
         return r

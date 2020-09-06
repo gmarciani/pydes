@@ -41,25 +41,25 @@ class Simulation:
         # Configuration - Transient Analysis
         if self.mode is SimulationMode.TRANSIENT_ANALYSIS:
             self.t_stop = config_general["t_stop"]
-            self.t_tran = 0
+            #self.t_tran = 0
             self.batches = INFINITE
             self.batchdim = 1
             self.closed_door_condition = lambda: self.closed_door_condition_transient_analysis()
             self.print_progress = lambda: print_progress(self.calendar.get_clock(), self.t_stop,
                                                          message="Clock: %d" % (self.calendar.get_clock()))
-            self.should_discard_transient_data = False
+            #self.should_discard_transient_data = False
 
         # Configuration - Performance Analysis
         elif self.mode is SimulationMode.PERFORMANCE_ANALYSIS:
             self.t_stop = INFINITE
-            self.t_tran = config_general["t_tran"]
+            #self.t_tran = config_general["t_tran"]
             self.batches = config_general["batches"]
             self.batchdim = config_general["batchdim"]
             self.closed_door_condition = lambda: self.closed_door_condition_performance_analysis()
             self.print_progress = lambda: print_progress(self.metrics.n_batches, self.batches,
                                                          message="Clock: %d | Batches: %d | CurrentBatchSamples: %d" %
                                                                  (self.calendar.get_clock(), self.metrics.n_batches, self.metrics.curr_batchdim))
-            self.should_discard_transient_data = self.t_tran > 0.0
+            #self.should_discard_transient_data = self.t_tran > 0.0
 
         else:
             raise RuntimeError("The current version supports only TRANSIENT_ANALYSIS and PERFORMANCE_ANALYSIS")
@@ -91,9 +91,6 @@ class Simulation:
         self.calendar = Calendar(t_clock=0.0)
 
         # Sampling management
-        self.sampling = True if "t_sample" in config_general else False
-        self.t_sample = config_general.get("t_sample", None)
-        self.t_last_sample = 0.0
         self.sampling_file = None
 
         # Simulation management
@@ -113,9 +110,8 @@ class Simulation:
         """
 
         # Initialize sampling
-        if self.sampling is True:
-            self.sampling_file = os.path.join(outdir, "result.sampling.csv")
-            empty_file(self.sampling_file)
+        self.sampling_file = os.path.join(outdir, "result.sampling.csv")
+        empty_file(self.sampling_file)
 
         # Initialize first arrivals
         # Schedule the first events, i.e. task of type 1 and 2.
@@ -149,20 +145,14 @@ class Simulation:
             if event.type.act is ActionScope.ARRIVAL and self.closed_door is False:
                 self.calendar.schedule(self.taskgen.generate(self.calendar.get_clock()))
 
-            # Simulation progress
-            if show_progress:
-                self.print_progress()
-
-            # Discard batch data collected during the transient period, if configured
-            if self.discard_transient_data_condition():
-                self.metrics.discard_data()
-                self.should_discard_transient_data = False
-
             # Sampling
             if self.sampling_condition(event):
                 sample = self.metrics.sampling(self.calendar.get_clock())
                 sample.save_csv(self.sampling_file, append=True)
-                self.t_last_sample = sample.time
+
+            # Simulation progress
+            if show_progress:
+                self.print_progress()
 
     # ==================================================================================================================
     # CONDITIONS
@@ -192,26 +182,13 @@ class Simulation:
         """
         return self.calendar.get_clock() >= self.t_stop
 
-    def discard_transient_data_condition(self):
-        """
-        Checks whether the discard transient data condition holds true.
-        The discard transient data condition holds true if it is enabled and the clock time passed the transient time.
-        :return: true, if the discard transient data condition holds; false, otherwise.
-        """
-        return self.should_discard_transient_data and self.calendar.get_clock() > self.t_tran
-
     def sampling_condition(self, event):
         """
         Checks whether the sampling condition holds true.
-        The sampling condition holds true if sampling is enabled it is enabled and the clock time passed the transient time.
-        :return: true, if the discard transient data condition holds; false, otherwise.
+        The sampling condition holds true on completion events.
+        :return: true, if the sampling condition holds; false, otherwise.
         """
-        t_clock_rounded = floor(self.calendar.get_clock())
-        t_last_sample_rounded = floor(self.t_last_sample)
-        return self.sampling is True and \
-               event.type.act is ActionScope.COMPLETION and \
-               t_clock_rounded % self.t_sample == 0 and \
-               t_clock_rounded != t_last_sample_rounded
+        return event.type.act is ActionScope.COMPLETION
 
     # ==================================================================================================================
     # REPORT
@@ -231,7 +208,6 @@ class Simulation:
         if self.mode is SimulationMode.TRANSIENT_ANALYSIS:
             r.add("general", "t_stop", self.t_stop)
         elif self.mode is SimulationMode.PERFORMANCE_ANALYSIS:
-            r.add("general", "t_tran", self.t_tran)
             r.add("general", "batches", self.batches)
             r.add("general", "batchdim", self.batchdim)
         else:
@@ -254,7 +230,7 @@ class Simulation:
 
         # Report - System/Cloudlet
         r.add("system/cloudlet", "n_servers", self.system.cloudlet.n_servers)
-        r.add("system/cloudlet", "controller_algorithm", self.system.cloudlet.controller.controller_algorithm)
+        r.add("system/cloudlet", "controller_algorithm", self.system.cloudlet.controller.controller_algorithm.name)
         if self.system.cloudlet.controller.controller_algorithm is ControllerAlgorithm.ALGORITHM_2:
             r.add("system/cloudlet", "threshold", self.system.cloudlet.threshold)
         for tsk in TaskScope.concrete():

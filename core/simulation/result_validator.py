@@ -34,7 +34,7 @@ def validate(analytical_result_path, simulation_result_path):
                 simulation_cint = float(simulation_result[cint_key])
                 simulation_lower_bound = simulation_mean - simulation_cint
                 simulation_upper_bound = simulation_mean + simulation_cint
-                delta = (analytical_mean - simulation_mean) / simulation_mean
+                delta = (analytical_mean - simulation_mean) / simulation_cint
                 if simulation_lower_bound <= analytical_mean <= simulation_upper_bound:
                     statistics_matching[statistic] = delta
                 else:
@@ -53,8 +53,8 @@ def validate(analytical_result_path, simulation_result_path):
         simulation_lower_bound = simulation_mean - simulation_cint
         simulation_upper_bound = simulation_mean + simulation_cint
 
-        report.add("matching", statistic, "{} inside [{},{}] with delta {} %"
-                   .format(analytical_mean, simulation_lower_bound, simulation_upper_bound, delta * 100))
+        report.add("matching", statistic, "{} inside [{},{}] with {}% semi-interval distance from the simulation mean {}"
+                   .format(analytical_mean, simulation_lower_bound, simulation_upper_bound, delta * 100, simulation_mean))
 
     for item in sorted(statistics_not_matching.items(), key=lambda item: abs(item[1]), reverse=True):
         statistic = item[0]
@@ -67,8 +67,8 @@ def validate(analytical_result_path, simulation_result_path):
         simulation_lower_bound = simulation_mean - simulation_cint
         simulation_upper_bound = simulation_mean + simulation_cint
 
-        report.add("not matching", statistic, "{} outside [{},{}] with delta {} %"
-                   .format(analytical_mean, simulation_lower_bound, simulation_upper_bound, delta * 100))
+        report.add("not matching", statistic, "{} outside [{},{}] with {}% semi-interval distance from the simulation mean {}"
+                   .format(analytical_mean, simulation_lower_bound, simulation_upper_bound, delta * 100, simulation_mean))
 
     return report
 

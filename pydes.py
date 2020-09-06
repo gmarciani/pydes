@@ -153,11 +153,12 @@ def simulate_performance(ctx, config, outdir, parameters):
 @main.command(help="Solve with Markov Chain: Cloud-Cloudlet.")
 @click.option("--config", default=analytical_solution.DEFAULT_CONFIG_PATH, show_default=True, type=click.Path(exists=True), help="Configuration.")
 @click.option("--outdir", default=analytical_solution.DEFAULT_OUTDIR, show_default=True, type=click.Path(exists=False), help="Output directory.")
+@click.option("--parameters", default=analytical_solution.DEFAULT_PARAMETERS, show_default=True, type=str, help="Parameters (JSON), e.g. {'system': {'cloudlet': {'threshold': 20}}}.")
 @click.pass_context
-def solve_cloud_cloudlet(ctx, config, outdir):
+def solve_cloud_cloudlet(ctx, config, outdir, parameters):
     logger.info("Executing: {}".format(analytical_solution.__file__))
-    logger.info("Arguments: config={} | outdir={}".format(config, outdir))
-    analytical_solution.run(config, outdir)
+    logger.info("Arguments: config={} | outdir={} | parameters={}".format(config, outdir, parameters))
+    analytical_solution.run(config, outdir, json.loads(str(parameters)))
     logger.info("Completed: {}".format(analytical_solution.__file__))
 
 

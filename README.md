@@ -138,6 +138,7 @@ done;
 
 ```
 ./pydes.py solve-cloud-cloudlet --config config/analytical_solution_2.yaml --outdir out/analytical_solution/algorithm_2/threshold_20
+./pydes.py solve-cloud-cloudlet --config config/analytical_solution_2.yaml --outdir out/analytical_solution/algorithm_2/threshold_2 --parameters '{"system":{"cloudlet":{"n_servers": 2, "threshold": 2}}}'   
 ```
 
 ### Validation
