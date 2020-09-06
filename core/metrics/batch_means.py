@@ -52,7 +52,7 @@ class BatchedMeasure(Measure):
         # Reset the accumulator
         self._accumulator.reset()
 
-        # Remove all bacthes
+        # Remove all batches
         self._batch_means.clear()
 
     def add_sample(self, value):

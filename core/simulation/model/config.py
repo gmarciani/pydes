@@ -19,9 +19,6 @@ _default_configuration = {
         # Required for PERFORMANCE_ANALYSIS
         #"batches": 64,  # the number of batches
         #"batchdim": 512,  # the batch dimension
-        #"t_tran": 0,  # the transient time
-
-        "t_sample": 1,  # the sampling interval (sec)
         "confidence": 0.95,  # the level of confidence
         "rnd": {
             "generator": "MarcianiMultiStream",  # the class name of the rnd generator
@@ -117,7 +114,6 @@ def get_default_configuration(simulation_mode=SimulationMode.PERFORMANCE_ANALYSI
     # Add configuration specific to performance analysis
     elif simulation_mode is SimulationMode.PERFORMANCE_ANALYSIS:
         config["general"]["mode"] = "PERFORMANCE_ANALYSIS"
-        config["general"]["t_tran"] = 2000
         config["general"]["batches"] = 10
         config["general"]["batchdim"] = 100
 

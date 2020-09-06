@@ -54,11 +54,10 @@ class SimulationMetrics:
         :param t_now: (float) the current time.
         :return: (Sample) the instantaneous sample.
         """
-        # Update counters
-        self._update_counters(t_now)
+        self._compute_global_counters(t_now)
 
         # Update performance metrics
-        self._update_performance_metrics(t_now)
+        self._compute_performance_metrics(t_now)
 
         # Build the instantaneous sample
         sample = self.build_sample(t_now)
@@ -111,7 +110,7 @@ class SimulationMetrics:
         self.curr_batchdim = 0
         self.n_samples = 0
 
-    def _update_counters(self, t_now):
+    def _compute_global_counters(self, t_now):
         """
         Updates aggregated counters (e.g. system global counters) using task-scoped and subsystem-scoped counters
         (e.g. counter for task 1 in Cloudlet).
@@ -156,7 +155,7 @@ class SimulationMetrics:
             self.counters.switched_service_lost[sys][TaskScope.GLOBAL] = sum(self.counters.switched_service_lost[sys][tsk] for tsk in TaskScope.concrete())
             self.counters.population_area[sys][TaskScope.GLOBAL] = sum(self.counters.population_area[sys][tsk] for tsk in TaskScope.concrete())
 
-    def _update_performance_metrics(self, t_now):
+    def _compute_performance_metrics(self, t_now):
         """
         Updates performance metrics using counters values.
         The new updated values are used as batch samples.
