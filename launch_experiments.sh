@@ -1,20 +1,26 @@
+#!/usr/bin/env bash
+
 echo "Launching performance analysis for Algorithm 1"
 python3 pydes.py simulate-performance \
---config config/performance_analysis_1.yaml
+--config "config/performance_analysis_1.yaml" \
+--outdir "out/performance_analysis/algorithm_1"
 
 echo "Launching analytical solver for Algorithm 1"
-python3 pydes.py solve-cloud-cloulet \
---config config/analytical_solution_1.yaml
+python3 pydes.py solve-cloud-cloudlet \
+--config config/analytical_solution_1.yaml \
+--outdir "out/analytical_solution/algorithm_1"
 
-THRESHOLDS=(1 5 15 20)
-for threshold in ${THRESHOLDS}; do
-  echo "Launching performance analysis for Algorithm 2 (threshold: ${threshold}"
+for threshold in 1 5 10 15 20
+do
+  echo "Launching performance analysis for Algorithm 2 (threshold: ${threshold})"
   python3 pydes.py simulate-performance \
   --config config/performance_analysis_2.yaml \
-  --parameters "{'system': {'cloudlet': {'threshold': ${threshold}}}"
+  --parameters "{\"system\": {\"cloudlet\": {\"threshold\": ${threshold}}}}" \
+  --outdir "out/performance_analysis/algorithm_2/threshold_${threshold}"
 
   echo "Launching analytical solver for Algorithm 2 (threshold: ${threshold})"
-  python3 pydes.py solve-cloud-cloulet \
+  python3 pydes.py solve-cloud-cloudlet \
   --config config/analytical_solution_2.yaml \
-  --parameters "{'system': {'cloudlet': {'threshold': ${threshold}}}"
+  --parameters "{\"system\": {\"cloudlet\": {\"threshold\": ${threshold}}}}" \
+  --outdir "out/performance_analysis/algorithm_2/threshold_${threshold}"
 done
