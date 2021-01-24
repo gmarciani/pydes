@@ -2,7 +2,7 @@
 VALIDATION: Evaluate the delta between the analytical result and the simulation one.
 """
 
-from core.simulation import result_validator
+from core.simulation import result_validator, result_printer
 import logging
 import os
 
@@ -34,6 +34,10 @@ def run(analytical_result_path, simulation_result_path, outdir=DEFAULT_OUTDIR):
     report.save_csv(os.path.join(outdir, "result.csv"), append=False, empty=True)
 
     print(report)
+
+    latex_table = result_printer.build_latex_table(analytical_result_path, simulation_result_path)
+
+    print(latex_table)
 
 
 if __name__ == "__main__":
