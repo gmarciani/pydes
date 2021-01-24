@@ -141,7 +141,7 @@ def simulate_transient(ctx, config, outdir, parameters):
 @main.command(help="Simulate (Performance Analysis): Cloud-Cloudlet.")
 @click.option("--config", default=performance_analysis.DEFAULT_CONFIG_PATH, show_default=True, type=click.Path(exists=True), help="Configuration.")
 @click.option("--outdir", default=performance_analysis.DEFAULT_OUTDIR, show_default=True, type=click.Path(exists=False), help="Output directory.")
-@click.option("--parameters", default=performance_analysis.DEFAULT_PARAMETERS, show_default=True, type=str, help="Parameters (JSON), e.g. {'system': {'cloudlet': {'threshold': 20}}}.")
+@click.option("--parameters", default=performance_analysis.DEFAULT_PARAMETERS, show_default=True, type=str, help="Parameters (JSON), e.g. '{\"system\": {\"cloudlet\": {\"threshold\": 20}}}'.")
 @click.pass_context
 def simulate_performance(ctx, config, outdir, parameters):
     logger.info("Executing: {}".format(performance_analysis.__file__))
@@ -153,7 +153,7 @@ def simulate_performance(ctx, config, outdir, parameters):
 @main.command(help="Solve with Markov Chain: Cloud-Cloudlet.")
 @click.option("--config", default=analytical_solution.DEFAULT_CONFIG_PATH, show_default=True, type=click.Path(exists=True), help="Configuration.")
 @click.option("--outdir", default=analytical_solution.DEFAULT_OUTDIR, show_default=True, type=click.Path(exists=False), help="Output directory.")
-@click.option("--parameters", default=analytical_solution.DEFAULT_PARAMETERS, show_default=True, type=str, help="Parameters (JSON), e.g. {'system': {'cloudlet': {'threshold': 20}}}.")
+@click.option("--parameters", default=analytical_solution.DEFAULT_PARAMETERS, show_default=True, type=str, help="Parameters (JSON), e.g. '{\"system\": {\"cloudlet\": {\"threshold\": 20}}}'.")
 @click.pass_context
 def solve_cloud_cloudlet(ctx, config, outdir, parameters):
     logger.info("Executing: {}".format(analytical_solution.__file__))
