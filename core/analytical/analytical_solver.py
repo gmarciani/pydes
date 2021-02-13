@@ -89,13 +89,13 @@ class AnalyticalSolver:
         N_clt_2 = sum(state.value[1] * self.states_probabilities[state.pretty_str()] for state in self.markov_chain.get_states())
         N_clt = N_clt_1 + N_clt_2
 
-        X_clt_1 = lambda_clt_1  #  may be: N_clt_1 / T_clt_1
-        X_clt_2 = lambda_clt_2 - lambda_r  #  may be: N_clt_2 / T_clt_2
+        X_clt_1 = lambda_clt_1
+        X_clt_2 = lambda_clt_2 - lambda_r
         X_clt = X_clt_1 + X_clt_2
 
-        T_clt_1 = 1.0 / self.service_rates[SystemScope.CLOUDLET][TaskScope.TASK_1] # may be: T_clt_1 = N_clt_1 / X_clt_1
-        T_clt_2 = 1.0 / self.service_rates[SystemScope.CLOUDLET][TaskScope.TASK_2] # may be: T_clt_1 = N_clt_2 / X_clt_2
-        T_clt = ((N_clt_1 / N_clt) * T_clt_1) + ((N_clt_2 / N_clt) * T_clt_2) # may be: T_clt = N_clt / X_clt
+        T_clt_1 = N_clt_1 / X_clt_1
+        T_clt_2 = N_clt_2 / X_clt_2
+        T_clt = N_clt / X_clt
 
         # Performance Metrics: Cloud
         T_cld_1 = 1.0 / self.service_rates[SystemScope.CLOUD][TaskScope.TASK_1]
