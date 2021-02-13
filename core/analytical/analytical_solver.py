@@ -69,7 +69,7 @@ class AnalyticalSolver:
 
         # Compute the average time lost by 2nd class tasks in Cloudlet (if not yet computed).
         factor_service_lost_clt_2 = 0.5
-        T_lost_clt_2 = t_lost_clt_2 if t_lost_clt_2 is not None else factor_service_lost_clt_2 * (1.0 / self.service_rates[SystemScope.CLOUDLET][TaskScope.TASK_2])
+        #T_lost_clt_2 = t_lost_clt_2 if t_lost_clt_2 is not None else factor_service_lost_clt_2 * (1.0 / self.service_rates[SystemScope.CLOUDLET][TaskScope.TASK_2])
 
         # Accepted Traffic
         lambda_clt_1 = self.routing_probabilities["routing_accepted_clt_1"] * self.arrival_rates[TaskScope.TASK_1]
@@ -78,24 +78,24 @@ class AnalyticalSolver:
         lambda_cld_2 = (1.0 - self.routing_probabilities["routing_accepted_clt_2"]) * self.arrival_rates[TaskScope.TASK_2]
 
         # Restarted Traffic
-        lambda_r = self.routing_probabilities["routing_accepted_clt_2_restarted"] * (self.arrival_rates[TaskScope.TASK_1] + self.arrival_rates[TaskScope.TASK_2])  # may be: routing_accepted_clt_2_restarted * (self.arrival_rates[TaskScope.TASK_2])
+        lambda_r = self.routing_probabilities["routing_accepted_clt_2_restarted"] * (self.arrival_rates[TaskScope.TASK_1] + self.arrival_rates[TaskScope.TASK_2])
 
         # Tasks probabilities
         p_1 = self.arrival_rates[TaskScope.TASK_1] / (self.arrival_rates[TaskScope.TASK_1] + self.arrival_rates[TaskScope.TASK_2])
         p_2 = self.arrival_rates[TaskScope.TASK_2] / (self.arrival_rates[TaskScope.TASK_1] + self.arrival_rates[TaskScope.TASK_2])
 
         # Performance Metrics: Cloudlet
-        N_clt_1 = sum(state.value[0] * self.states_probabilities[state.pretty_str()] for state in self.markov_chain.get_states())  #  may be: lambda_clt_1 * T_clt_1
-        N_clt_2 = sum(state.value[1] * self.states_probabilities[state.pretty_str()] for state in self.markov_chain.get_states())  #  may be: (lambda_clt_2 * T_clt_2) - (lambda_r * T_lost_clt_2)
+        N_clt_1 = sum(state.value[0] * self.states_probabilities[state.pretty_str()] for state in self.markov_chain.get_states())
+        N_clt_2 = sum(state.value[1] * self.states_probabilities[state.pretty_str()] for state in self.markov_chain.get_states())
         N_clt = N_clt_1 + N_clt_2
-
-        T_clt_1 = 1.0 / self.service_rates[SystemScope.CLOUDLET][TaskScope.TASK_1]
-        T_clt_2 = 1.0 / self.service_rates[SystemScope.CLOUDLET][TaskScope.TASK_2]
-        T_clt = ((N_clt_1 / N_clt) * T_clt_1) + ((N_clt_2 / N_clt) * T_clt_2)
 
         X_clt_1 = lambda_clt_1  #  may be: N_clt_1 / T_clt_1
         X_clt_2 = lambda_clt_2 - lambda_r  #  may be: N_clt_2 / T_clt_2
         X_clt = X_clt_1 + X_clt_2
+
+        T_clt_1 = 1.0 / self.service_rates[SystemScope.CLOUDLET][TaskScope.TASK_1] # may be: T_clt_1 = N_clt_1 / X_clt_1
+        T_clt_2 = 1.0 / self.service_rates[SystemScope.CLOUDLET][TaskScope.TASK_2] # may be: T_clt_1 = N_clt_2 / X_clt_2
+        T_clt = ((N_clt_1 / N_clt) * T_clt_1) + ((N_clt_2 / N_clt) * T_clt_2) # may be: T_clt = N_clt / X_clt
 
         # Performance Metrics: Cloud
         T_cld_1 = 1.0 / self.service_rates[SystemScope.CLOUD][TaskScope.TASK_1]

@@ -159,6 +159,20 @@ class MarkovChainAlgorithm2(MarkovChain):
             state_arrival = state
             link = MarkovLink(state, state_arrival, "l2")
             self.add_link(link)
+
+        elif n1 + n2 >= S and n2 == 0: # SUBMIT TO CLOUDLET ONLY TASK 1
+            # arrival task 1
+            state_arrival = self.add_state((n1 + 1, n2))
+            link = MarkovLink(state, state_arrival, "l1")
+            added = self.add_link(link)
+            if added:
+                self.__explore_state(state_arrival, N, S, l1, l2, m1, m2)
+
+            # arrival task 2
+            state_arrival = state
+            link = MarkovLink(state, state_arrival, "l2")
+            self.add_link(link)
+
         else:
             raise ValueError("Encountered an invalid state: {}. n1+n2 must be <= N ({}) and n2 must be <= S ({})."
                              .format(state, N, S))
@@ -181,8 +195,8 @@ class MarkovChainAlgorithm2(MarkovChain):
 
 
 if __name__ == "__main__":
-    N = 3
-    S = 3
+    N = 2
+    S = 1
     l1 = 6
     l2 = 6.25
     m1 = 0.45

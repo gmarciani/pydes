@@ -4,7 +4,8 @@ from core.utils.report import SimpleReport as Report
 from core.simulation.model.controller import ControllerAlgorithm
 
 INDICES = ["population", "response", "throughput"]
-SYSTEM_SCOPES = [scope.name.lower() for scope in SystemScope]
+#SYSTEM_SCOPES = [scope.name.lower() for scope in SystemScope]
+SYSTEM_SCOPES = [scope.name.lower() for scope in [SystemScope.CLOUDLET, SystemScope.CLOUD, SystemScope.SYSTEM]]
 TASK_SCOPES = [scope.name.lower() for scope in TaskScope]
 
 
@@ -40,8 +41,8 @@ Measure & Theoretical & Experimental \\\\
     return table
 
 INDEX_SYMBOLS = {
-    "population": "E[N_{{{}{}}}]",
-    "response": "E[T_{{{}{}}}]",
+    "population": "N_{{{}{}}}",
+    "response": "T_{{{}{}}}",
     "throughput": "X_{{{}{}}}"
 }
 
@@ -62,9 +63,11 @@ def get_index_symbol(index, system_scope, task_scope):
 
 
 if __name__ == "__main__":
-    analytical_result_path = "../../out/analytical_solution/algorithm_1/result.csv"
-    simulation_result_path = "../../out/performance_analysis/algorithm_1/result.csv"
+    result_types = ["algorithm_1", "algorithm_2/threshold_5", "algorithm_2/threshold_20"]
 
-    latex_table = build_latex_table(analytical_result_path, simulation_result_path)
-
-    print(latex_table)
+    for result_type in result_types:
+        analytical_result_path = "../../out/analytical_solution/{}/result.csv".format(result_type)
+        simulation_result_path = "../../out/performance_analysis/{}/result.csv".format(result_type)
+        latex_table = build_latex_table(analytical_result_path, simulation_result_path)
+        print("RESULTS FOR:", result_type)
+        print(latex_table)
