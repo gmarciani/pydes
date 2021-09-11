@@ -10,8 +10,6 @@ jobs:
       matrix:
         os: [ubuntu-20.04, windows-2019, macos-11]
         python_version: [3.6, 3.7, 3.8, 3.9]
-        exclude:
-          - os: windows-2019
 
     steps:
       - name: Checkout Code
