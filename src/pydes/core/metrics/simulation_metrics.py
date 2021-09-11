@@ -1,9 +1,9 @@
 from types import SimpleNamespace
 
-from core.metrics.batch_means import BatchedMeasure
-from core.metrics.sampling import Sample
-from core.simulation.model.scope import SystemScope, TaskScope
-from core.utils.csv_utils import save_csv
+from pydes.core.metrics.batch_means import BatchedMeasure
+from pydes.core.metrics.sampling import Sample
+from pydes.core.simulation.model.scope import SystemScope, TaskScope
+from pydes.core.utils.csv_utils import save_csv
 
 NAN = float("nan")
 

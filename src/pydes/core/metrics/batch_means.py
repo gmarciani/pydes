@@ -1,8 +1,8 @@
 from statistics import mean, stdev
 
-from core.metrics.accumulator import WelfordAccumulator
-from core.metrics.confidence_interval import get_interval_estimation
-from core.metrics.measurement import Measure
+from pydes.core.metrics.accumulator import WelfordAccumulator
+from pydes.core.metrics.confidence_interval import get_interval_estimation
+from pydes.core.metrics.measurement import Measure
 
 
 class BatchedMeasure(Measure):

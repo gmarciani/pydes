@@ -1,6 +1,6 @@
 import unittest
 
-from core.rnd.rndgen import MarcianiMultiStream, MarcianiSingleStream
+from pydes.core.rnd.rndgen import MarcianiMultiStream, MarcianiSingleStream
 
 
 class RndgenTest(unittest.TestCase):

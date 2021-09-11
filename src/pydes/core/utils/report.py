@@ -5,8 +5,8 @@ Utility classes that realize reports for experiments.
 
 from collections import OrderedDict
 
-from core.utils.csv_utils import save_csv
-from core.utils.file_utils import create_dir_tree, empty_file
+from pydes.core.utils.csv_utils import save_csv
+from pydes.core.utils.file_utils import create_dir_tree, empty_file
 
 PREC = 10
 WIDTH = 63

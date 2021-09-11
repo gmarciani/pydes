@@ -14,10 +14,10 @@ Notes: results are stored in folder 'out/spectral'.
 """
 from os import path
 
-from core.rnd.randomness import spectral as test
-from core.rnd.rndgen import MarcianiSingleStream
-from core.utils.logutils import get_logger
-from core.utils.report import SimpleReport
+from pydes.core.rnd.randomness import spectral as test
+from pydes.core.rnd.rndgen import MarcianiSingleStream
+from pydes.core.utils.logutils import get_logger
+from pydes.core.utils.report import SimpleReport
 
 # Logging
 logger = get_logger(__name__)

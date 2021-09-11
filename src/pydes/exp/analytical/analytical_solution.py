@@ -5,9 +5,9 @@ ANALYTICAL SOLUTION: Solves the analytical model leveraging Markov Chains.
 import logging
 import os
 
-from core.analytical.analytical_solver import AnalyticalSolver
-from core.simulation.model.config import load_configuration
-from core.utils.dictutils import merge
+from pydes.core.analytical.analytical_solver import AnalyticalSolver
+from pydes.core.simulation.model.config import load_configuration
+from pydes.core.utils.dictutils import merge
 
 # Logging
 logger = logging.getLogger(__name__)

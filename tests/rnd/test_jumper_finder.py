@@ -1,6 +1,6 @@
 import unittest
 
-from core.rnd.inspection import jumper_finder
+from pydes.core.rnd.inspection import jumper_finder
 
 
 class JumperTest(unittest.TestCase):

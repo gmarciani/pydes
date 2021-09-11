@@ -4,10 +4,11 @@ import json
 from os import path
 
 import click
-from core.rnd.rndgen import MarcianiMultiStream, MarcianiSingleStream
-from core.utils import guiutils, logutils
-from exp.analytical import analytical_solution
-from exp.rnd import (
+
+from pydes.core.rnd.rndgen import MarcianiMultiStream, MarcianiSingleStream
+from pydes.core.utils import guiutils, logutils
+from pydes.exp.analytical import analytical_solution
+from pydes.exp.rnd import (
     extremes,
     jumpfind,
     kolmogorov_smirnov,
@@ -16,7 +17,7 @@ from exp.rnd import (
     mulfind,
     spectral,
 )
-from exp.simulation import performance_analysis, transient_analysis, validation
+from pydes.exp.simulation import performance_analysis, transient_analysis, validation
 
 logger = logutils.get_logger(__name__)
 

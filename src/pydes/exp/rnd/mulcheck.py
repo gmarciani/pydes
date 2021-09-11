@@ -9,9 +9,9 @@ Notes: results are stored in folder 'out/mulcheck'.
 """
 from os import path
 
-from core.rnd.inspection import multiplier_check
-from core.utils.logutils import get_logger
-from core.utils.report import SimpleReport
+from pydes.core.rnd.inspection import multiplier_check
+from pydes.core.utils.logutils import get_logger
+from pydes.core.utils.report import SimpleReport
 
 # Logging
 logger = get_logger(__name__)

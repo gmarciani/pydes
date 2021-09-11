@@ -1,8 +1,8 @@
 import unittest
 
-from core.rnd.rndgen import MarcianiMultiStream
-from core.simulation.model.scope import TaskScope
-from core.simulation.model.taskgen import ExponentialTaskgen
+from pydes.core.rnd.rndgen import MarcianiMultiStream
+from pydes.core.simulation.model.scope import TaskScope
+from pydes.core.simulation.model.taskgen import ExponentialTaskgen
 
 
 class TaskgenTest(unittest.TestCase):

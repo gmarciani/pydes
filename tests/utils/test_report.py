@@ -1,6 +1,6 @@
 import unittest
 
-from core.utils.report import SimpleReport
+from pydes.core.utils.report import SimpleReport
 
 
 class ReportTest(unittest.TestCase):

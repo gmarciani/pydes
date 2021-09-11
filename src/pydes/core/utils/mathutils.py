@@ -4,7 +4,7 @@ Utilities for math and statistics.
 
 import math
 
-from core.rnd import rndf
+from pydes.core.rnd import rndf
 
 
 def gcd(a, b):

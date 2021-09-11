@@ -5,7 +5,7 @@ VALIDATION: Evaluate the delta between the analytical result and the simulation 
 import logging
 import os
 
-from core.simulation import result_printer, result_validator
+from pydes.core.simulation import result_printer, result_validator
 
 # Logging
 logger = logging.getLogger(__name__)

@@ -1,15 +1,15 @@
-from core.simulation.model.cloud import SimpleCloud as Cloud
-from core.simulation.model.cloudlet import SimpleCloudlet as Cloudlet
-from core.simulation.model.controller import (
+from pydes.core.simulation.model.cloud import SimpleCloud as Cloud
+from pydes.core.simulation.model.cloudlet import SimpleCloudlet as Cloudlet
+from pydes.core.simulation.model.controller import (
     ControllerAlgorithm,
     ControllerAlgorithm1,
     ControllerAlgorithm2,
     ControllerResponse,
 )
-from core.simulation.model.event import EventType
-from core.simulation.model.event import SimpleEvent as Event
-from core.simulation.model.scope import ActionScope, SystemScope, TaskScope
-from core.utils.logutils import get_logger
+from pydes.core.simulation.model.event import EventType
+from pydes.core.simulation.model.event import SimpleEvent as Event
+from pydes.core.simulation.model.scope import ActionScope, SystemScope, TaskScope
+from pydes.core.utils.logutils import get_logger
 
 # Logging
 logger = get_logger(__name__)

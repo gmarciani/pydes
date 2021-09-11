@@ -1,14 +1,14 @@
 import logging
 
-from core.rnd.rndcmp import RandomComponent
-from core.simulation.model.controller import (
+from pydes.core.rnd.rndcmp import RandomComponent
+from pydes.core.simulation.model.controller import (
     ControllerAlgorithm,
     ControllerAlgorithm1,
     ControllerAlgorithm2,
 )
-from core.simulation.model.event import EventType
-from core.simulation.model.scope import ActionScope, SystemScope, TaskScope
-from core.simulation.model.server import SimpleServer as Server
+from pydes.core.simulation.model.event import EventType
+from pydes.core.simulation.model.scope import ActionScope, SystemScope, TaskScope
+from pydes.core.simulation.model.server import SimpleServer as Server
 
 # Logging
 logger = logging.getLogger(__name__)

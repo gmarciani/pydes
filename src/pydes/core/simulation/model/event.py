@@ -1,7 +1,7 @@
 from enum import Enum, unique
 from types import SimpleNamespace
 
-from core.simulation.model.scope import ActionScope, SystemScope, TaskScope
+from pydes.core.simulation.model.scope import ActionScope, SystemScope, TaskScope
 
 
 @unique

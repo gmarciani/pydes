@@ -1,6 +1,6 @@
 from enum import Enum, unique
 
-from core.simulation.model.scope import TaskScope
+from pydes.core.simulation.model.scope import TaskScope
 
 
 class SimpleController:

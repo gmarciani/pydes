@@ -1,7 +1,7 @@
 import unittest
 
-from core.metrics.simulation_metrics import Sample
-from core.simulation.model.scope import SystemScope, TaskScope
+from pydes.core.metrics.simulation_metrics import Sample
+from pydes.core.simulation.model.scope import SystemScope, TaskScope
 
 
 class SamplingTest(unittest.TestCase):

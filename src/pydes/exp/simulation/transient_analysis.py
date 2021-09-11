@@ -5,9 +5,9 @@ Results are stored in 'result.csv' and can be visualized running the Matlab scri
 
 import logging
 
-from core.simulation.model.config import load_configuration
-from core.simulation.simulation import Simulation as Simulation
-from core.utils.dictutils import merge
+from pydes.core.simulation.model.config import load_configuration
+from pydes.core.simulation.simulation import Simulation as Simulation
+from pydes.core.utils.dictutils import merge
 
 # Logging
 logger = logging.getLogger(__name__)

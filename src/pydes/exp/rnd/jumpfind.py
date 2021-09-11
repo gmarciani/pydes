@@ -11,10 +11,10 @@ Notes: results are stored in folder 'out/jumpfind'.
 """
 from os import path
 
-from core.rnd.inspection import jumper_finder
-from core.utils.file_utils import save_list_of_pairs
-from core.utils.logutils import get_logger
-from core.utils.report import SimpleReport
+from pydes.core.rnd.inspection import jumper_finder
+from pydes.core.utils.file_utils import save_list_of_pairs
+from pydes.core.utils.logutils import get_logger
+from pydes.core.utils.report import SimpleReport
 
 # Logging
 logger = get_logger(__name__)

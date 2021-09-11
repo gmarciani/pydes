@@ -1,6 +1,6 @@
-from core.rnd.rndgen import MarcianiMultiStream
-from core.rnd.rndvar import Variate
-from core.simulation.model.scope import TaskScope
+from pydes.core.rnd.rndgen import MarcianiMultiStream
+from pydes.core.rnd.rndvar import Variate
+from pydes.core.simulation.model.scope import TaskScope
 
 rndgen = MarcianiMultiStream()
 

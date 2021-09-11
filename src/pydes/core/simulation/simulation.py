@@ -2,19 +2,19 @@ import os
 from math import floor
 from sys import maxsize as INFINITE
 
-from core.metrics.simulation_metrics import SimulationMetrics
-from core.rnd import rndgen
-from core.rnd.rndvar import Variate
-from core.simulation.model.calendar import NextEventCalendar as Calendar
-from core.simulation.model.controller import ControllerAlgorithm
-from core.simulation.model.event import ActionScope
-from core.simulation.model.scope import SystemScope, TaskScope
-from core.simulation.model.system import SimpleCloudletCloudSystem as System
-from core.simulation.model.taskgen import ExponentialTaskgen as Taskgen
-from core.simulation.simulation_mode import SimulationMode
-from core.utils.file_utils import empty_file
-from core.utils.guiutils import print_progress
-from core.utils.report import SimpleReport as Report
+from pydes.core.metrics.simulation_metrics import SimulationMetrics
+from pydes.core.rnd import rndgen
+from pydes.core.rnd.rndvar import Variate
+from pydes.core.simulation.model.calendar import NextEventCalendar as Calendar
+from pydes.core.simulation.model.controller import ControllerAlgorithm
+from pydes.core.simulation.model.event import ActionScope
+from pydes.core.simulation.model.scope import SystemScope, TaskScope
+from pydes.core.simulation.model.system import SimpleCloudletCloudSystem as System
+from pydes.core.simulation.model.taskgen import ExponentialTaskgen as Taskgen
+from pydes.core.simulation.simulation_mode import SimulationMode
+from pydes.core.utils.file_utils import empty_file
+from pydes.core.utils.guiutils import print_progress
+from pydes.core.utils.report import SimpleReport as Report
 
 # Logging
 # logger = get_logger(__name__)

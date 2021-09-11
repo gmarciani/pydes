@@ -1,7 +1,7 @@
 import unittest
 
-from core.rnd import rndf
-from core.utils import mathutils
+from pydes.core.rnd import rndf
+from pydes.core.utils import mathutils
 
 
 class MathUtilsTest(unittest.TestCase):

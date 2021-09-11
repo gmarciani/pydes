@@ -1,11 +1,12 @@
 import copy
 
 import yaml
-from core.rnd.rndvar import Variate
-from core.simulation.model.controller import ControllerAlgorithm
-from core.simulation.model.scope import TaskScope
-from core.simulation.model.server_selection import SelectionRule
-from core.simulation.simulation_mode import SimulationMode
+
+from pydes.core.rnd.rndvar import Variate
+from pydes.core.simulation.model.controller import ControllerAlgorithm
+from pydes.core.simulation.model.scope import TaskScope
+from pydes.core.simulation.model.server_selection import SelectionRule
+from pydes.core.simulation.simulation_mode import SimulationMode
 
 _default_configuration = {
     "general": {

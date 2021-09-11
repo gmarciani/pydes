@@ -1,7 +1,7 @@
 from types import SimpleNamespace
 
-from core.simulation.model.scope import SystemScope, TaskScope
-from core.utils.csv_utils import save_csv
+from pydes.core.simulation.model.scope import SystemScope, TaskScope
+from pydes.core.utils.csv_utils import save_csv
 
 NAN = float("nan")
 

@@ -16,12 +16,12 @@ Notes: results are stored in folder 'out/kolmogorov-smirnov'.
 """
 from os import path
 
-from core.rnd.randomness import extremes
-from core.rnd.randomness import kolmogorov_smirnov as test
-from core.rnd.rndgen import MarcianiMultiStream
-from core.utils.csv_utils import save_csv
-from core.utils.logutils import get_logger
-from core.utils.report import SimpleReport
+from pydes.core.rnd.randomness import extremes
+from pydes.core.rnd.randomness import kolmogorov_smirnov as test
+from pydes.core.rnd.rndgen import MarcianiMultiStream
+from pydes.core.utils.csv_utils import save_csv
+from pydes.core.utils.logutils import get_logger
+from pydes.core.utils.report import SimpleReport
 
 # Logging
 logger = get_logger(__name__)

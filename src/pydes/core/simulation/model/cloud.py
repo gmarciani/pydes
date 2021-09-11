@@ -1,10 +1,10 @@
 import logging
 
-from core.rnd.rndcmp import RandomComponent
-from core.simulation.model.event import EventType
+from pydes.core.rnd.rndcmp import RandomComponent
+from pydes.core.simulation.model.event import EventType
 
 # Logging
-from core.simulation.model.scope import ActionScope, SystemScope, TaskScope
+from pydes.core.simulation.model.scope import ActionScope, SystemScope, TaskScope
 
 logger = logging.getLogger(__name__)
 

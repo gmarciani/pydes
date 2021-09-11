@@ -1,11 +1,14 @@
 import logging
 
-from core.analytical.analytical_solution import AnalyticalSolution
-from core.analytical.markov_chains import MarkovChainAlgorithm1, MarkovChainAlgorithm2
-from core.rnd.rndvar import Variate
-from core.simulation.model.controller import ControllerAlgorithm
-from core.simulation.model.scope import SystemScope, TaskScope
-from core.utils.report import SimpleReport as Report
+from pydes.core.analytical.analytical_solution import AnalyticalSolution
+from pydes.core.analytical.markov_chains import (
+    MarkovChainAlgorithm1,
+    MarkovChainAlgorithm2,
+)
+from pydes.core.rnd.rndvar import Variate
+from pydes.core.simulation.model.controller import ControllerAlgorithm
+from pydes.core.simulation.model.scope import SystemScope, TaskScope
+from pydes.core.utils.report import SimpleReport as Report
 
 # Configure logger
 logger = logging.getLogger(__name__)

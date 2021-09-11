@@ -1,4 +1,4 @@
-from core.analytical.markov import MarkovChain, MarkovLink
+from pydes.core.analytical.markov import MarkovChain, MarkovLink
 
 
 class MarkovChainAlgorithm1(MarkovChain):

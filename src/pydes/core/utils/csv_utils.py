@@ -4,7 +4,7 @@ Utilities for CSV file management.
 
 from csv import DictReader
 
-from core.utils.file_utils import create_dir_tree, empty_file, is_empty_file
+from pydes.core.utils.file_utils import create_dir_tree, empty_file, is_empty_file
 
 CHAR_TO_REPLACE = [" ", "/"]
 

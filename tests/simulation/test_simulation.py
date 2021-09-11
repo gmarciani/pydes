@@ -1,9 +1,9 @@
 import unittest
 
-from core.simulation.model.config import get_default_configuration
-from core.simulation.model.scope import TaskScope
-from core.simulation.model.server_selection import SelectionRule
-from core.simulation.simulation import Simulation as Simulation
+from pydes.core.simulation.model.config import get_default_configuration
+from pydes.core.simulation.model.scope import TaskScope
+from pydes.core.simulation.model.server_selection import SelectionRule
+from pydes.core.simulation.simulation import Simulation as Simulation
 
 
 class SimulationCloudTest(unittest.TestCase):

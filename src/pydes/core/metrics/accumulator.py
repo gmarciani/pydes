@@ -1,6 +1,6 @@
 from math import pow, sqrt
 
-from core.metrics.confidence_interval import get_interval_estimation
+from pydes.core.metrics.confidence_interval import get_interval_estimation
 
 
 class WelfordAccumulator:
