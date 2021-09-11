@@ -4,12 +4,12 @@ on: [push, pull_request]
 
 jobs:
   build_wheels:
-    name: Build wheels for Python ${{ matrix.python_version }} on ${{ matrix.os }}
+    name: Build wheels for Python ${{ matrix.python }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-20.04, windows-2019, macos-11]
-        python_version: [3.6, 3.7, 3.8, 3.9]
+        python: [3.6, 3.7, 3.8, 3.9]
 
     steps:
       - name: Checkout Code
@@ -18,16 +18,22 @@ jobs:
           submodules: true
           fetch-depth: 0
 
+#      - name: Install Python with pyenv
+#        uses: gabrielfalcao/pyenv-action@v5
+#        with:
+#          default: ${{ matrix.python_version }}
+#          command: pip install --upgrade pip
+
       - name: Install Python
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ matrix.python }}
 
       - name: Install pip
-        run: pip3 install --upgrade pip
+        run: pip install --upgrade pip
 
       - name: Install build script
-        run: pip3 install --upgrade build
+        run: pip install --upgrade build
 
       - name: Build wheels
-        run: python3 -m build
+        run: python -m build
