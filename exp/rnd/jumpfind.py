@@ -9,11 +9,12 @@ Output: the list of suitable jumpers, if exist.
 
 Notes: results are stored in folder 'out/jumpfind'.
 """
-from core.rnd.inspection import jumper_finder
-from core.utils.report import SimpleReport
 from os import path
+
+from core.rnd.inspection import jumper_finder
 from core.utils.file_utils import save_list_of_pairs
 from core.utils.logutils import get_logger
+from core.utils.report import SimpleReport
 
 # Logging
 logger = get_logger(__name__)

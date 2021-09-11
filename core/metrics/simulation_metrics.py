@@ -1,10 +1,9 @@
+from types import SimpleNamespace
+
 from core.metrics.batch_means import BatchedMeasure
 from core.metrics.sampling import Sample
-from types import SimpleNamespace
+from core.simulation.model.scope import SystemScope, TaskScope
 from core.utils.csv_utils import save_csv
-from core.simulation.model.scope import SystemScope
-from core.simulation.model.scope import TaskScope
-
 
 NAN = float("nan")
 

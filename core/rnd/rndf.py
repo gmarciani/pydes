@@ -48,8 +48,7 @@ Random variates functions
 #   Latest Revision : 3/26/14
 # * -------------------------------------------------------------------------
 
-from math import exp, log, fabs, sqrt
-
+from math import exp, fabs, log, sqrt
 
 TINY = 1.0e-10
 SQRT2PI = 2.506628274631  # #/* sqrt(2 * pi) */

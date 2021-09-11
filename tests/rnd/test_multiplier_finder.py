@@ -1,4 +1,5 @@
 import unittest
+
 from core.rnd.inspection import multiplier_finder
 
 

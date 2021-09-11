@@ -1,6 +1,6 @@
 import threading
-from core.utils import mathutils
 
+from core.utils import mathutils
 
 _THREADS = 32
 

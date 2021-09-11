@@ -1,6 +1,7 @@
 import unittest
-from core.utils import mathutils
+
 from core.rnd import rndf
+from core.utils import mathutils
 
 
 class MathUtilsTest(unittest.TestCase):

@@ -3,12 +3,12 @@ PERFORMANCE ANALYSIS: Evaluate the system performance, according to settings in 
 Results are stored in 'result.csv' and can be visualized running the Matlab script 'result.m'
 """
 
-from core.simulation.simulation import Simulation as Simulation
-from core.simulation.model.config import load_configuration
-from core.utils.dictutils import merge
-import os
 import logging
+import os
 
+from core.simulation.model.config import load_configuration
+from core.simulation.simulation import Simulation as Simulation
+from core.utils.dictutils import merge
 
 # Logging
 logger = logging.getLogger(__name__)

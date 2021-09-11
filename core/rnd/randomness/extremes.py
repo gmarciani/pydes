@@ -7,9 +7,9 @@ D = 5               # D >= 2
 CONFIDENCE = 0.95   # CONFIDENCE >= 0.95
 """
 import math
+
 from core.rnd.rndf import idfChisquare
-from core.utils import errutils
-from core.utils import mathutils
+from core.utils import errutils, mathutils
 from core.utils.guiutils import print_progress
 
 

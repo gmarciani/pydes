@@ -1,9 +1,7 @@
 from enum import Enum, unique
-
-from core.simulation.model.scope import ActionScope
-from core.simulation.model.scope import SystemScope
-from core.simulation.model.scope import TaskScope
 from types import SimpleNamespace
+
+from core.simulation.model.scope import ActionScope, SystemScope, TaskScope
 
 
 @unique

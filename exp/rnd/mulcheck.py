@@ -7,10 +7,11 @@ Output: FP, MC, FP/MC multipliers and the best FP/MC multiplier, if exists.
 
 Notes: results are stored in folder 'out/mulcheck'.
 """
-from core.rnd.inspection import multiplier_check
-from core.utils.report import SimpleReport
 from os import path
+
+from core.rnd.inspection import multiplier_check
 from core.utils.logutils import get_logger
+from core.utils.report import SimpleReport
 
 # Logging
 logger = get_logger(__name__)

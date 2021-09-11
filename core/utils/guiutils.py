@@ -3,10 +3,11 @@ Utilities for CLI.
 """
 
 import sys
-from core.utils.logutils import get_logger
-from pyfiglet import Figlet
-from colored import fg, attr
 
+from colored import attr, fg
+from pyfiglet import Figlet
+
+from core.utils.logutils import get_logger
 
 logger = get_logger(__name__)
 

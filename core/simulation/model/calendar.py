@@ -1,5 +1,5 @@
-from queue import PriorityQueue
 import logging
+from queue import PriorityQueue
 
 # Configure logger
 from core.simulation.model.event import EventType

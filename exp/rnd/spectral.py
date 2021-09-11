@@ -12,11 +12,12 @@ Output: the distribution of rnd number within the specified interval.
 
 Notes: results are stored in folder 'out/spectral'.
 """
-from core.rnd.rndgen import MarcianiSingleStream
-from core.rnd.randomness import spectral as test
-from core.utils.report import SimpleReport
 from os import path
+
+from core.rnd.randomness import spectral as test
+from core.rnd.rndgen import MarcianiSingleStream
 from core.utils.logutils import get_logger
+from core.utils.report import SimpleReport
 
 # Logging
 logger = get_logger(__name__)

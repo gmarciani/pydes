@@ -14,12 +14,13 @@ Output: the extreme behaviour of the generator for each of its stream.
 
 Notes: results are stored in folder 'out/extremes'.
 """
-from core.rnd.rndgen import MarcianiMultiStream
-from core.rnd.randomness import extremes as test
-from core.utils.report import SimpleReport
 from os import path
-from core.utils.logutils import get_logger
+
+from core.rnd.randomness import extremes as test
+from core.rnd.rndgen import MarcianiMultiStream
 from core.utils.csv_utils import save_csv
+from core.utils.logutils import get_logger
+from core.utils.report import SimpleReport
 
 # Logging
 logger = get_logger(__name__)

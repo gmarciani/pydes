@@ -1,14 +1,23 @@
 #!/usr/bin/env python3
 
-import click
-from os import path
-from core.utils import guiutils
-from core.utils import logutils
-from exp.rnd import modulus, mulfind, mulcheck, jumpfind, spectral, extremes, kolmogorov_smirnov
-from exp.simulation import transient_analysis, performance_analysis, validation
-from exp.analytical import analytical_solution
-from core.rnd.rndgen import MarcianiSingleStream, MarcianiMultiStream
 import json
+from os import path
+
+import click
+
+from core.rnd.rndgen import MarcianiMultiStream, MarcianiSingleStream
+from core.utils import guiutils, logutils
+from exp.analytical import analytical_solution
+from exp.rnd import (
+    extremes,
+    jumpfind,
+    kolmogorov_smirnov,
+    modulus,
+    mulcheck,
+    mulfind,
+    spectral,
+)
+from exp.simulation import performance_analysis, transient_analysis, validation
 
 logger = logutils.get_logger(__name__)
 

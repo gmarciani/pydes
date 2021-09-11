@@ -1,14 +1,11 @@
+from copy import deepcopy
 from enum import Enum, unique
 
 from core.rnd.rndcmp import RandomComponent
-from core.simulation.model.event import EventType
-from core.simulation.model.scope import SystemScope
-from core.simulation.model.scope import TaskScope
-from core.simulation.model.scope import ActionScope
 from core.rnd.rndvar import Variate
+from core.simulation.model.event import EventType
+from core.simulation.model.scope import ActionScope, SystemScope, TaskScope
 from core.utils.logutils import get_logger
-from copy import deepcopy
-
 
 # Logging
 logger = get_logger(__name__)

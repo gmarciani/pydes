@@ -1,4 +1,5 @@
 from enum import Enum, unique
+
 from core.simulation.model.scope import TaskScope
 
 

@@ -7,10 +7,11 @@ Output: the largest prime number that can be represented by k bits, i.e. less th
 
 Notes: results are stored in folder 'out/modulus'.
 """
-from core.rnd.inspection import modulus_finder
-from core.utils.report import SimpleReport
 from os import path
+
+from core.rnd.inspection import modulus_finder
 from core.utils.logutils import get_logger
+from core.utils.report import SimpleReport
 
 # Logging
 logger = get_logger(__name__)

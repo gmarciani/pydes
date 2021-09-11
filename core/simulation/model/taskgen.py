@@ -1,11 +1,8 @@
-from core.simulation.model.event import SimpleEvent as Event
-from core.simulation.model.event import EventType
-from core.simulation.model.scope import SystemScope
-from core.simulation.model.scope import ActionScope
-from core.simulation.model.scope import TaskScope
 from core.rnd.rndvar import exponential
+from core.simulation.model.event import EventType
+from core.simulation.model.event import SimpleEvent as Event
+from core.simulation.model.scope import ActionScope, SystemScope, TaskScope
 from core.utils.logutils import get_logger
-
 
 # Logging
 logger = get_logger(__name__)

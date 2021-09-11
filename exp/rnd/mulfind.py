@@ -7,12 +7,12 @@ Output: FP, MC, FP/MC multipliers and the smallest/largest FP/MC multiplier, if 
 
 Notes: results are stored in folder 'out/mulfind'.
 """
-from core.rnd.inspection import multiplier_check
-from core.utils.report import SimpleReport
-from core.utils.file_utils import save_list_of_numbers
 from os import path
-from core.utils.logutils import ConsoleHandler
-from core.utils.logutils import get_logger
+
+from core.rnd.inspection import multiplier_check
+from core.utils.file_utils import save_list_of_numbers
+from core.utils.logutils import ConsoleHandler, get_logger
+from core.utils.report import SimpleReport
 
 # Logging
 logger = get_logger(__name__)

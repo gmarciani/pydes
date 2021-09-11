@@ -4,7 +4,7 @@ Random variates.
 
 
 from enum import Enum, unique
-from math import log, sqrt, exp
+from math import exp, log, sqrt
 
 
 def bernoulli(p, u):

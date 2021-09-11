@@ -1,6 +1,6 @@
 from core.rnd.inspection.multiplier_check import is_mc_multiplier
-from core.utils.mathutils import _g
 from core.utils.guiutils import print_progress
+from core.utils.mathutils import _g
 
 
 def find_jumpers(modulus, multiplier, streams):

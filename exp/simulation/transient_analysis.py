@@ -3,11 +3,11 @@ TRANSIENT ANALYSIS: Evaluate the system transient phase, according to settings i
 Results are stored in 'result.csv' and can be visualized running the Matlab script 'pmcsn.mlx'
 """
 
-from core.simulation.simulation import Simulation as Simulation
-from core.simulation.model.config import load_configuration
-from core.utils.dictutils import merge
 import logging
 
+from core.simulation.model.config import load_configuration
+from core.simulation.simulation import Simulation as Simulation
+from core.utils.dictutils import merge
 
 # Logging
 logger = logging.getLogger(__name__)

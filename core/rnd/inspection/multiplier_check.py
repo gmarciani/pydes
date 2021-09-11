@@ -18,6 +18,7 @@ Keep in mind the following table:
 """
 
 import math
+
 from core.utils import mathutils
 from core.utils.guiutils import print_progress
 from core.utils.mathutils import _g

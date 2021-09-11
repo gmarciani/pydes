@@ -2,9 +2,9 @@
 Utilities for CSV file management.
 """
 
-from core.utils.file_utils import create_dir_tree, is_empty_file, empty_file
 from csv import DictReader
 
+from core.utils.file_utils import create_dir_tree, empty_file, is_empty_file
 
 CHAR_TO_REPLACE = [" ", "/"]
 

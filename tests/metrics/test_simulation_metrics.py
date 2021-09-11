@@ -1,7 +1,7 @@
 import unittest
+
 from core.metrics.simulation_metrics import SimulationMetrics
-from core.simulation.model.scope import SystemScope
-from core.simulation.model.scope import TaskScope
+from core.simulation.model.scope import SystemScope, TaskScope
 
 
 class SimulationMetricsTest(unittest.TestCase):

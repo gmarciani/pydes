@@ -1,8 +1,9 @@
 import unittest
+from math import exp
+from statistics import mean, variance
+
 from core.rnd.rndgen import MarcianiMultiStream
 from core.rnd.rndvar import Variate
-from statistics import mean, variance
-from math import exp
 
 
 class RndvarTest(unittest.TestCase):

@@ -5,7 +5,6 @@ Utilities for logging.
 import logging
 import sys
 
-
 FORMATTER = logging.Formatter("%(asctime)-15s [%(levelname)s] %(message)s")
 LEVEL = logging.INFO
 

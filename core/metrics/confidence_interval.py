@@ -1,5 +1,6 @@
-from core.rnd.rndf import idfStudent
 from math import sqrt
+
+from core.rnd.rndf import idfStudent
 
 
 def get_interval_estimation(samsize, sdev, alpha):

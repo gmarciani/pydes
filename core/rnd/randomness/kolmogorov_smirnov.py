@@ -2,8 +2,8 @@
 Kolmogorov-Smirnov test of randomness.
 """
 import math
-from core.rnd.rndf import cdfChisquare
 
+from core.rnd.rndf import cdfChisquare
 
 # Approximation table for one-tailed critical values by Stephens.
 C_FACTOR_TABLE = {"0.900": 1.224, "0.950": 1.358, "0.975": 1.480, "0.990": 1.628}

@@ -1,8 +1,7 @@
 from types import SimpleNamespace
-from core.utils.csv_utils import save_csv
-from core.simulation.model.scope import SystemScope
-from core.simulation.model.scope import TaskScope
 
+from core.simulation.model.scope import SystemScope, TaskScope
+from core.utils.csv_utils import save_csv
 
 NAN = float("nan")
 

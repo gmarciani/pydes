@@ -1,8 +1,8 @@
-from enum import Enum, unique
 import random
+from enum import Enum, unique
+
 from core.simulation.model.server import ServerState
 from core.utils.logutils import get_logger
-
 
 # Logging
 logger = get_logger(__name__)

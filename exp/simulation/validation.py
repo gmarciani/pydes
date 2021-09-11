@@ -2,10 +2,10 @@
 VALIDATION: Evaluate the delta between the analytical result and the simulation one.
 """
 
-from core.simulation import result_validator, result_printer
 import logging
 import os
 
+from core.simulation import result_printer, result_validator
 
 # Logging
 logger = logging.getLogger(__name__)

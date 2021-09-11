@@ -1,6 +1,5 @@
-from graphviz import Digraph
 import sympy
-
+from graphviz import Digraph
 
 FLOATING_POINT_PRECISION = 12
 

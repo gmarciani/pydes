@@ -1,8 +1,9 @@
 import unittest
-from core.metrics.batch_means import BatchedMeasure
+from copy import deepcopy
 from random import randint
 from statistics import mean, stdev
-from copy import deepcopy
+
+from core.metrics.batch_means import BatchedMeasure
 
 N_BATCH = 10
 BATCH_DIM = 100

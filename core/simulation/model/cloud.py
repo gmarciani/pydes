@@ -1,11 +1,10 @@
-from core.simulation.model.event import EventType
-from core.simulation.model.scope import SystemScope
-from core.simulation.model.scope import ActionScope
-from core.rnd.rndcmp import RandomComponent
 import logging
 
+from core.rnd.rndcmp import RandomComponent
+from core.simulation.model.event import EventType
+
 # Logging
-from core.simulation.model.scope import TaskScope
+from core.simulation.model.scope import ActionScope, SystemScope, TaskScope
 
 logger = logging.getLogger(__name__)
 

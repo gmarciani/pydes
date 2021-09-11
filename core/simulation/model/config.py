@@ -1,12 +1,12 @@
 import copy
+
 import yaml
 
-from core.simulation.model.scope import TaskScope
 from core.rnd.rndvar import Variate
+from core.simulation.model.controller import ControllerAlgorithm
+from core.simulation.model.scope import TaskScope
 from core.simulation.model.server_selection import SelectionRule
 from core.simulation.simulation_mode import SimulationMode
-from core.simulation.model.controller import ControllerAlgorithm
-
 
 _default_configuration = {
     "general": {

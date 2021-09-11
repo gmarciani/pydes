@@ -2,11 +2,12 @@
 ANALYTICAL SOLUTION: Solves the analytical model leveraging Markov Chains.
 """
 
-from core.simulation.model.config import load_configuration
-from core.analytical.analytical_solver import AnalyticalSolver
-from core.utils.dictutils import merge
 import logging
 import os
+
+from core.analytical.analytical_solver import AnalyticalSolver
+from core.simulation.model.config import load_configuration
+from core.utils.dictutils import merge
 
 # Logging
 logger = logging.getLogger(__name__)
