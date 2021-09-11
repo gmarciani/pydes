@@ -4,7 +4,6 @@ from random import randint
 
 import numpy as np
 import scipy.stats
-
 from core.metrics.accumulator import WelfordAccumulator
 
 SAMPLE_SIZE = 1000000

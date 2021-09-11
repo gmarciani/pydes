@@ -1,7 +1,6 @@
 import copy
 
 import yaml
-
 from core.rnd.rndvar import Variate
 from core.simulation.model.controller import ControllerAlgorithm
 from core.simulation.model.scope import TaskScope

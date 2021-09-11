@@ -54,17 +54,17 @@ cloud:
 
 ## Experiments
 The package provides experiment on randomness and simulations.
-In package 'exp/rnd' you can find experiments on multi-stream Lehmer pseudo-random generator.
-In package 'exp/simulation' you can find experiments on the simulated system.
+In package 'pydes.exp.rnd' you can find experiments on multi-stream Lehmer pseudo-random generator.
+In package 'pydes.exp.simulation' you can find experiments on the simulated system.
 
 Run the experiments and visualize results through the MATLAB Live Script `pmcsn.mlx`.
 
-* `exp/rnd/modulus`: Find a suitable modulus for a multi-stream Lehmer pseudo-random generator, given the number of bits.
-* `exp/rnd/mulfind`: Find suitable FP, MC, FP/MC multipliers for a multi-stream Lehmer pseudo-random generator, given a modulus.
-* `exp/rnd/mulcheck`: Check FP, MC, FP/MC constraints for multipliers for a multi-stream Lehmer pseudo-random generator, given a modulus and a multiplier.
-* `exp/rnd/jmpfind`: Find a suitable jumper for a multi-stream Lehmer pseudo-random generator, given a modulus, a multiplier and a number of streams.
-* `exp/rnd/extremes`: Find a suitable jumper for a multi-stream Lehmer pseudo-random generator, given a modulus, a multiplier and a number of streams.
-* `exp/rnd/kolmogorov-smirnov`: Find a suitable jumper for a multi-stream Lehmer pseudo-random generator, given a modulus, a multiplier and a number of streams.
+* `pydes.exp.rnd.modulus`: Find a suitable modulus for a multi-stream Lehmer pseudo-random generator, given the number of bits.
+* `pydes.exp.rnd.mulfind`: Find suitable FP, MC, FP/MC multipliers for a multi-stream Lehmer pseudo-random generator, given a modulus.
+* `pydes.exp.rnd.mulcheck`: Check FP, MC, FP/MC constraints for multipliers for a multi-stream Lehmer pseudo-random generator, given a modulus and a multiplier.
+* `pydes.exp.rnd.jmpfind`: Find a suitable jumper for a multi-stream Lehmer pseudo-random generator, given a modulus, a multiplier and a number of streams.
+* `pydes.exp.rnd.extremes`: Find a suitable jumper for a multi-stream Lehmer pseudo-random generator, given a modulus, a multiplier and a number of streams.
+* `pydes.exp.rnd.kolmogorov-smirnov`: Find a suitable jumper for a multi-stream Lehmer pseudo-random generator, given a modulus, a multiplier and a number of streams.
 
 To run an experiment:
 

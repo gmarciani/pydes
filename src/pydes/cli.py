@@ -4,7 +4,6 @@ import json
 from os import path
 
 import click
-
 from core.rnd.rndgen import MarcianiMultiStream, MarcianiSingleStream
 from core.utils import guiutils, logutils
 from exp.analytical import analytical_solution

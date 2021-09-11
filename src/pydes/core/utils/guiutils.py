@@ -5,9 +5,8 @@ Utilities for CLI.
 import sys
 
 from colored import attr, fg
-from pyfiglet import Figlet
-
 from core.utils.logutils import get_logger
+from pyfiglet import Figlet
 
 logger = get_logger(__name__)
 
