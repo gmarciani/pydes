@@ -18,7 +18,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install pip
-        run: python pip install --upgrade pip
+        run: pip install --upgrade pip
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.1.1
