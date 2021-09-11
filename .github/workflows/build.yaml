@@ -26,10 +26,10 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install pip
-        run: pip install --upgrade pip
+        run: pip3 install --upgrade pip
 
       - name: Install build script
-        run: pip install --upgrade build
+        run: pip3 install --upgrade build
 
       - name: Build wheels
-        run: python -m build
+        run: python3 -m build
