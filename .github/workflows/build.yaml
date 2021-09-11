@@ -17,14 +17,13 @@ jobs:
           submodules: true
           fetch-depth: 0
 
+      - name: Install Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+
       - name: Install pip
         run: pip install --upgrade pip
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.1.1
-        env:
-          CIBW_BUILD_VERBOSITY: 1
-
-#      - uses: actions/upload-artifact@v2
-#        with:
-#          path: ./wheelhouse/*.whl
+        run: python -m build
