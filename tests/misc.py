@@ -5,21 +5,14 @@ from core.simulation.model.scope import TaskScope
 rndgen = MarcianiMultiStream()
 
 rndparams = {
-    TaskScope.TASK_1: {
-        "distribution": "EXPONENTIAL",
-        "distribution_params": {
-            "m": 0.5
-        }
-    },
-    TaskScope.TASK_2: {
-        "distribution": "EXPONENTIAL",
-        "distribution_params": {
-            "m": 0.8
-        }
-    }
+    TaskScope.TASK_1: {"distribution": "EXPONENTIAL", "distribution_params": {"m": 0.5}},
+    TaskScope.TASK_2: {"distribution": "EXPONENTIAL", "distribution_params": {"m": 0.8}},
 }
 
-variates = {tsk: lambda u: Variate[rndparams[tsk]["distribution"]].vargen.generate(u=u, **rndparams[tsk]["distribution_params"]) for tsk in TaskScope.concrete()}
+variates = {
+    tsk: lambda u: Variate[rndparams[tsk]["distribution"]].vargen.generate(u=u, **rndparams[tsk]["distribution_params"])
+    for tsk in TaskScope.concrete()
+}
 
 
 def get_service_time(tsk):

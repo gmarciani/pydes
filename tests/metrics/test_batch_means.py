@@ -10,7 +10,6 @@ PRECISION = 10
 
 
 class BatchMeansTest(unittest.TestCase):
-
     def setUp(self):
         self.metric = BatchedMeasure()
         self.samples = []
@@ -37,7 +36,7 @@ class BatchMeansTest(unittest.TestCase):
         curr_batch = []
         for i in range(len(self.samples)):
             curr_batch.append(self.samples[i])
-            if (i+1) % BATCH_DIM == 0:
+            if (i + 1) % BATCH_DIM == 0:
                 expected_batches.append(deepcopy(curr_batch))
                 curr_batch.clear()
 
@@ -47,6 +46,8 @@ class BatchMeansTest(unittest.TestCase):
 
         self.assertEqual(len(expected_batch_means), len(self.metric.get_batch_means()))
         for i in range(len(expected_batch_means)):
-            self.assertEqual(round(expected_batch_means[i], PRECISION), round(self.metric.get_batch_means()[i], PRECISION))
+            self.assertEqual(
+                round(expected_batch_means[i], PRECISION), round(self.metric.get_batch_means()[i], PRECISION)
+            )
         self.assertEqual(round(expected_mean, PRECISION), round(self.metric.mean(), PRECISION))
         self.assertEqual(round(expected_sdev, PRECISION), round(self.metric.sdev(), PRECISION))

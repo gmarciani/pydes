@@ -3,7 +3,6 @@ from core.rnd.inspection import jumper_finder
 
 
 class JumperTest(unittest.TestCase):
-
     @unittest.skip("Test too expensive for this machine.")
     def test_find_jumper_8bit(self):
         """
@@ -61,8 +60,8 @@ class JumperTest(unittest.TestCase):
         Verify the correctness of the jumper finder process, for 64bit modulus.
         :return: None
         """
-        MODULUS = 2147483647    # 9223372036854775783
-        MULTIPLIER = 48271      # -
+        MODULUS = 2147483647  # 9223372036854775783
+        MULTIPLIER = 48271  # -
         STREAMS = 256
         JUMPER = 22925
         JSIZE = 127

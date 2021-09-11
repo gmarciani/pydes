@@ -27,9 +27,11 @@ class SimpleCloud:
         # Randomization - Service
         self.rndservice = RandomComponent(
             gen=rndgen,
-            str={tsk: EventType.of(ActionScope.COMPLETION, SystemScope.CLOUD, tsk).value for tsk in TaskScope.concrete()},
+            str={
+                tsk: EventType.of(ActionScope.COMPLETION, SystemScope.CLOUD, tsk).value for tsk in TaskScope.concrete()
+            },
             var={tsk: config["service"][tsk]["distribution"] for tsk in TaskScope.concrete()},
-            par={tsk: config["service"][tsk]["parameters"] for tsk in TaskScope.concrete()}
+            par={tsk: config["service"][tsk]["parameters"] for tsk in TaskScope.concrete()},
         )
 
         # Randomization - Setup
@@ -37,7 +39,7 @@ class SimpleCloud:
             gen=rndgen,
             str={tsk: EventType.of(ActionScope.RESTART, SystemScope.CLOUD, tsk).value for tsk in TaskScope.concrete()},
             var={tsk: config["setup"][tsk]["distribution"] for tsk in TaskScope.concrete()},
-            par={tsk: config["setup"][tsk]["parameters"] for tsk in TaskScope.concrete()}
+            par={tsk: config["setup"][tsk]["parameters"] for tsk in TaskScope.concrete()},
         )
 
         # State
@@ -72,7 +74,9 @@ class SimpleCloud:
         self.metrics.counters.arrived[SystemScope.CLOUD][tsk] += 1
         if restart:
             self.metrics.counters.switched[SystemScope.CLOUD][tsk] += 1
-        self.metrics.counters.population_area[SystemScope.CLOUD][tsk] += (t_now - self.t_last_event[tsk]) * self.state[tsk]
+        self.metrics.counters.population_area[SystemScope.CLOUD][tsk] += (t_now - self.t_last_event[tsk]) * self.state[
+            tsk
+        ]
 
         # Update state
         self.state[tsk] += 1
@@ -103,7 +107,9 @@ class SimpleCloud:
         if switched:
             self.metrics.counters.switched_completed[SystemScope.CLOUD][tsk] += 1
             self.metrics.counters.switched_service[SystemScope.CLOUD][tsk] += t_served
-        self.metrics.counters.population_area[SystemScope.CLOUD][tsk] += (t_now - self.t_last_event[tsk]) * self.state[tsk]
+        self.metrics.counters.population_area[SystemScope.CLOUD][tsk] += (t_now - self.t_last_event[tsk]) * self.state[
+            tsk
+        ]
 
         # Update state
         self.state[tsk] -= 1
@@ -126,6 +132,9 @@ class SimpleCloud:
         String representation.
         :return: the string representation.
         """
-        sb = ["{attr}={value}".format(attr=attr, value=self.__dict__[attr]) for attr in self.__dict__ if
-              not attr.startswith("__") and not callable(getattr(self, attr))]
+        sb = [
+            "{attr}={value}".format(attr=attr, value=self.__dict__[attr])
+            for attr in self.__dict__
+            if not attr.startswith("__") and not callable(getattr(self, attr))
+        ]
         return "Cloud({}:{})".format(id(self), ", ".join(sb))

@@ -3,7 +3,6 @@ from core.rnd.rndgen import MarcianiSingleStream, MarcianiMultiStream
 
 
 class RndgenTest(unittest.TestCase):
-
     def test_rnd_single_stream(self):
         """
         Verify the correctness of the Lehmer rnd number generator: MarcianiSingleStream
@@ -36,7 +35,9 @@ class RndgenTest(unittest.TestCase):
         CHECK_VALUE = 399268537
         CHECK_ITERS = 10000
 
-        generator = MarcianiMultiStream(modulus=MODULUS, multiplier=MULTIPLIER, streams=STREAMS, jumper=JUMPER, iseed=SEED)
+        generator = MarcianiMultiStream(
+            modulus=MODULUS, multiplier=MULTIPLIER, streams=STREAMS, jumper=JUMPER, iseed=SEED
+        )
         for _ in range(0, CHECK_ITERS):
             generator.rnd()
 

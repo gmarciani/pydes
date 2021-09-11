@@ -14,7 +14,6 @@ class SharedModulus:
 
 
 class ModulusFinder(threading.Thread):
-
     def __init__(self, rng, modulus):
         threading.Thread.__init__(self)
         self.rng = rng
@@ -32,7 +31,7 @@ class ModulusFinder(threading.Thread):
 
 
 def find_modulus(bits, threads=_THREADS):
-    mx = 2**(bits - 1) - 1
+    mx = 2 ** (bits - 1) - 1
     pool = []
     modulus = SharedModulus()
     for t in range(threads):

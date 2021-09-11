@@ -28,7 +28,7 @@ def is_prime(n):
         return True
     if n % 2 == 0:
         return False
-    max = n**0.5 + 1
+    max = n ** 0.5 + 1
     i = 3
     while i <= max:
         if n % i == 0:
@@ -201,7 +201,8 @@ def linear_regression_line(sample):
     c = covariance(sample)
     theta = 0.5 * math.atan2(variance_u - variance_v, 2 * c)
 
-    def line(u): return (u - mean_u) * math.tan(theta) + mean_v
+    def line(u):
+        return (u - mean_u) * math.tan(theta) + mean_v
 
     return line
 
@@ -222,7 +223,6 @@ def interval_estimation(sample, significance):
 
 
 class WelfordStatistics(object):
-
     def __init__(self):
         self._i = 0
         self._mean = 0.0

@@ -20,8 +20,8 @@ Keep in mind the following table:
 ╚════════════╩═════╩═══════╩════════════╩═════════════════════╝
 """
 
-#import os
+# import os
 
-#EXP_DIR = os.path.dirname(os.path.abspath(__file__)) + '/resources'
-#PLT_EXT = 'svg'
-#RES_EXT = 'txt'
+# EXP_DIR = os.path.dirname(os.path.abspath(__file__)) + '/resources'
+# PLT_EXT = 'svg'
+# RES_EXT = 'txt'

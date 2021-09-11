@@ -19,6 +19,7 @@ class ServerState(Enum):
     """
     Enumerate server states.
     """
+
     IDLE = 0
     BUSY = 1
 
@@ -84,7 +85,7 @@ class SimpleServer:
 
         # Update statistics
         self.arrived[tsk] += 1
-        self.t_idle += (t_now - self.t_completion)
+        self.t_idle += t_now - self.t_completion
 
         return self.t_completion
 
@@ -122,7 +123,7 @@ class SimpleServer:
 
         # Update statistics
         self.completed[self.task_type] += 1
-        self.service[self.task_type] += (self.t_completion - self.t_arrival)
+        self.service[self.task_type] += self.t_completion - self.t_arrival
 
         # Update state
         self.state = ServerState.IDLE
@@ -139,8 +140,11 @@ class SimpleServer:
         String representation.
         :return: the string representation.
         """
-        sb = ["{attr}={value}".format(attr=attr, value=self.__dict__[attr]) for attr in self.__dict__ if
-              not attr.startswith("__") and not attr.startswith("_") and not callable(getattr(self, attr))]
+        sb = [
+            "{attr}={value}".format(attr=attr, value=self.__dict__[attr])
+            for attr in self.__dict__
+            if not attr.startswith("__") and not attr.startswith("_") and not callable(getattr(self, attr))
+        ]
         return "Server({}:{})".format(id(self), ", ".join(sb))
 
     def __eq__(self, other):

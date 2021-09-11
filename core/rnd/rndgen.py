@@ -21,11 +21,14 @@ class MarcianiMultiStream(object):
     Implementation of a multi-stream Lehmer pseudo-rnd number generator.
     """
 
-    def __init__(self, iseed=DEFAULT_ISEED,
-                 modulus=DEFAULT_MODULUS,
-                 multiplier=DEFAULT_MULTIPLIER,
-                 streams=DEFAULT_STREAMS,
-                 jumper=DEFAULT_JUMPER):
+    def __init__(
+        self,
+        iseed=DEFAULT_ISEED,
+        modulus=DEFAULT_MODULUS,
+        multiplier=DEFAULT_MULTIPLIER,
+        streams=DEFAULT_STREAMS,
+        jumper=DEFAULT_JUMPER,
+    ):
         """
         Creates a new rnd number generator.
         :param iseed: (int) the initial seed; must be positive.
@@ -123,9 +126,7 @@ class MarcianiMultiStream(object):
         if x > 0:
             x %= self._modulus
         else:
-            raise ValueError(
-                "x must be a positive number in (0, modulus). Found {}".format(
-                    x))
+            raise ValueError("x must be a positive number in (0, modulus). Found {}".format(x))
         self._seeds[self._stream] = int(x)
 
     def stream(self, stream_id):
@@ -145,24 +146,21 @@ class MarcianiMultiStream(object):
         Q = int(self._modulus / self._multiplier)
         R = int(self._modulus % self._multiplier)
 
-        t = int(self._multiplier * (self._seeds[self._stream] % Q) -
-                R * int(self._seeds[self._stream] / Q))
+        t = int(self._multiplier * (self._seeds[self._stream] % Q) - R * int(self._seeds[self._stream] / Q))
         if t > 0:
             self._seeds[self._stream] = int(t)
         else:
             self._seeds[self._stream] = int(t + self._modulus)
 
         return float(self._seeds[self._stream] / self._modulus)
-    
+
 
 class MarcianiSingleStream:
     """
     Implementation of a single-stream Lehmer pseudo-rnd number generator.
     """
 
-    def __init__(self, iseed=DEFAULT_ISEED,
-                 modulus=DEFAULT_MODULUS,
-                 multiplier=DEFAULT_MULTIPLIER):
+    def __init__(self, iseed=DEFAULT_ISEED, modulus=DEFAULT_MODULUS, multiplier=DEFAULT_MULTIPLIER):
         """
         Creates a new rnd number generator.
         :param iseed: (int) the initial seed; must be positive.
@@ -177,7 +175,7 @@ class MarcianiSingleStream:
         self._seed = iseed
         self._modulus = modulus
         self._multiplier = multiplier
-        
+
     def get_initial_seed(self):
         """
         Retrieves the initial seed for the 1st stream.
@@ -198,14 +196,14 @@ class MarcianiSingleStream:
         :return: (int) the multiplier.
         """
         return self._multiplier
-    
+
     def get_seed(self):
         """
         Retrieves the seed..
         :return: (int) the seed.
         """
         return self._seed
-    
+
     def put_seed(self, x):
         """
         Initializes the generator with the specified seed.
@@ -215,7 +213,7 @@ class MarcianiSingleStream:
             x %= self._modulus
         else:
             raise ValueError("x must be a positive number in (0, modulus). Found {}".format(x))
-        
+
     def rnd(self):
         """
         Generates a pseudo-rnd number from uniform distribution in [0,1)
@@ -223,14 +221,14 @@ class MarcianiSingleStream:
         """
         Q = int(self._modulus / self._multiplier)
         R = int(self._modulus % self._multiplier)
-    
+
         t = int(self._multiplier * (self._seed % Q) - R * int(self._seed / Q))
-        
+
         if t > 0:
             self._seed = int(t)
         else:
             self._seed = int(t + self._modulus)
-    
+
         return float(self._seed / self._modulus)
 
 
@@ -252,5 +250,3 @@ if __name__ == "__main__":
         generator.rnd()
     if generator.get_seed() != CHECK:
         raise RuntimeError("{} is not correct!".format(generator.__class__.__name__))
-
-

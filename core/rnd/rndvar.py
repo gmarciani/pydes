@@ -14,7 +14,7 @@ def bernoulli(p, u):
     :param u: (float) rnd number in (0,1).
     :return: (float) the Bernoulli(p) rnd variate.
     """
-    return 0 if u < (1-p) else 1
+    return 0 if u < (1 - p) else 1
 
 
 def binomial(n, p, u):

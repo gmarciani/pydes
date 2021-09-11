@@ -3,7 +3,6 @@ from core.rnd.inspection import modulus_finder
 
 
 class ModulusTest(unittest.TestCase):
-
     def test_find_jumper_8bit(self):
         """
         Verify the correctness of the modulus finder process, for 8bit modulus.

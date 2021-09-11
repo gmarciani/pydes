@@ -7,7 +7,7 @@ Input:
     * the pseudo-rnd number generator, characterized by its modulus and multiplier.
     * the sample size.
     * the interval [a,b].
-    
+
 Output: the distribution of rnd number within the specified interval.
 
 Notes: results are stored in folder 'out/spectral'.
@@ -32,8 +32,11 @@ DEFAULT_OUTDIR = "out/spectral"
 
 def run(g, samsize, interval, outdir):
 
-    logger.info("Spectral Test for Modulus {} Multiplier {} Samsize {} Interval {}"
-                .format(g.get_modulus(), g.get_multiplier(), samsize, interval))
+    logger.info(
+        "Spectral Test for Modulus {} Multiplier {} Samsize {} Interval {}".format(
+            g.get_modulus(), g.get_multiplier(), samsize, interval
+        )
+    )
 
     filename = path.join(outdir, "mod{}_mul{}".format(g.get_modulus(), g.get_multiplier()))
 

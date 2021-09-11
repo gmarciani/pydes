@@ -39,7 +39,7 @@ class ConsoleHandler(logging.StreamHandler):
         # Workaround a bug in logging module
         # See:
         #   http://bugs.python.org/issue6333
-        if self.stream and hasattr(self.stream, 'flush') and not self.stream.closed:
+        if self.stream and hasattr(self.stream, "flush") and not self.stream.closed:
             logging.StreamHandler.flush(self)
 
 

@@ -27,7 +27,7 @@ class Sample:
             switched_completed={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
             switched_service={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
             switched_service_lost={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
-            population_area={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope}
+            population_area={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
         )
 
         # Performance Metrics
@@ -37,7 +37,7 @@ class Sample:
             population={sys: {tsk: 0.0 for tsk in TaskScope} for sys in SystemScope},
             switched_ratio={sys: {tsk: 0.0 for tsk in TaskScope} for sys in SystemScope},
             switched_response={sys: {tsk: 0.0 for tsk in TaskScope} for sys in SystemScope},
-            service_lost={sys: {tsk: 0.0 for tsk in TaskScope} for sys in SystemScope}
+            service_lost={sys: {tsk: 0.0 for tsk in TaskScope} for sys in SystemScope},
         )
 
     def save_csv(self, filename, append=False, skip_header=False):
@@ -77,7 +77,9 @@ if __name__ == "__main__":
     s.counters.arrived[SystemScope.CLOUD][TaskScope.TASK_2] = 4
 
     for tsk in TaskScope.concrete():
-        s.counters.arrived[SystemScope.SYSTEM][tsk] = sum(s.counters.arrived[sys][tsk] for sys in SystemScope.subsystems())
+        s.counters.arrived[SystemScope.SYSTEM][tsk] = sum(
+            s.counters.arrived[sys][tsk] for sys in SystemScope.subsystems()
+        )
 
     for tsk in TaskScope.concrete():
         print(s.counters.arrived[SystemScope.SYSTEM][tsk])

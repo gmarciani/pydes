@@ -10,7 +10,7 @@ from core.utils.csv_utils import save_csv
 
 PREC = 10
 WIDTH = 63
-PART = 4/6
+PART = 4 / 6
 
 
 class SimpleReport(object):
@@ -128,9 +128,9 @@ class SimpleReport(object):
         """
         title_separator = "=" * WIDTH
 
-        fmt_title = '\n{}\n{:^' + str(WIDTH) + '}\n{}\n'
-        fmt_section = '\n{:^' + str(WIDTH) + '}\n'
-        fmt_value = '{:.<' + str(int(PART*WIDTH)) + '}{:.>' + str(int((1.0-PART)*WIDTH)) + '}\n'
+        fmt_title = "\n{}\n{:^" + str(WIDTH) + "}\n{}\n"
+        fmt_section = "\n{:^" + str(WIDTH) + "}\n"
+        fmt_value = "{:.<" + str(int(PART * WIDTH)) + "}{:.>" + str(int((1.0 - PART) * WIDTH)) + "}\n"
 
         s = fmt_title.format(title_separator, self.title, title_separator)
 

@@ -11,6 +11,7 @@ class EventType(Enum):
     """
     The types of events.
     """
+
     def __new__(cls, *args, **kwds):
         value = len(cls.__members__) + 1
         obj = object.__new__(cls)
@@ -24,14 +25,22 @@ class EventType(Enum):
 
     ARRIVAL_TASK_1 = ActionScope.ARRIVAL, SystemScope.SYSTEM, TaskScope.TASK_1
     ARRIVAL_TASK_2 = ActionScope.ARRIVAL, SystemScope.SYSTEM, TaskScope.TASK_2
-    ARRIVAL_GLOBAL = ActionScope.ARRIVAL, SystemScope.SYSTEM, TaskScope.GLOBAL # fake event type, used only in taskgen
+    ARRIVAL_GLOBAL = ActionScope.ARRIVAL, SystemScope.SYSTEM, TaskScope.GLOBAL  # fake event type, used only in taskgen
     COMPLETION_CLOUDLET_TASK_1 = ActionScope.COMPLETION, SystemScope.CLOUDLET, TaskScope.TASK_1
     COMPLETION_CLOUDLET_TASK_2 = ActionScope.COMPLETION, SystemScope.CLOUDLET, TaskScope.TASK_2
     COMPLETION_CLOUD_TASK_1 = ActionScope.COMPLETION, SystemScope.CLOUD, TaskScope.TASK_1
     COMPLETION_CLOUD_TASK_2 = ActionScope.COMPLETION, SystemScope.CLOUD, TaskScope.TASK_2
-    INTERRUPTION_CLOUDLET_TASK_1 = ActionScope.INTERRUPTION, SystemScope.CLOUDLET, TaskScope.TASK_1 # fake event type, added only for simmetry
+    INTERRUPTION_CLOUDLET_TASK_1 = (
+        ActionScope.INTERRUPTION,
+        SystemScope.CLOUDLET,
+        TaskScope.TASK_1,
+    )  # fake event type, added only for simmetry
     INTERRUPTION_CLOUDLET_TASK_2 = ActionScope.INTERRUPTION, SystemScope.CLOUDLET, TaskScope.TASK_2
-    RESTART_CLOUD_TASK_1 = ActionScope.RESTART, SystemScope.CLOUD, TaskScope.TASK_1 # fake event type, added only for simmetry
+    RESTART_CLOUD_TASK_1 = (
+        ActionScope.RESTART,
+        SystemScope.CLOUD,
+        TaskScope.TASK_1,
+    )  # fake event type, added only for simmetry
     RESTART_CLOUD_TASK_2 = ActionScope.RESTART, SystemScope.CLOUD, TaskScope.TASK_2
 
     @staticmethod
@@ -92,8 +101,11 @@ class SimpleEvent:
         String representation.
         :return: the string representation.
         """
-        sb = ["{attr}={value}".format(attr=attr, value=self.__dict__[attr]) for attr in self.__dict__ if
-              not attr.startswith("__") and not callable(getattr(self, attr))]
+        sb = [
+            "{attr}={value}".format(attr=attr, value=self.__dict__[attr])
+            for attr in self.__dict__
+            if not attr.startswith("__") and not callable(getattr(self, attr))
+        ]
         return "Event({})".format(", ".join(sb))
 
     def __repr__(self):

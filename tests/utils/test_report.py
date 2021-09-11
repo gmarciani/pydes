@@ -3,7 +3,6 @@ from core.utils.report import SimpleReport
 
 
 class ReportTest(unittest.TestCase):
-
     def setUp(self):
         """
         The test setup.

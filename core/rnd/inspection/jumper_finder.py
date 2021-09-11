@@ -14,7 +14,7 @@ def find_jumpers(modulus, multiplier, streams):
     jumpers = []
     jsize_max = int((modulus + 1) / streams)
     jumper = 1
-    for jsize in range(1, jsize_max+1):
+    for jsize in range(1, jsize_max + 1):
         jumper = _g(jumper, multiplier, modulus)
         if is_mc_multiplier(jumper, modulus):
             jumpers.append((jumper, jsize))
@@ -32,7 +32,7 @@ def find_jumper(modulus, multiplier, streams):
     """
     jsize_max = int((modulus + 1) / streams)
     jumper = 1
-    for jsize in range(1, jsize_max+1):
+    for jsize in range(1, jsize_max + 1):
         jumper = _g(jumper, multiplier, modulus)
         if is_mc_multiplier(jumper, modulus):
             return jumper, jsize

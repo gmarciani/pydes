@@ -17,7 +17,7 @@ def get_splash():
     :return: The Splash Screen.
     """
     f = Figlet(font="slant")
-    return "%s %s %s" % (fg('yellow'), f.renderText("PyDES"), attr(0))
+    return "%s %s %s" % (fg("yellow"), f.renderText("PyDES"), attr(0))
 
 
 def print_progress(iteration, total, prefix="PROGRESS", suffix="Complete", message="", decimals=0, bar_length=50):
@@ -28,7 +28,9 @@ def print_progress(iteration, total, prefix="PROGRESS", suffix="Complete", messa
 
     sys.stdout.flush()
 
-    sys.stdout.write("\r%s [%s] %s%% %s (%d/%d) { %s }" % (prefix, bar, percents, suffix, iteration, total, message or "no message"))
+    sys.stdout.write(
+        "\r%s [%s] %s%% %s (%d/%d) { %s }" % (prefix, bar, percents, suffix, iteration, total, message or "no message")
+    )
 
 
 if __name__ == "__main__":
@@ -40,8 +42,8 @@ if __name__ == "__main__":
 
     logger.info("Start")
 
-    for i in range(tot+1):
-        sleep(1/tot)
+    for i in range(tot + 1):
+        sleep(1 / tot)
         print_progress(i, tot)
 
     logger.info("End")

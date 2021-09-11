@@ -9,38 +9,29 @@ from core.simulation.model.controller import ControllerAlgorithm
 
 
 _default_configuration = {
-
     "general": {
-        #"mode": "PERFORMANCE_ANALYSIS",  # the simulation mode
-
+        # "mode": "PERFORMANCE_ANALYSIS",  # the simulation mode
         # Required for TRANSIENT_ANALYSIS
-        #"t_stop": 3600,  # the stop time for the simulation (s) 1hour=3600, 1day=86400, 1week=604800, 1month=2.628e+6
-
+        # "t_stop": 3600,  # the stop time for the simulation (s) 1hour=3600, 1day=86400, 1week=604800, 1month=2.628e+6
         # Required for PERFORMANCE_ANALYSIS
-        #"batches": 64,  # the number of batches
-        #"batchdim": 512,  # the batch dimension
+        # "batches": 64,  # the number of batches
+        # "batchdim": 512,  # the batch dimension
         "confidence": 0.95,  # the level of confidence
         "rnd": {
             "generator": "MarcianiMultiStream",  # the class name of the rnd generator
-            "seed": 123456789  # the initial seed for the rnd generator
-        }
+            "seed": 123456789,  # the initial seed for the rnd generator
+        },
     },
-
     "arrival": {
         "TASK_1": {
             "distribution": "EXPONENTIAL",
-            "parameters": {
-                "r": 4.00  # the arrival rate for tasks of type 1 (tasks/s)
-            }
+            "parameters": {"r": 4.00},  # the arrival rate for tasks of type 1 (tasks/s)
         },
         "TASK_2": {
             "distribution": "EXPONENTIAL",
-            "parameters": {
-                "r": 6.25  # the arrival rate for tasks of type 2 (tasks/s)
-            }
-        }
+            "parameters": {"r": 6.25},  # the arrival rate for tasks of type 2 (tasks/s)
+        },
     },
-
     "system": {
         "cloudlet": {
             "n_servers": 20,  # the number of servers
@@ -50,50 +41,37 @@ _default_configuration = {
             "service": {
                 "TASK_1": {
                     "distribution": "EXPONENTIAL",
-                    "parameters": {
-                        "r": 0.45  # the service rate for tasks of type 1 (tasks/s)
-                    }
+                    "parameters": {"r": 0.45},  # the service rate for tasks of type 1 (tasks/s)
                 },
                 "TASK_2": {
                     "distribution": "EXPONENTIAL",
-                    "parameters": {
-                        "r": 0.27  # the service rate for tasks of type 2 (tasks/s)
-                    }
-                }
-            }
+                    "parameters": {"r": 0.27},  # the service rate for tasks of type 2 (tasks/s)
+                },
+            },
         },
-
         "cloud": {
             "service": {
                 "TASK_1": {
                     "distribution": "EXPONENTIAL",
-                    "parameters": {
-                        "r": 0.25  # the service rate for tasks of type 1 (tasks/s)
-                    }
+                    "parameters": {"r": 0.25},  # the service rate for tasks of type 1 (tasks/s)
                 },
                 "TASK_2": {
                     "distribution": "EXPONENTIAL",
-                    "parameters": {
-                        "r": 0.22  # the service rate for tasks of type 2 (tasks/s)
-                    }
-                }
+                    "parameters": {"r": 0.22},  # the service rate for tasks of type 2 (tasks/s)
+                },
             },
             "setup": {
                 "TASK_1": {
                     "distribution": "DETERMINISTIC",
-                    "parameters": {
-                        "v": 0  # the value of the setup time to restart a task of type 1 in the Cloud (s).
-                    }
+                    "parameters": {"v": 0},  # the value of the setup time to restart a task of type 1 in the Cloud (s).
                 },
                 "TASK_2": {
                     "distribution": "EXPONENTIAL",
-                    "parameters": {
-                        "m": 0.8  # the mean value of the setup time to restart a task 2 in the Cloud (s).
-                    }
-                }
-            }
-        }
-    }
+                    "parameters": {"m": 0.8},  # the mean value of the setup time to restart a task 2 in the Cloud (s).
+                },
+            },
+        },
+    },
 }
 
 
@@ -148,7 +126,9 @@ def normalize(config):
     _normalize_random_config(config["system"]["cloud"]["service"])
     _normalize_random_config(config["system"]["cloud"]["setup"])
     config["system"]["cloudlet"]["server_selection"] = SelectionRule[config["system"]["cloudlet"]["server_selection"]]
-    config["system"]["cloudlet"]["controller_algorithm"] = ControllerAlgorithm[config["system"]["cloudlet"]["controller_algorithm"]]
+    config["system"]["cloudlet"]["controller_algorithm"] = ControllerAlgorithm[
+        config["system"]["cloudlet"]["controller_algorithm"]
+    ]
 
 
 def _normalize_random_config(entry):
@@ -158,7 +138,8 @@ def _normalize_random_config(entry):
     :return: None
     """
     for tsk in list(entry):
-        if isinstance(tsk, TaskScope): continue
+        if isinstance(tsk, TaskScope):
+            continue
         entry[tsk]["distribution"] = Variate[entry[tsk]["distribution"]]
         if entry[tsk]["distribution"] is Variate.EXPONENTIAL and "r" in entry[tsk]["parameters"]:
             entry[tsk]["parameters"]["m"] = 1.0 / entry[tsk]["parameters"]["r"]
@@ -175,4 +156,3 @@ if __name__ == "__main__":
     # Performance Analysis
     config_2 = get_default_configuration(SimulationMode.PERFORMANCE_ANALYSIS)
     print(config_2)
-

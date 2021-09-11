@@ -5,7 +5,6 @@ from core.simulation.model.scope import TaskScope
 
 
 class SamplingTest(unittest.TestCase):
-
     def setUp(self):
         self.sample = Sample(0)
 

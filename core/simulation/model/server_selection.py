@@ -9,7 +9,6 @@ logger = get_logger(__name__)
 
 
 class BaseServerSelection:
-
     def __init__(self, servers):
         """
         Create a new server selector.
@@ -34,7 +33,6 @@ class BaseServerSelection:
 
 
 class ServerSelectorOrder(BaseServerSelection):
-
     def __init__(self, servers):
         """
         Create a new server selector based on Order Selection Rule
@@ -65,7 +63,6 @@ class ServerSelectorOrder(BaseServerSelection):
 
 
 class ServerSelectorCyclic(BaseServerSelection):
-
     def __init__(self, servers):
         """
         Create a new server selector based on Cyclic Selection Rule.
@@ -79,7 +76,7 @@ class ServerSelectorCyclic(BaseServerSelection):
         Select an idle server, according to the adopted server selection rule.
         :return: (int) the index of the selected server, if present; None, otherwise.
         """
-        for i in range(1, len(self._servers)+1):
+        for i in range(1, len(self._servers) + 1):
             idx = (self._last + i) % len(self._servers)
             srv = self._servers[idx]
             if srv.state is ServerState.IDLE:
@@ -93,7 +90,7 @@ class ServerSelectorCyclic(BaseServerSelection):
         :param task_type: (TaskType) the type of the task.
         :return: (int) the index of the selected server, if present; None, otherwise.
         """
-        for i in range(1, len(self._servers)+1):
+        for i in range(1, len(self._servers) + 1):
             idx = (self._last + i) % len(self._servers)
             srv = self._servers[idx]
             if srv.task_type is task_type:
@@ -103,7 +100,6 @@ class ServerSelectorCyclic(BaseServerSelection):
 
 
 class ServerSelectorEquity(BaseServerSelection):
-
     def __init__(self, servers):
         """
         Create a new server selector based on Equity Selection Rule.
@@ -134,7 +130,6 @@ class ServerSelectorEquity(BaseServerSelection):
 
 
 class ServerSelectorRandom(BaseServerSelection):
-
     def __init__(self, servers):
         """
         Create a new server selector based on Random Selection Rule.

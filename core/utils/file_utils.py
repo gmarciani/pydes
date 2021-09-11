@@ -65,7 +65,7 @@ def append_list_of_numbers(filename, numbers):
 
 def save_list_of_pairs(filename, pairs):
     os.makedirs(os.path.dirname(filename), exist_ok=True)
-    with open(filename, 'w+') as resfile:
+    with open(filename, "w+") as resfile:
         for pair in pairs:
             resfile.write("{},{}\n".format(pair[0], pair[1]))
 
@@ -99,6 +99,7 @@ def save_header_csv(filename, list_dict):
         resfile.write(",".join(list_dict.keys()))
         resfile.write("\n")
 
+
 def append_csv(filename, list_dict):
     """
     Append the report onto a CSV file.
@@ -109,6 +110,7 @@ def append_csv(filename, list_dict):
     with open(filename, "a+") as resfile:
         resfile.write(",".join(list_dict.values()))
         resfile.write("\n")
+
 
 def save_txt(content, filename, append=False, empty=False):
     """

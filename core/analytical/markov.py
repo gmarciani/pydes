@@ -13,10 +13,10 @@ class MarkovState:
         if isinstance(self.value, str):
             return self.value
         string = ""
-        sym = 'A'
+        sym = "A"
         idx = 0
         for i in self.value:
-            string += "{}{}".format(chr(ord(sym)+idx), i)
+            string += "{}{}".format(chr(ord(sym) + idx), i)
             idx += 1
         return string
 
@@ -44,7 +44,6 @@ class MarkovState:
 
 
 class MarkovLink:
-
     def __init__(self, tail, head, value):
         self.tail = tail
         self.head = head
@@ -73,7 +72,6 @@ class MarkovLink:
 
 
 class MarkovChain:
-
     def __init__(self):
         self.states = set()
         self.links = set()
@@ -101,7 +99,7 @@ class MarkovChain:
         return list(l for l in self.links if l.tail == state)
 
     def find_link(self, state1, state2):
-        return next((l for l in self.out_links(state1) if l.head == state2 ), None)
+        return next((l for l in self.out_links(state1) if l.head == state2), None)
 
     def get_states(self):
         return sorted(self.states)
@@ -203,7 +201,7 @@ class MarkovChain:
         graph.attr(rankdir="LR")
 
         for state in sorted(self.states):
-            graph.node(str(state), pos="{},{}!".format(int(state.value[0])*2,-int(state.value[1])*2))
+            graph.node(str(state), pos="{},{}!".format(int(state.value[0]) * 2, -int(state.value[1]) * 2))
 
         for link in self.links:
             graph.edge(str(link.tail), str(link.head), str(link.value))
@@ -277,5 +275,5 @@ if __name__ == "__main__":
         print(eqn)
 
     solutions = markov_chain.solve()
-    for k,v in sorted(solutions.items()):
-        print("{}={}".format(k,v))
+    for k, v in sorted(solutions.items()):
+        print("{}={}".format(k, v))

@@ -28,9 +28,12 @@ class SimpleCloudlet:
         # Randomization - Service
         self.rndservice = RandomComponent(
             gen=rndgen,
-            str={tsk: EventType.of(ActionScope.COMPLETION, SystemScope.CLOUDLET, tsk).value for tsk in TaskScope.concrete()},
+            str={
+                tsk: EventType.of(ActionScope.COMPLETION, SystemScope.CLOUDLET, tsk).value
+                for tsk in TaskScope.concrete()
+            },
             var={tsk: config["service"][tsk]["distribution"] for tsk in TaskScope.concrete()},
-            par={tsk: config["service"][tsk]["parameters"] for tsk in TaskScope.concrete()}
+            par={tsk: config["service"][tsk]["parameters"] for tsk in TaskScope.concrete()},
         )
 
         # Servers
@@ -51,7 +54,9 @@ class SimpleCloudlet:
             if not (0 <= self.threshold <= self.n_servers):
                 raise ValueError(
                     "Invalid threshold: should be >= 0 and <= n_servers, but threshold is {} and n_servers is {}".format(
-                        self.threshold, self.n_servers))
+                        self.threshold, self.n_servers
+                    )
+                )
         else:
             raise ValueError("Unrecognized controller algorithm type {}".format(controller_algorithm))
 
@@ -86,7 +91,9 @@ class SimpleCloudlet:
 
         # Update metrics
         self.metrics.counters.arrived[SystemScope.CLOUDLET][tsk] += 1
-        self.metrics.counters.population_area[SystemScope.CLOUDLET][tsk] += (t_now - self.t_last_event[tsk]) * self.state[tsk]
+        self.metrics.counters.population_area[SystemScope.CLOUDLET][tsk] += (
+            t_now - self.t_last_event[tsk]
+        ) * self.state[tsk]
 
         # Update state
         self.state[tsk] += 1
@@ -120,7 +127,9 @@ class SimpleCloudlet:
         self.metrics.counters.switched[SystemScope.CLOUDLET][tsk] += 1
         self.metrics.counters.switched_service_lost[SystemScope.CLOUDLET][tsk] += t_served
         self.metrics.counters.service[SystemScope.CLOUDLET][tsk] += t_served
-        self.metrics.counters.population_area[SystemScope.CLOUDLET][tsk] += (t_now - self.t_last_event[tsk]) * self.state[tsk]
+        self.metrics.counters.population_area[SystemScope.CLOUDLET][tsk] += (
+            t_now - self.t_last_event[tsk]
+        ) * self.state[tsk]
 
         # Update state
         self.state[tsk] -= 1
@@ -151,7 +160,9 @@ class SimpleCloudlet:
         # Update metrics
         self.metrics.counters.completed[SystemScope.CLOUDLET][tsk] += 1
         self.metrics.counters.service[SystemScope.CLOUDLET][tsk] += t_served
-        self.metrics.counters.population_area[SystemScope.CLOUDLET][tsk] += (t_now - self.t_last_event[tsk]) * self.state[tsk]
+        self.metrics.counters.population_area[SystemScope.CLOUDLET][tsk] += (
+            t_now - self.t_last_event[tsk]
+        ) * self.state[tsk]
 
         # Update state
         self.state[tsk] -= 1
@@ -187,6 +198,9 @@ class SimpleCloudlet:
         String representation.
         :return: the string representation.
         """
-        sb = ["{attr}={value}".format(attr=attr, value=self.__dict__[attr]) for attr in self.__dict__ if
-              not attr.startswith("__") and not callable(getattr(self, attr))]
+        sb = [
+            "{attr}={value}".format(attr=attr, value=self.__dict__[attr])
+            for attr in self.__dict__
+            if not attr.startswith("__") and not callable(getattr(self, attr))
+        ]
         return "Cloudlet({}:{})".format(id(self), ", ".join(sb))

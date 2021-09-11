@@ -4,7 +4,7 @@ from core.utils.report import SimpleReport as Report
 from core.simulation.model.controller import ControllerAlgorithm
 
 INDICES = ["population", "response", "throughput"]
-#SYSTEM_SCOPES = [scope.name.lower() for scope in SystemScope]
+# SYSTEM_SCOPES = [scope.name.lower() for scope in SystemScope]
 SYSTEM_SCOPES = [scope.name.lower() for scope in [SystemScope.CLOUDLET, SystemScope.CLOUD, SystemScope.SYSTEM]]
 TASK_SCOPES = [scope.name.lower() for scope in TaskScope]
 
@@ -35,28 +35,28 @@ Measure & Theoretical & Experimental \\\\
                 simulation_mean = float(simulation_result[mean_key])
                 simulation_cint = float(simulation_result[cint_key])
                 index_symbol = get_index_symbol(index, system_scope, task_scope)
-                table += "${}$  & ${}$ & ${}\pm {}$ \\\\ \n".format(index_symbol, analytical_mean, simulation_mean, simulation_cint)
+                table += "${}$  & ${}$ & ${}\pm {}$ \\\\ \n".format(
+                    index_symbol, analytical_mean, simulation_mean, simulation_cint
+                )
         table += "\hline \n"
 
     return table
 
-INDEX_SYMBOLS = {
-    "population": "N_{{{}{}}}",
-    "response": "T_{{{}{}}}",
-    "throughput": "X_{{{}{}}}"
-}
+
+INDEX_SYMBOLS = {"population": "N_{{{}{}}}", "response": "T_{{{}{}}}", "throughput": "X_{{{}{}}}"}
 
 SYSTEM_SCOPE_SYMBOLS = {
     SystemScope.SYSTEM.name.lower(): "sys",
     SystemScope.CLOUD.name.lower(): "cld",
-    SystemScope.CLOUDLET.name.lower(): "clt"
+    SystemScope.CLOUDLET.name.lower(): "clt",
 }
 
 TASK_SCOPE_SYMBOLS = {
     TaskScope.GLOBAL.name.lower(): "",
     TaskScope.TASK_1.name.lower(): ",1",
-    TaskScope.TASK_2.name.lower(): ",2"
+    TaskScope.TASK_2.name.lower(): ",2",
 }
+
 
 def get_index_symbol(index, system_scope, task_scope):
     return INDEX_SYMBOLS[index].format(SYSTEM_SCOPE_SYMBOLS[system_scope], TASK_SCOPE_SYMBOLS[task_scope])

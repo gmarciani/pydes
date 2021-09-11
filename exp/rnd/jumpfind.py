@@ -33,7 +33,7 @@ def run(modulus, multiplier, streams, outdir=DEFAULT_OUTDIR):
 
     jumpers = jumper_finder.find_jumpers(modulus, multiplier, streams)
 
-    jmax = max(jumpers, key=lambda item:item[1])
+    jmax = max(jumpers, key=lambda item: item[1])
 
     # Save raw data
     save_list_of_pairs(filename + ".csv", jumpers)

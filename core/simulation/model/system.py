@@ -1,6 +1,11 @@
 from core.simulation.model.cloudlet import SimpleCloudlet as Cloudlet
 from core.simulation.model.cloud import SimpleCloud as Cloud
-from core.simulation.model.controller import ControllerAlgorithm, ControllerAlgorithm1, ControllerAlgorithm2, ControllerResponse
+from core.simulation.model.controller import (
+    ControllerAlgorithm,
+    ControllerAlgorithm1,
+    ControllerAlgorithm2,
+    ControllerResponse,
+)
 from core.simulation.model.event import SimpleEvent as Event, EventType
 from core.simulation.model.scope import SystemScope
 from core.simulation.model.scope import TaskScope
@@ -31,20 +36,10 @@ class SimpleCloudletCloudSystem:
         self.metrics = metrics
 
         # Subsystem - Cloudlet
-        self.cloudlet = Cloudlet(
-            rndgen,
-            config["cloudlet"],
-            self.state[SystemScope.CLOUDLET],
-            self.metrics
-        )
+        self.cloudlet = Cloudlet(rndgen, config["cloudlet"], self.state[SystemScope.CLOUDLET], self.metrics)
 
         # Subsystem - Cloud
-        self.cloud = Cloud(
-            rndgen,
-            config["cloud"],
-            self.state[SystemScope.CLOUD],
-            self.metrics
-        )
+        self.cloud = Cloud(rndgen, config["cloud"], self.state[SystemScope.CLOUD], self.metrics)
 
     # ==================================================================================================================
     # EVENT SUBMISSION
@@ -104,31 +99,44 @@ class SimpleCloudletCloudSystem:
         if controller_response is ControllerResponse.SUBMIT_TO_CLOUDLET:
             logger.debug("{} sent to CLOUDLET at {}".format(tsk, t_now))
             t_completion = self.cloudlet.submit_arrival(tsk, t_now)
-            e_completion = Event(EventType.of(ActionScope.COMPLETION, SystemScope.CLOUDLET, tsk), t_completion, t_arrival=t_now)
+            e_completion = Event(
+                EventType.of(ActionScope.COMPLETION, SystemScope.CLOUDLET, tsk), t_completion, t_arrival=t_now
+            )
             e_to_schedule.append(e_completion)
 
         elif controller_response is ControllerResponse.SUBMIT_TO_CLOUD:
             logger.debug("{} sent to CLOUD at {}".format(tsk, t_now))
             t_completion = self.cloud.submit_arrival(tsk, t_now)
-            e_completion = Event(EventType.of(ActionScope.COMPLETION, SystemScope.CLOUD, tsk), t_completion, t_arrival=t_now)
+            e_completion = Event(
+                EventType.of(ActionScope.COMPLETION, SystemScope.CLOUD, tsk), t_completion, t_arrival=t_now
+            )
             e_to_schedule.append(e_completion)
 
         elif controller_response is ControllerResponse.SUBMIT_TO_CLOUDLET_WITH_INTERRUPTION:
             tsk_interrupt = TaskScope.TASK_2
             logger.debug("{} interrupted in CLOUDLET at {}".format(tsk_interrupt, t_now))
             t_completion_1, t_arrival_1 = self.cloudlet.submit_interruption(tsk_interrupt, t_now)
-            e_completion_to_ignore = Event(EventType.of(ActionScope.COMPLETION, SystemScope.CLOUDLET, tsk_interrupt),t_completion_1)
+            e_completion_to_ignore = Event(
+                EventType.of(ActionScope.COMPLETION, SystemScope.CLOUDLET, tsk_interrupt), t_completion_1
+            )
             e_to_unschedule.append(e_completion_to_ignore)
 
             logger.debug("{} restarted in CLOUD at {}".format(tsk_interrupt, t_now))
             t_completion = self.cloud.submit_arrival(tsk_interrupt, t_now, restart=True)
             # TODO check t_arrival=t_arrival_1 or t_now
-            e_completion = Event(EventType.of(ActionScope.COMPLETION, SystemScope.CLOUD, tsk_interrupt), t_completion, t_arrival=t_now, switched=True)
+            e_completion = Event(
+                EventType.of(ActionScope.COMPLETION, SystemScope.CLOUD, tsk_interrupt),
+                t_completion,
+                t_arrival=t_now,
+                switched=True,
+            )
             e_to_schedule.append(e_completion)
 
             logger.debug("{} sent to CLOUDLET at {}".format(tsk, t_now))
             t_completion = self.cloudlet.submit_arrival(tsk, t_now)
-            e_completion = Event(EventType.of(ActionScope.COMPLETION, SystemScope.CLOUDLET, tsk), t_completion, t_arrival=t_now)
+            e_completion = Event(
+                EventType.of(ActionScope.COMPLETION, SystemScope.CLOUDLET, tsk), t_completion, t_arrival=t_now
+            )
             e_to_schedule.append(e_completion)
 
         else:
@@ -231,6 +239,9 @@ class SimpleCloudletCloudSystem:
         String representation.
         :return: the string representation.
         """
-        sb = ["{attr}={value}".format(attr=attr, value=self.__dict__[attr]) for attr in self.__dict__ if
-              not attr.startswith("__") and not callable(getattr(self, attr))]
+        sb = [
+            "{attr}={value}".format(attr=attr, value=self.__dict__[attr])
+            for attr in self.__dict__
+            if not attr.startswith("__") and not callable(getattr(self, attr))
+        ]
         return "System({}:{})".format(id(self), ", ".join(sb))

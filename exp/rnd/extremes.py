@@ -3,7 +3,7 @@ EXPERIMENT
 
 Extremes Test of Randomness.
 
-Input: 
+Input:
     * the multi-stream pseudo-random number generator, characterized by its modulus and multiplier.
     * the sample size (should be >= 10 * bins).
     * the number of bins (should be >= 1000).
@@ -29,7 +29,9 @@ DEFAULT_MODULUS = 2147483647
 DEFAULT_MULTIPLIER = 50812
 DEFAULT_STREAMS = 256
 DEFAULT_JUMPER = 29872
-DEFAULT_GENERATOR = MarcianiMultiStream(modulus=DEFAULT_MODULUS, multiplier=DEFAULT_MULTIPLIER, jumper=DEFAULT_JUMPER, streams=DEFAULT_STREAMS)
+DEFAULT_GENERATOR = MarcianiMultiStream(
+    modulus=DEFAULT_MODULUS, multiplier=DEFAULT_MULTIPLIER, jumper=DEFAULT_JUMPER, streams=DEFAULT_STREAMS
+)
 DEFAULT_SAMSIZE = 10000  # >=  10*BINS
 DEFAULT_BINS = 1000  # >= 1000
 DEFAULT_D = 5  # >= 2
@@ -40,11 +42,12 @@ DEFAULT_OUTDIR = "out/extremes"
 def run(g, samsize, bins, confidence, d, outdir):
 
     logger.info(
-        "Extremes Test for Modulus {} Multiplier {} Streams {} Jumper {} Bins {} Samsize {} D {} Confidence {}"
-        .format(g.get_modulus(), g.get_multiplier(), g.get_nstreams(), g.get_jumper(), bins, samsize, d, confidence))
+        "Extremes Test for Modulus {} Multiplier {} Streams {} Jumper {} Bins {} Samsize {} D {} Confidence {}".format(
+            g.get_modulus(), g.get_multiplier(), g.get_nstreams(), g.get_jumper(), bins, samsize, d, confidence
+        )
+    )
 
-    filename = path.join(outdir, "mod{}_mul{}_str{}"
-                         .format(g.get_modulus(), g.get_multiplier(), g.get_nstreams()))
+    filename = path.join(outdir, "mod{}_mul{}_str{}".format(g.get_modulus(), g.get_multiplier(), g.get_nstreams()))
 
     # Statistics: [(stream_1, chi_1),(stream_2,chi_2),...,(stream_n,chi_n)]
     data = test.statistics(g, samsize, bins, d)
@@ -75,14 +78,10 @@ def run(g, samsize, bins, confidence, d, outdir):
     r.add("Test Parameters", "D", d)
     r.add("Critical Bounds", "Lower Bound", mn)
     r.add("Critical Bounds", "Upper Bound", mx)
-    r.add("Error", "Theoretical",
-          "{} ({} %)".format(err["err_thr"], round(err["err_thr_perc"] * 100, 3)))
-    r.add("Error", "Empirical",
-          "{} ({} %)".format(err["err_emp"], round(err["err_emp_perc"] * 100, 3)))
-    r.add("Error", "Empirical Lower Bound",
-          "{} ({} %)".format(err["err_mn"], round(err["err_mn_perc"] * 100, 3)))
-    r.add("Error", "Empirical Upper Bound",
-          "{} ({} %)".format(err["err_mx"], round(err["err_mx_perc"] * 100, 3)))
+    r.add("Error", "Theoretical", "{} ({} %)".format(err["err_thr"], round(err["err_thr_perc"] * 100, 3)))
+    r.add("Error", "Empirical", "{} ({} %)".format(err["err_emp"], round(err["err_emp_perc"] * 100, 3)))
+    r.add("Error", "Empirical Lower Bound", "{} ({} %)".format(err["err_mn"], round(err["err_mn_perc"] * 100, 3)))
+    r.add("Error", "Empirical Upper Bound", "{} ({} %)".format(err["err_mx"], round(err["err_mx_perc"] * 100, 3)))
     r.add("Result", "Suggested Confidence", round(sugg_confidence * 100, 3))
     r.add("Result", "Success", success)
 

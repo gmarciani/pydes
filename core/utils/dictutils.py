@@ -14,9 +14,9 @@ def merge(a, b):
 
 
 if __name__ == "__main__":
-    d1=dict(a="1", b=dict(c="2", d="3"))
+    d1 = dict(a="1", b=dict(c="2", d="3"))
     print(d1)
-    d2=dict(b=dict(d="5"))
+    d2 = dict(b=dict(d="5"))
     print(d2)
-    d3=merge(d1, d2)
+    d3 = merge(d1, d2)
     print(d3)

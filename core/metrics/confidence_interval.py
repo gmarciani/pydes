@@ -11,6 +11,6 @@ def get_interval_estimation(samsize, sdev, alpha):
     :return: (float) the interval gap.
     """
     if samsize > 1:
-        return idfStudent(samsize - 1, 1.0 - (alpha / 2)) * sdev / sqrt(samsize -1)
+        return idfStudent(samsize - 1, 1.0 - (alpha / 2)) * sdev / sqrt(samsize - 1)
     else:
         return 0.0

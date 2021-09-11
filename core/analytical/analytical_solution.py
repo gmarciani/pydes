@@ -22,7 +22,7 @@ class AnalyticalSolution:
             response={sys: {tsk: 0.0 for tsk in TaskScope} for sys in SystemScope},
             throughput={sys: {tsk: 0.0 for tsk in TaskScope} for sys in SystemScope},
             population={sys: {tsk: 0.0 for tsk in TaskScope} for sys in SystemScope},
-            switched_ratio={sys: {tsk: 0.0 for tsk in TaskScope} for sys in SystemScope}
+            switched_ratio={sys: {tsk: 0.0 for tsk in TaskScope} for sys in SystemScope},
         )
 
     def save_csv(self, filename, append=False, skip_header=False):

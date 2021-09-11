@@ -15,7 +15,6 @@ class SharedMultiplier:
 
 
 class MultiplierFinder(threading.Thread):
-
     def __init__(self, modulus, rng, multiplier):
         threading.Thread.__init__(self)
         self.modulus = modulus

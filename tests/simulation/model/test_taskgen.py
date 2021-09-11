@@ -5,21 +5,16 @@ from core.simulation.model.scope import TaskScope
 
 
 class TaskgenTest(unittest.TestCase):
-
     def setUp(self):
         self.config = {
             TaskScope.TASK_1: {
                 "distribution": "EXPONENTIAL",
-                "parameters": {
-                    "m": 1.0/6.00  # the inter-arrival mean time for tasks of type 1 (tasks/s)
-                }
+                "parameters": {"m": 1.0 / 6.00},  # the inter-arrival mean time for tasks of type 1 (tasks/s)
             },
             TaskScope.TASK_2: {
                 "distribution": "EXPONENTIAL",
-                "parameters": {
-                    "m": 1.0/6.25  # the inter-arrival mean time for tasks of type 2 (tasks/s)
-                }
-            }
+                "parameters": {"m": 1.0 / 6.25},  # the inter-arrival mean time for tasks of type 2 (tasks/s)
+            },
         }
 
         self.rndgen = MarcianiMultiStream()

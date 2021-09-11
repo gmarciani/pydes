@@ -6,7 +6,6 @@ from core.rnd.rndgen import MarcianiMultiStream
 
 
 class CalendarTest(unittest.TestCase):
-
     def test_scheduling_simple(self):
         """
         Verify the correctness of scheduling, without unscheduling.

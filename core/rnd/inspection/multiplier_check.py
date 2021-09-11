@@ -164,13 +164,17 @@ def _test():
         if actual_num_fpm != expected_num_fpm:
             raise RuntimeError(
                 "Error: get_fp_multipliers | number of FP multipliers for {} should be {}, but are {})".format(
-                    modulo, expected_num_fpm, actual_num_fpm ))
+                    modulo, expected_num_fpm, actual_num_fpm
+                )
+            )
 
         if actual_first_fpm != expected_first_fpm:
             raise RuntimeError(
                 "Error: get_fp_multipliers | first FP multiplier for {} should be {}, but are {})".format(
-                    modulo, expected_first_fpm, actual_first_fpm))
+                    modulo, expected_first_fpm, actual_first_fpm
+                )
+            )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     _test()

@@ -19,7 +19,8 @@ import os
 
 
 # Logging
-#logger = get_logger(__name__)
+# logger = get_logger(__name__)
+
 
 class Simulation:
     """
@@ -41,25 +42,29 @@ class Simulation:
         # Configuration - Transient Analysis
         if self.mode is SimulationMode.TRANSIENT_ANALYSIS:
             self.t_stop = config_general["t_stop"]
-            #self.t_tran = 0
+            # self.t_tran = 0
             self.batches = INFINITE
             self.batchdim = 1
             self.closed_door_condition = lambda: self.closed_door_condition_transient_analysis()
-            self.print_progress = lambda: print_progress(self.calendar.get_clock(), self.t_stop,
-                                                         message="Clock: %d" % (self.calendar.get_clock()))
-            #self.should_discard_transient_data = False
+            self.print_progress = lambda: print_progress(
+                self.calendar.get_clock(), self.t_stop, message="Clock: %d" % (self.calendar.get_clock())
+            )
+            # self.should_discard_transient_data = False
 
         # Configuration - Performance Analysis
         elif self.mode is SimulationMode.PERFORMANCE_ANALYSIS:
             self.t_stop = INFINITE
-            #self.t_tran = config_general["t_tran"]
+            # self.t_tran = config_general["t_tran"]
             self.batches = config_general["batches"]
             self.batchdim = config_general["batchdim"]
             self.closed_door_condition = lambda: self.closed_door_condition_performance_analysis()
-            self.print_progress = lambda: print_progress(self.metrics.n_batches, self.batches,
-                                                         message="Clock: %d | Batches: %d | CurrentBatchSamples: %d" %
-                                                                 (self.calendar.get_clock(), self.metrics.n_batches, self.metrics.curr_batchdim))
-            #self.should_discard_transient_data = self.t_tran > 0.0
+            self.print_progress = lambda: print_progress(
+                self.metrics.n_batches,
+                self.batches,
+                message="Clock: %d | Batches: %d | CurrentBatchSamples: %d"
+                % (self.calendar.get_clock(), self.metrics.n_batches, self.metrics.curr_batchdim),
+            )
+            # self.should_discard_transient_data = self.t_tran > 0.0
 
         else:
             raise RuntimeError("The current version supports only TRANSIENT_ANALYSIS and PERFORMANCE_ANALYSIS")
@@ -73,7 +78,10 @@ class Simulation:
 
         # Configuration - Tasks
         # Checks that the arrival process is Markovian (currently, the only one supported)
-        if not all(variate is Variate.EXPONENTIAL for variate in [config["arrival"][tsk]["distribution"] for tsk in TaskScope.concrete()]):
+        if not all(
+            variate is Variate.EXPONENTIAL
+            for variate in [config["arrival"][tsk]["distribution"] for tsk in TaskScope.concrete()]
+        ):
             raise NotImplementedError("The current version supports only exponential arrivals")
         self.taskgen = Taskgen(rndgen=self.rndgen, config=config["arrival"])
 
@@ -234,26 +242,52 @@ class Simulation:
         if self.system.cloudlet.controller.controller_algorithm is ControllerAlgorithm.ALGORITHM_2:
             r.add("system/cloudlet", "threshold", self.system.cloudlet.threshold)
         for tsk in TaskScope.concrete():
-            r.add("system/cloudlet", "service_{}_dist".format(tsk.name.lower()), self.system.cloudlet.rndservice.var[tsk].name)
+            r.add(
+                "system/cloudlet",
+                "service_{}_dist".format(tsk.name.lower()),
+                self.system.cloudlet.rndservice.var[tsk].name,
+            )
             if self.system.cloudlet.rndservice.var[tsk] is Variate.EXPONENTIAL:
-                r.add("system/cloudlet", "service_{}_rate".format(tsk.name.lower()), 1.0/self.system.cloudlet.rndservice.par[tsk]["m"])
+                r.add(
+                    "system/cloudlet",
+                    "service_{}_rate".format(tsk.name.lower()),
+                    1.0 / self.system.cloudlet.rndservice.par[tsk]["m"],
+                )
             else:
                 for p in self.system.cloudlet.rndservice.par[tsk]:
-                    r.add("system/cloudlet", "service_{}_param_{}".format(tsk.name.lower(), p), self.system.cloudlet.rndservice.par[tsk][p])
+                    r.add(
+                        "system/cloudlet",
+                        "service_{}_param_{}".format(tsk.name.lower(), p),
+                        self.system.cloudlet.rndservice.par[tsk][p],
+                    )
 
         # Report - System/Cloud
         for tsk in TaskScope.concrete():
-            r.add("system/cloud", "service_{}_dist".format(tsk.name.lower()), self.system.cloud.rndservice.var[tsk].name)
+            r.add(
+                "system/cloud", "service_{}_dist".format(tsk.name.lower()), self.system.cloud.rndservice.var[tsk].name
+            )
             if self.system.cloud.rndservice.var[tsk] is Variate.EXPONENTIAL:
-                r.add("system/cloud", "service_{}_rate".format(tsk.name.lower()), 1.0/self.system.cloud.rndservice.par[tsk]["m"])
+                r.add(
+                    "system/cloud",
+                    "service_{}_rate".format(tsk.name.lower()),
+                    1.0 / self.system.cloud.rndservice.par[tsk]["m"],
+                )
             else:
                 for p in self.system.cloud.rndservice.par[tsk]:
-                    r.add("system/cloud", "service_{}_param_{}".format(tsk.name.lower(), p), self.system.cloud.rndservice.par[tsk][p])
+                    r.add(
+                        "system/cloud",
+                        "service_{}_param_{}".format(tsk.name.lower(), p),
+                        self.system.cloud.rndservice.par[tsk][p],
+                    )
 
         for tsk in TaskScope.concrete():
             r.add("system/cloud", "setup_{}_dist".format(tsk.name.lower()), self.system.cloud.rndsetup.var[tsk].name)
             for p in self.system.cloud.rndsetup.par[tsk]:
-                r.add("system/cloud", "service_{}_param_{}".format(tsk.name.lower(), p), self.system.cloud.rndsetup.par[tsk][p])
+                r.add(
+                    "system/cloud",
+                    "service_{}_param_{}".format(tsk.name.lower(), p),
+                    self.system.cloud.rndsetup.par[tsk][p],
+                )
 
         # Report - Execution
         r.add("execution", "clock", self.calendar.get_clock())
@@ -269,12 +303,21 @@ class Simulation:
         for metric in sorted(self.metrics.performance_metrics.__dict__):
             for sys in sorted(SystemScope, key=lambda x: x.name):
                 for tsk in sorted(TaskScope, key=lambda x: x.name):
-                    r.add("statistics", "{}_{}_{}_mean".format(metric, sys.name.lower(), tsk.name.lower()),
-                          getattr(self.metrics.performance_metrics, metric)[sys][tsk].mean())
-                    r.add("statistics", "{}_{}_{}_sdev".format(metric, sys.name.lower(), tsk.name.lower()),
-                          getattr(self.metrics.performance_metrics, metric)[sys][tsk].sdev())
-                    r.add("statistics", "{}_{}_{}_cint".format(metric, sys.name.lower(), tsk.name.lower()),
-                          getattr(self.metrics.performance_metrics, metric)[sys][tsk].cint(alpha))
+                    r.add(
+                        "statistics",
+                        "{}_{}_{}_mean".format(metric, sys.name.lower(), tsk.name.lower()),
+                        getattr(self.metrics.performance_metrics, metric)[sys][tsk].mean(),
+                    )
+                    r.add(
+                        "statistics",
+                        "{}_{}_{}_sdev".format(metric, sys.name.lower(), tsk.name.lower()),
+                        getattr(self.metrics.performance_metrics, metric)[sys][tsk].sdev(),
+                    )
+                    r.add(
+                        "statistics",
+                        "{}_{}_{}_cint".format(metric, sys.name.lower(), tsk.name.lower()),
+                        getattr(self.metrics.performance_metrics, metric)[sys][tsk].cint(alpha),
+                    )
 
         return r
 
@@ -287,16 +330,19 @@ class Simulation:
         String representation.
         :return: the string representation.
         """
-        sb = ["{attr}={value}".format(attr=attr, value=self.__dict__[attr]) for attr in self.__dict__ if
-              not attr.startswith('__') and not callable(getattr(self, attr))]
-        return "Simulation({}:{})".format(id(self), ', '.join(sb))
+        sb = [
+            "{attr}={value}".format(attr=attr, value=self.__dict__[attr])
+            for attr in self.__dict__
+            if not attr.startswith("__") and not callable(getattr(self, attr))
+        ]
+        return "Simulation({}:{})".format(id(self), ", ".join(sb))
 
 
 if __name__ == "__main__":
     from core.simulation.model.config import get_default_configuration
 
     mode = SimulationMode.TRANSIENT_ANALYSIS
-    #mode = SimulationMode.PERFORMANCE_ANALYSIS
+    # mode = SimulationMode.PERFORMANCE_ANALYSIS
 
     config = get_default_configuration(mode)
 

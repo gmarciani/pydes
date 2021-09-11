@@ -9,6 +9,7 @@ class SystemScope(Enum):
         * CLOUDLET
         * CLOUD
     """
+
     SYSTEM = 0
     CLOUDLET = 1
     CLOUD = 2
@@ -44,6 +45,7 @@ class TaskScope(Enum):
         * TASK_1
         * TASK_2
     """
+
     GLOBAL = 0
     TASK_1 = 1
     TASK_2 = 2
@@ -80,6 +82,7 @@ class ActionScope(Enum):
         * INTERRUPTION
         * RESTART
     """
+
     ARRIVAL = 0
     COMPLETION = 1
     INTERRUPTION = 2

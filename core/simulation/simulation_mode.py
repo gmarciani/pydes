@@ -1,5 +1,6 @@
 from enum import Enum, unique
 
+
 @unique
 class SimulationMode(Enum):
     """
@@ -24,5 +25,3 @@ if __name__ == "__main__":
 
     mode_2 = SimulationMode["TRANSIENT_ANALYSIS"]
     print(mode_2)
-
-

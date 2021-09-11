@@ -6,7 +6,6 @@ from math import exp
 
 
 class RndvarTest(unittest.TestCase):
-
     def setUp(self):
         """
         Set up the test.
@@ -30,7 +29,7 @@ class RndvarTest(unittest.TestCase):
             Variate.PASCAL: dict(n=5, p=0.8),
             Variate.POISSON: dict(m=5),
             Variate.STUDENT: dict(n=5),
-            Variate.UNIFORM: dict(a=10.0, b=20.0)
+            Variate.UNIFORM: dict(a=10.0, b=20.0),
         }
 
         self.check_mean = {
@@ -47,7 +46,7 @@ class RndvarTest(unittest.TestCase):
             Variate.PASCAL: lambda n, p: n * p / (1.0 - p),
             Variate.POISSON: lambda m: m,
             Variate.STUDENT: lambda n: 0.0,
-            Variate.UNIFORM: lambda a, b: (a + b) / 2.0
+            Variate.UNIFORM: lambda a, b: (a + b) / 2.0,
         }
 
         self.check_variance = {
@@ -64,7 +63,7 @@ class RndvarTest(unittest.TestCase):
             Variate.PASCAL: lambda n, p: n * p / ((1.0 - p) * (1.0 - p)),
             Variate.POISSON: lambda m: m,
             Variate.STUDENT: lambda n: n / (n - 2.0),
-            Variate.UNIFORM: lambda a, b: pow(b - a, 2.0) / 12.0
+            Variate.UNIFORM: lambda a, b: pow(b - a, 2.0) / 12.0,
         }
 
     def test_bernoulli(self):
@@ -122,11 +121,17 @@ class RndvarTest(unittest.TestCase):
 
         expected_mean = self.check_mean[variate](**params)
         actual_mean = mean(sample)
-        actual_mean_error = abs(actual_mean - expected_mean) / expected_mean if expected_mean != 0 else abs(actual_mean - expected_mean)
+        actual_mean_error = (
+            abs(actual_mean - expected_mean) / expected_mean if expected_mean != 0 else abs(actual_mean - expected_mean)
+        )
 
         expected_variance = self.check_variance[variate](**params)
         actual_variance = variance(sample)
-        actual_variance_error = abs(actual_variance - expected_variance) / expected_variance if expected_variance != 0 else abs(actual_variance - expected_variance)
+        actual_variance_error = (
+            abs(actual_variance - expected_variance) / expected_variance
+            if expected_variance != 0
+            else abs(actual_variance - expected_variance)
+        )
 
         self.assertLessEqual(actual_mean_error, self.err)
         self.assertLessEqual(actual_variance_error, self.err)

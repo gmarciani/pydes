@@ -3,13 +3,13 @@ EXPERIMENTS
 
 Kolmogorov-Smirnov Test of Randomness.
 
-Input: 
+Input:
     * the multi-stream pseudo-rnd number generator, characterized by its modulus and multiplier.
     * the sample size (should be >= 10 * bins).
     * the number of bins (should be >= 1000).
     * the power (should be >= 2).
     * the confidence level (should be >= 0.95).
-    
+
 Output: the extreme behaviour of the generator for each of its stream.
 
 Notes: results are stored in folder 'out/kolmogorov-smirnov'.
@@ -30,38 +30,42 @@ DEFAULT_MODULUS = 2147483647
 DEFAULT_MULTIPLIER = 50812
 DEFAULT_STREAMS = 256
 DEFAULT_JUMPER = 29872
-DEFAULT_GENERATOR= MarcianiMultiStream(modulus=DEFAULT_MODULUS, multiplier=DEFAULT_MULTIPLIER, jumper=DEFAULT_JUMPER, streams=DEFAULT_STREAMS)
+DEFAULT_GENERATOR = MarcianiMultiStream(
+    modulus=DEFAULT_MODULUS, multiplier=DEFAULT_MULTIPLIER, jumper=DEFAULT_JUMPER, streams=DEFAULT_STREAMS
+)
 DEFAULT_TEST = "extremes"
 DEFAULT_TEST_PARAMS = dict(samsize=10000, bins=1000, confidence=0.95, d=5)
 DEFAULT_OUTDIR = "out/kolmogorov-smirnov"
-SUPPORTED_TESTS = ("extremes")
+SUPPORTED_TESTS = "extremes"
 
 
 def run(g, test_name, test_params, outdir=DEFAULT_OUTDIR):
 
-    logger.info("Kolmogorov-Smirnov Test ({}) for Modulus {} Multiplier {} Streams {} Jumper {}".
-                format(test_name, g.get_modulus(), g.get_multiplier(), g.get_nstreams(), g.get_jumper()))
+    logger.info(
+        "Kolmogorov-Smirnov Test ({}) for Modulus {} Multiplier {} Streams {} Jumper {}".format(
+            test_name, g.get_modulus(), g.get_multiplier(), g.get_nstreams(), g.get_jumper()
+        )
+    )
 
-    filename = path.join(outdir, "mod{}_mul{}_str{}"
-                         .format(g.get_modulus(), g.get_multiplier(), g.get_nstreams()))
+    filename = path.join(outdir, "mod{}_mul{}_str{}".format(g.get_modulus(), g.get_multiplier(), g.get_nstreams()))
 
     if test_name == "uniformity_u":
         raise NotImplementedError("Kolmogorov-Smirnov on {} is not yet implemented".format(test_name))
-        #data = uniformity_univariate.statistics(generator, streams, samsize, bins)
+        # data = uniformity_univariate.statistics(generator, streams, samsize, bins)
     elif test_name == "uniformity_b":
         raise NotImplementedError("Kolmogorov-Smirnov on {} is not yet implemented".format(test_name))
-        #data = uniformity_bivariate.statistics(generator, streams, samsize, bins)
+        # data = uniformity_bivariate.statistics(generator, streams, samsize, bins)
     elif test_name == "extremes":
         chi_square_statistics = extremes.statistics(g, test_params["samsize"], test_params["bins"], test_params["d"])
     elif test_name == "runsup":
         raise NotImplementedError("Kolmogorov-Smirnov on {} is not yet implemented".format(test_name))
-        #data = runsup.statistics(generator, streams, samsize, bins)
+        # data = runsup.statistics(generator, streams, samsize, bins)
     elif test_name == "gap":
         raise NotImplementedError("Kolmogorov-Smirnov on {} is not yet implemented".format(test_name))
-        #data = gap.statistics(generator, streams, samsize, bins, test_params["a"], test_params["b"])
+        # data = gap.statistics(generator, streams, samsize, bins, test_params["a"], test_params["b"])
     elif test_name == "permutation":
         raise NotImplementedError("Kolmogorov-Smirnov on {} is not yet implemented".format(test_name))
-        #data = permutation.statistics(generator, streams, samsize, bins, test_params["t"])
+        # data = permutation.statistics(generator, streams, samsize, bins, test_params["t"])
     else:
         raise ValueError("{} is not a valid testname".format(test_name))
 
@@ -116,12 +120,12 @@ if __name__ == "__main__":
     streams = 256
 
     tests = {
-        #("uniformity_u", dict(samsize=10000, bins=1000, confidence=0.95)),
-        #("uniformity_b", dict(samsize=100000, bins=100, confidence=0.95)),
+        # ("uniformity_u", dict(samsize=10000, bins=1000, confidence=0.95)),
+        # ("uniformity_b", dict(samsize=100000, bins=100, confidence=0.95)),
         "extremes": dict(samsize=10000, bins=1000, confidence=0.95, d=5),
-        #("runsup", dict(samsize=14400, bins=6, confidence=0.95)),
-        #("gap", dict(samsize=10000, bins=78, confidence=0.95, a=0.94, b=0.99)),
-        #("permutation", dict(samsize=7200, bins=720, confidence=0.95, t=6))
+        # ("runsup", dict(samsize=14400, bins=6, confidence=0.95)),
+        # ("gap", dict(samsize=10000, bins=78, confidence=0.95, a=0.94, b=0.99)),
+        # ("permutation", dict(samsize=7200, bins=720, confidence=0.95, t=6))
     }
 
     for i in range(len(multipliers)):

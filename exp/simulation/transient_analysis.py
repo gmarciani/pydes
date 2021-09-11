@@ -37,7 +37,7 @@ def run(config_path=DEFAULT_CONFIG_PATH, outdir=DEFAULT_OUTDIR, parameters=DEFAU
     for replication in range(0, replications):
         config["general"]["random"]["seed"] = seed
         outdir_replica = "{}/seed_{}".format(outdir, seed)
-        logger.info("Launching replication {}/{} with seed {}".format(replication+1, replications, seed))
+        logger.info("Launching replication {}/{} with seed {}".format(replication + 1, replications, seed))
         simulation = Simulation(config, "SIMULATION-TRANSIENT-ANALYSIS")
         simulation.run(outdir=outdir_replica, show_progress=True)
         seed = simulation.rndgen.get_seed()

@@ -4,7 +4,6 @@ A rnd component generator.
 
 
 class RandomComponent:
-
     def __init__(self, gen, str, var, par):
         """
         Create a new RandomComponent.
@@ -32,6 +31,9 @@ class RandomComponent:
         String representation.
         :return: the string representation.
         """
-        sb = ["{attr}={value}".format(attr=attr, value=self.__dict__[attr]) for attr in self.__dict__ if
-              not attr.startswith("__") and not callable(getattr(self, attr))]
+        sb = [
+            "{attr}={value}".format(attr=attr, value=self.__dict__[attr])
+            for attr in self.__dict__
+            if not attr.startswith("__") and not callable(getattr(self, attr))
+        ]
         return "RandomComponent({}:{})".format(id(self), ", ".join(sb))

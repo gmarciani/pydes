@@ -32,7 +32,9 @@ class ExponentialTaskgen:
         self.p_1 = self.rates[TaskScope.TASK_1] / self.lambda_tot
 
         # Events
-        self.event_types = {tsk: EventType.of(ActionScope.ARRIVAL, SystemScope.SYSTEM, tsk) for tsk in TaskScope.concrete()}
+        self.event_types = {
+            tsk: EventType.of(ActionScope.ARRIVAL, SystemScope.SYSTEM, tsk) for tsk in TaskScope.concrete()
+        }
 
         # State
         self.generated = {tsk: 0 for tsk in TaskScope.concrete()}
@@ -68,8 +70,11 @@ class ExponentialTaskgen:
         String representation.
         :return: the string representation.
         """
-        sb = ["{attr}={value}".format(attr=attr, value=self.__dict__[attr]) for attr in self.__dict__ if
-              not attr.startswith("__") and not callable(getattr(self, attr))]
+        sb = [
+            "{attr}={value}".format(attr=attr, value=self.__dict__[attr])
+            for attr in self.__dict__
+            if not attr.startswith("__") and not callable(getattr(self, attr))
+        ]
         return "Taskgen({}:{})".format(id(self), ", ".join(sb))
 
 

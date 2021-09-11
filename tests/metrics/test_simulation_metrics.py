@@ -5,7 +5,6 @@ from core.simulation.model.scope import TaskScope
 
 
 class SimulationMetricsTest(unittest.TestCase):
-
     def setUp(self):
         self.simulation_metrics = SimulationMetrics(10)
 
@@ -19,7 +18,9 @@ class SimulationMetricsTest(unittest.TestCase):
         for metric in self.simulation_metrics.performance_metrics.__dict__:
             for sys in SystemScope:
                 for tsk in TaskScope:
-                    getattr(self.simulation_metrics.performance_metrics, metric)[sys][tsk].set_value(hash(metric), batch=0)
+                    getattr(self.simulation_metrics.performance_metrics, metric)[sys][tsk].set_value(
+                        hash(metric), batch=0
+                    )
 
         self.file_csv = "out/test_simulation_statistics.csv"
 

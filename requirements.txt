@@ -1,8 +1,8 @@
+click
+colored
+graphviz
 numpy
+pyfiglet
+pyyaml
 scipy
 sympy
-graphviz
-pyyaml
-click
-pyfiglet
-colored

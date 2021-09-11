@@ -12,7 +12,6 @@ CONFIDENCE = 0.95
 
 
 class AccumulatorTest(unittest.TestCase):
-
     def setUp(self):
         self.accumulator = WelfordAccumulator()
         self.values = []
@@ -43,8 +42,8 @@ class AccumulatorTest(unittest.TestCase):
         self.assertLessEqual(abs(expected_sdev - actual_sdev) / expected_sdev, ERROR)
 
     def test_cint(self):
-        expected_cint = scipy.stats.sem(self.values) * scipy.stats.t.ppf((1 + CONFIDENCE) / 2., len(self.values)-1)
-        actual_cint = self.accumulator.cint(1-CONFIDENCE)
+        expected_cint = scipy.stats.sem(self.values) * scipy.stats.t.ppf((1 + CONFIDENCE) / 2.0, len(self.values) - 1)
+        actual_cint = self.accumulator.cint(1 - CONFIDENCE)
         print("expected_cint:", expected_cint)
         print("actual_cint:", actual_cint)
         self.assertLessEqual(abs(expected_cint - actual_cint) / expected_cint, ERROR)

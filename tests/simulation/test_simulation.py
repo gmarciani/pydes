@@ -6,7 +6,6 @@ from core.simulation.model.server_selection import SelectionRule
 
 
 class SimulationCloudTest(unittest.TestCase):
-
     def setUp(self):
         """
         The test setup.
@@ -45,24 +44,30 @@ class SimulationCloudTest(unittest.TestCase):
         simulation.run()
 
         for task_type in TaskScope:
-            self.assertEqual(simulation.taskgen.generated[task_type],
-                             simulation.system.arrived[task_type])
+            self.assertEqual(simulation.taskgen.generated[task_type], simulation.system.arrived[task_type])
 
-            self.assertEqual(simulation.system.n[task_type],
-                             simulation.system.arrived[task_type] - simulation.system.completed[task_type])
+            self.assertEqual(
+                simulation.system.n[task_type],
+                simulation.system.arrived[task_type] - simulation.system.completed[task_type],
+            )
 
-            self.assertEqual(simulation.system.cloudlet.n[task_type],
-                             simulation.system.cloudlet.arrived[task_type] -
-                             simulation.system.cloudlet.completed[task_type] -
-                             simulation.system.cloudlet.switched[task_type])
+            self.assertEqual(
+                simulation.system.cloudlet.n[task_type],
+                simulation.system.cloudlet.arrived[task_type]
+                - simulation.system.cloudlet.completed[task_type]
+                - simulation.system.cloudlet.switched[task_type],
+            )
 
-            self.assertEqual(simulation.system.cloud.n[task_type],
-                             simulation.system.cloud.arrived[task_type] +
-                             simulation.system.cloud.switched[task_type] -
-                             simulation.system.cloud.completed[task_type])
+            self.assertEqual(
+                simulation.system.cloud.n[task_type],
+                simulation.system.cloud.arrived[task_type]
+                + simulation.system.cloud.switched[task_type]
+                - simulation.system.cloud.completed[task_type],
+            )
 
-            self.assertEqual(simulation.system.cloudlet.switched[task_type],
-                             simulation.system.cloud.switched[task_type])
+            self.assertEqual(
+                simulation.system.cloudlet.switched[task_type], simulation.system.cloud.switched[task_type]
+            )
 
     @unittest.skip("Under Debugging")
     def test_workload_change_consistency_1(self):
@@ -90,20 +95,15 @@ class SimulationCloudTest(unittest.TestCase):
         simulation_2.run()
 
         for task_type in TaskScope:
-            self.assertGreater(simulation_2.taskgen.generated[task_type],
-                               simulation_1.taskgen.generated[task_type])
+            self.assertGreater(simulation_2.taskgen.generated[task_type], simulation_1.taskgen.generated[task_type])
 
-            self.assertGreater(simulation_2.system.arrived[task_type],
-                               simulation_1.system.arrived[task_type])
+            self.assertGreater(simulation_2.system.arrived[task_type], simulation_1.system.arrived[task_type])
 
-            self.assertGreater(simulation_2.system.completed[task_type],
-                               simulation_1.system.completed[task_type])
+            self.assertGreater(simulation_2.system.completed[task_type], simulation_1.system.completed[task_type])
 
-        self.assertGreater(simulation_2.metrics.response.mean(),
-                           simulation_1.metrics.response.mean())
+        self.assertGreater(simulation_2.metrics.response.mean(), simulation_1.metrics.response.mean())
 
-        self.assertLess(simulation_2.metrics.throughput.mean(),
-                        simulation_1.metrics.throughput.mean())
+        self.assertLess(simulation_2.metrics.throughput.mean(), simulation_1.metrics.throughput.mean())
 
     @unittest.skip("Under Debugging")
     def test_workload_change_consistency(self):
@@ -134,13 +134,10 @@ class SimulationCloudTest(unittest.TestCase):
         simulation_2 = Simulation(config_2)
         simulation_2.run()
 
-        self.assertGreater(simulation_2.metrics.t_response.mean(),
-                           simulation_1.metrics.t_response.mean())
+        self.assertGreater(simulation_2.metrics.t_response.mean(), simulation_1.metrics.t_response.mean())
 
-        self.assertLess(simulation_2.metrics.throughput.mean(),
-                        simulation_1.metrics.throughput.mean())
+        self.assertLess(simulation_2.metrics.throughput.mean(), simulation_1.metrics.throughput.mean())
 
 
 if __name__ == "__main__":
     unittest.main()
-

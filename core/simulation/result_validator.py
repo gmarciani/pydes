@@ -53,8 +53,13 @@ def validate(analytical_result_path, simulation_result_path):
         simulation_lower_bound = simulation_mean - simulation_cint
         simulation_upper_bound = simulation_mean + simulation_cint
 
-        report.add("matching", statistic, "{} inside [{},{}] with {}% semi-interval distance from the simulation mean {}"
-                   .format(analytical_mean, simulation_lower_bound, simulation_upper_bound, delta * 100, simulation_mean))
+        report.add(
+            "matching",
+            statistic,
+            "{} inside [{},{}] with {}% semi-interval distance from the simulation mean {}".format(
+                analytical_mean, simulation_lower_bound, simulation_upper_bound, delta * 100, simulation_mean
+            ),
+        )
 
     for item in sorted(statistics_not_matching.items(), key=lambda item: abs(item[1]), reverse=True):
         statistic = item[0]
@@ -67,24 +72,35 @@ def validate(analytical_result_path, simulation_result_path):
         simulation_lower_bound = simulation_mean - simulation_cint
         simulation_upper_bound = simulation_mean + simulation_cint
 
-        report.add("not matching", statistic, "{} outside [{},{}] with {}% semi-interval distance from the simulation mean {}"
-                   .format(analytical_mean, simulation_lower_bound, simulation_upper_bound, delta * 100, simulation_mean))
+        report.add(
+            "not matching",
+            statistic,
+            "{} outside [{},{}] with {}% semi-interval distance from the simulation mean {}".format(
+                analytical_mean, simulation_lower_bound, simulation_upper_bound, delta * 100, simulation_mean
+            ),
+        )
 
     return report
 
 
 def __verify_model_settings(analytical_result, simulation_result):
     system_keys = [
-        "arrival_arrival_task_1_dist", "arrival_arrival_task_1_rate",
-        "arrival_arrival_task_2_dist", "arrival_arrival_task_2_rate",
-
-        "system_cloudlet_service_task_1_dist", "system_cloudlet_service_task_1_rate",
-        "system_cloudlet_service_task_2_dist", "system_cloudlet_service_task_2_rate",
-        "system_cloud_service_task_1_dist", "system_cloud_service_task_1_rate",
-        "system_cloud_service_task_2_dist", "system_cloud_service_task_2_rate",
-        "system_cloud_setup_task_2_dist", "system_cloud_service_task_2_param_m",
-
-        "system_cloudlet_n_servers", "system_cloudlet_controller_algorithm"
+        "arrival_arrival_task_1_dist",
+        "arrival_arrival_task_1_rate",
+        "arrival_arrival_task_2_dist",
+        "arrival_arrival_task_2_rate",
+        "system_cloudlet_service_task_1_dist",
+        "system_cloudlet_service_task_1_rate",
+        "system_cloudlet_service_task_2_dist",
+        "system_cloudlet_service_task_2_rate",
+        "system_cloud_service_task_1_dist",
+        "system_cloud_service_task_1_rate",
+        "system_cloud_service_task_2_dist",
+        "system_cloud_service_task_2_rate",
+        "system_cloud_setup_task_2_dist",
+        "system_cloud_service_task_2_param_m",
+        "system_cloudlet_n_servers",
+        "system_cloudlet_controller_algorithm",
     ]
 
     if analytical_result["system_cloudlet_controller_algorithm"] == ControllerAlgorithm.ALGORITHM_2:
@@ -93,9 +109,11 @@ def __verify_model_settings(analytical_result, simulation_result):
     for k in system_keys:
         analytical_value = analytical_result[k]
         simulation_value = simulation_result[k]
-        assert analytical_value == simulation_value, \
-            "System characteristics must be equal: difference found in key {} with analytical value {} and simulation value {}" \
-                .format(k, analytical_value, simulation_value)
+        assert (
+            analytical_value == simulation_value
+        ), "System characteristics must be equal: difference found in key {} with analytical value {} and simulation value {}".format(
+            k, analytical_value, simulation_value
+        )
 
 
 if __name__ == "__main__":

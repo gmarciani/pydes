@@ -89,7 +89,7 @@ class NextEventCalendar:
         else:
             candidate = self._events.get()[1]
             while candidate in self._ignore:
-                #assert candidate.type == EventType.COMPLETION_CLOUDLET_TASK_2  # TODO eliminare
+                # assert candidate.type == EventType.COMPLETION_CLOUDLET_TASK_2  # TODO eliminare
                 logger.debug("Ignoring next event (unscheduled): {}".format(candidate))
                 self._ignore.discard(candidate)
                 candidate = self._events.get()[1]
@@ -108,5 +108,9 @@ class NextEventCalendar:
         String representation.
         :return: the string representation.
         """
-        sb = ["{attr}='{value}'".format(attr=attr, value=self.__dict__[attr]) for attr in self.__dict__ if not attr.startswith("__") and not callable(getattr(self, attr))]
+        sb = [
+            "{attr}='{value}'".format(attr=attr, value=self.__dict__[attr])
+            for attr in self.__dict__
+            if not attr.startswith("__") and not callable(getattr(self, attr))
+        ]
         return "Calendar({}:{})".format(id(self), ", ".join(sb))

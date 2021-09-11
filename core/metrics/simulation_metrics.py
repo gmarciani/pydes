@@ -29,7 +29,7 @@ class SimulationMetrics:
             switched_completed={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
             switched_service={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
             switched_service_lost={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
-            population_area={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope}
+            population_area={sys: {tsk: 0 for tsk in TaskScope} for sys in SystemScope},
         )
 
         # Performance Metrics
@@ -39,7 +39,7 @@ class SimulationMetrics:
             population={sys: {tsk: BatchedMeasure() for tsk in TaskScope} for sys in SystemScope},
             switched_ratio={sys: {tsk: BatchedMeasure() for tsk in TaskScope} for sys in SystemScope},
             switched_response={sys: {tsk: BatchedMeasure() for tsk in TaskScope} for sys in SystemScope},
-            service_lost={sys: {tsk: BatchedMeasure() for tsk in TaskScope} for sys in SystemScope}
+            service_lost={sys: {tsk: BatchedMeasure() for tsk in TaskScope} for sys in SystemScope},
         )
 
         # Batch management
@@ -127,14 +127,28 @@ class SimulationMetrics:
         #   * switched_service_lost_system = switched_service_lost_cloudlet + switched_service_lost_cloud
         #   * population_area_system = population_area_cloudlet + population_area_lost_cloud
         for tsk in TaskScope.concrete():
-            self.counters.arrived[SystemScope.SYSTEM][tsk] = sum(self.counters.arrived[sys][tsk] for sys in SystemScope.subsystems())
-            self.counters.completed[SystemScope.SYSTEM][tsk] = sum(self.counters.completed[sys][tsk] for sys in SystemScope.subsystems())
-            self.counters.service[SystemScope.SYSTEM][tsk] = sum(self.counters.service[sys][tsk] for sys in SystemScope.subsystems())
+            self.counters.arrived[SystemScope.SYSTEM][tsk] = sum(
+                self.counters.arrived[sys][tsk] for sys in SystemScope.subsystems()
+            )
+            self.counters.completed[SystemScope.SYSTEM][tsk] = sum(
+                self.counters.completed[sys][tsk] for sys in SystemScope.subsystems()
+            )
+            self.counters.service[SystemScope.SYSTEM][tsk] = sum(
+                self.counters.service[sys][tsk] for sys in SystemScope.subsystems()
+            )
             self.counters.switched[SystemScope.SYSTEM][tsk] = self.counters.switched[SystemScope.CLOUDLET][tsk]
-            self.counters.switched_completed[SystemScope.SYSTEM][tsk] = self.counters.switched_completed[SystemScope.CLOUD][tsk]
-            self.counters.switched_service[SystemScope.SYSTEM][tsk] = sum(self.counters.switched_service[sys][tsk] for sys in SystemScope.subsystems())
-            self.counters.switched_service_lost[SystemScope.SYSTEM][tsk] = sum(self.counters.switched_service_lost[sys][tsk] for sys in SystemScope.subsystems())
-            self.counters.population_area[SystemScope.SYSTEM][tsk] = sum(self.counters.population_area[sys][tsk] for sys in SystemScope.subsystems())
+            self.counters.switched_completed[SystemScope.SYSTEM][tsk] = self.counters.switched_completed[
+                SystemScope.CLOUD
+            ][tsk]
+            self.counters.switched_service[SystemScope.SYSTEM][tsk] = sum(
+                self.counters.switched_service[sys][tsk] for sys in SystemScope.subsystems()
+            )
+            self.counters.switched_service_lost[SystemScope.SYSTEM][tsk] = sum(
+                self.counters.switched_service_lost[sys][tsk] for sys in SystemScope.subsystems()
+            )
+            self.counters.population_area[SystemScope.SYSTEM][tsk] = sum(
+                self.counters.population_area[sys][tsk] for sys in SystemScope.subsystems()
+            )
 
         # Compute counters for global tasks
         #   * arrived_global = arrived_task_1 + arrived_task_2
@@ -146,14 +160,30 @@ class SimulationMetrics:
         #   * switched_service_lost_global = switched_service_lost_task_1 + switched_service_lost_task_2
         #   * population_area_global = population_area_task_1 + population_area_task_2
         for sys in SystemScope:
-            self.counters.arrived[sys][TaskScope.GLOBAL] = sum(self.counters.arrived[sys][tsk] for tsk in TaskScope.concrete())
-            self.counters.completed[sys][TaskScope.GLOBAL] =  sum(self.counters.completed[sys][tsk] for tsk in TaskScope.concrete())
-            self.counters.service[sys][TaskScope.GLOBAL] = sum(self.counters.service[sys][tsk] for tsk in TaskScope.concrete())
-            self.counters.switched[sys][TaskScope.GLOBAL] = sum(self.counters.switched[sys][tsk] for tsk in TaskScope.concrete())
-            self.counters.switched_completed[sys][TaskScope.GLOBAL] = sum(self.counters.switched_completed[sys][tsk] for tsk in TaskScope.concrete())
-            self.counters.switched_service[sys][TaskScope.GLOBAL] = sum(self.counters.switched_service[sys][tsk] for tsk in TaskScope.concrete())
-            self.counters.switched_service_lost[sys][TaskScope.GLOBAL] = sum(self.counters.switched_service_lost[sys][tsk] for tsk in TaskScope.concrete())
-            self.counters.population_area[sys][TaskScope.GLOBAL] = sum(self.counters.population_area[sys][tsk] for tsk in TaskScope.concrete())
+            self.counters.arrived[sys][TaskScope.GLOBAL] = sum(
+                self.counters.arrived[sys][tsk] for tsk in TaskScope.concrete()
+            )
+            self.counters.completed[sys][TaskScope.GLOBAL] = sum(
+                self.counters.completed[sys][tsk] for tsk in TaskScope.concrete()
+            )
+            self.counters.service[sys][TaskScope.GLOBAL] = sum(
+                self.counters.service[sys][tsk] for tsk in TaskScope.concrete()
+            )
+            self.counters.switched[sys][TaskScope.GLOBAL] = sum(
+                self.counters.switched[sys][tsk] for tsk in TaskScope.concrete()
+            )
+            self.counters.switched_completed[sys][TaskScope.GLOBAL] = sum(
+                self.counters.switched_completed[sys][tsk] for tsk in TaskScope.concrete()
+            )
+            self.counters.switched_service[sys][TaskScope.GLOBAL] = sum(
+                self.counters.switched_service[sys][tsk] for tsk in TaskScope.concrete()
+            )
+            self.counters.switched_service_lost[sys][TaskScope.GLOBAL] = sum(
+                self.counters.switched_service_lost[sys][tsk] for tsk in TaskScope.concrete()
+            )
+            self.counters.population_area[sys][TaskScope.GLOBAL] = sum(
+                self.counters.population_area[sys][tsk] for tsk in TaskScope.concrete()
+            )
 
     def _compute_performance_metrics(self, t_now):
         """
@@ -173,25 +203,33 @@ class SimulationMetrics:
             for tsk in TaskScope:
                 self.performance_metrics.response[sys][tsk].add_sample(
                     (self.counters.service[sys][tsk] / self.counters.completed[sys][tsk])
-                    if self.counters.completed[sys][tsk] > 0 else 0.0)
+                    if self.counters.completed[sys][tsk] > 0
+                    else 0.0
+                )
 
-                self.performance_metrics.throughput[sys][tsk].add_sample(
-                    self.counters.completed[sys][tsk] / t_now)
+                self.performance_metrics.throughput[sys][tsk].add_sample(self.counters.completed[sys][tsk] / t_now)
 
                 self.performance_metrics.population[sys][tsk].add_sample(
-                    self.counters.population_area[sys][tsk] / t_now)
+                    self.counters.population_area[sys][tsk] / t_now
+                )
 
                 self.performance_metrics.switched_ratio[sys][tsk].add_sample(
                     (self.counters.switched[sys][tsk] / self.counters.arrived[sys][tsk])
-                    if self.counters.arrived[sys][tsk] > 0 else 0.0)
+                    if self.counters.arrived[sys][tsk] > 0
+                    else 0.0
+                )
 
                 self.performance_metrics.switched_response[sys][tsk].add_sample(
                     (self.counters.switched_service[sys][tsk] / self.counters.switched_completed[sys][tsk])
-                    if self.counters.switched_completed[sys][tsk] > 0 else 0.0)
+                    if self.counters.switched_completed[sys][tsk] > 0
+                    else 0.0
+                )
 
                 self.performance_metrics.service_lost[sys][tsk].add_sample(
                     (self.counters.switched_service_lost[sys][tsk] / self.counters.switched[sys][tsk])
-                    if self.counters.switched[sys][tsk] > 0 else 0.0)
+                    if self.counters.switched[sys][tsk] > 0
+                    else 0.0
+                )
 
     def _register_batch(self):
         """
@@ -214,7 +252,7 @@ class SimulationMetrics:
         """
         header = ["batch"]
         data = []
-        rng_batches = range(self.n_batches) if batch is None else range(batch, batch+1)
+        rng_batches = range(self.n_batches) if batch is None else range(batch, batch + 1)
         for b in rng_batches:
             sample = [b]
             for metric in sorted(self.performance_metrics.__dict__):
