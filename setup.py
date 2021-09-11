@@ -8,6 +8,13 @@ def readme():
         return f.read()
 
 
+def requirements():
+    dependencies = ["setuptools~=58.0.4"]
+    with open(os.path.join(os.path.dirname(__file__), "requirements.txt"), encoding="utf-8") as f:
+        dependencies.extend([line.strip() for line in f.readlines() if line.strip()])
+    return dependencies
+
+
 setup(
     name="pydes",
     version="0.0.1",
@@ -18,17 +25,7 @@ setup(
     package_dir={"": "src"},
     packages=find_packages("src"),
     python_requires=">=3.6",
-    install_requires=[
-        "setuptools~=58.0.4",
-        "click~=8.0.1",
-        "colored~=1.4.2",
-        "graphviz~=0.17",
-        "numpy~=1.21.2",
-        "pyfiglet~=0.7.6",
-        "pyyaml~=5.4.1",
-        "scipy~=1.7.1",
-        "sympy~=1.8",
-    ],
+    install_requires=requirements(),
     entry_points={
         "console_scripts": [
             "pydes = pydes.cli:main",
