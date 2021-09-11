@@ -34,6 +34,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     long_description=readme(),
+    long_description_content_type="text/markdown",
     classifiers=[
         "Development Status :: 1 - Planning",
         "Environment :: Console",
