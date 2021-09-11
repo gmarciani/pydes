@@ -18,12 +18,6 @@ jobs:
           submodules: true
           fetch-depth: 0
 
-#      - name: Install Python with pyenv
-#        uses: gabrielfalcao/pyenv-action@v5
-#        with:
-#          default: ${{ matrix.python_version }}
-#          command: pip install --upgrade pip
-
       - name: Install Python
         uses: actions/setup-python@v2
         with:
