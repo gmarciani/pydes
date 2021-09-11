@@ -8,9 +8,9 @@ CONFIDENCE = 0.95   # CONFIDENCE >= 0.95
 """
 import math
 
-from core.rnd.rndf import idfChisquare
-from core.utils import errutils, mathutils
-from core.utils.guiutils import print_progress
+from pydes.core.rnd.rndf import idfChisquare
+from pydes.core.utils import errutils, mathutils
+from pydes.core.utils.guiutils import print_progress
 
 
 def statistics(generator, samsize, bins, d):
@@ -71,7 +71,8 @@ def error(data, mn, mx, confidence):
     """
     Compute the error components.
     :param data: the collected data.
-    :param mx: the critical value
+    :param mn: the critical value (minimum).
+    :param mx: the critical value (maximum).
     :param confidence: the confidence level.
     :return: (Dict) the dictionary of errors.
     """

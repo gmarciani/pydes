@@ -317,7 +317,7 @@ def idfErlang(n, b, u):
     x = n * b
     condition = True
 
-    while condition == True:  # /* use Newton-Raphson iteration */
+    while condition:  # /* use Newton-Raphson iteration */
         t = x
         x = t + (u - cdfErlang(n, b, t)) / pdfErlang(n, b, t)
         if x <= 0.0:
@@ -356,7 +356,7 @@ def idfStandard(u):
     x = 0.0  # /* initialize to the mean, then  */
     condition = True
 
-    while condition == True:  # /* use Newton-Raphson iteration  */
+    while condition:  # /* use Newton-Raphson iteration  */
         t = x
         x = t + (u - cdfStandard(t)) / pdfStandard(t)
         condition = fabs(x - t) >= TINY
@@ -446,7 +446,7 @@ def idfChisquare(n, u):
     x = n  # /* initialize to the mean, then */
     condition = True
 
-    while condition == True:  # /* use Newton-Raphson iteration */
+    while condition:  # /* use Newton-Raphson iteration */
         t = x
         x = t + (u - cdfChisquare(n, t)) / pdfChisquare(n, t)
         if x <= 0.0:
@@ -487,7 +487,7 @@ def idfStudent(n, u):
     x = 0.0  # /* initialize to the mean, then */
     condition = True
 
-    while condition == True:  # /* use Newton-Raphson iteration */
+    while condition:  # /* use Newton-Raphson iteration */
         t = x
         # print("t is set to "+ t)
         x = t + (u - cdfStudent(n, t)) / pdfStudent(n, t)
@@ -515,13 +515,14 @@ def LogGamma(a):
     # * which is less than 2.0e-10 for all positive values of the parameter a.
     # * ========================================================================
 
-    s = []
-    s.append(76.180091729406 / a)
-    s.append(-86.505320327112 / (a + 1.0))
-    s.append(24.014098222230 / (a + 2.0))
-    s.append(-1.231739516140 / (a + 3.0))
-    s.append(0.001208580030 / (a + 4.0))
-    s.append(-0.000005363820 / (a + 5.0))
+    s = [
+        76.180091729406 / a,
+        -86.505320327112 / (a + 1.0),
+        24.014098222230 / (a + 2.0),
+        -1.231739516140 / (a + 3.0),
+        0.001208580030 / (a + 4.0),
+        -0.000005363820 / (a + 5.0),
+    ]
     sum = 1.000000000178
 
     for i in range(0, 6):
@@ -605,7 +606,7 @@ def InGamma(a, x):
         n = 0
 
         condition = True
-        while condition == True:  ##/* recursively generate the continued */
+        while condition:  ##/* recursively generate the continued */
             g = f  ##/* fraction 'f' until two consecutive */
             n += 1  ##/* values are small                   */
             if (n % 2) > 0:
@@ -661,7 +662,7 @@ def InBeta(a, b, x):
 
     condition = True
 
-    while condition == True:  ##/* recursively generate the continued */
+    while condition:  ##/* recursively generate the continued */
         g = f  ##/* fraction 'f' until two consecutive */
         n += 1  ##/* values are small                   */
 

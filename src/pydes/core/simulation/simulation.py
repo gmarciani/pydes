@@ -1,5 +1,4 @@
 import os
-from math import floor
 from sys import maxsize as INFINITE
 
 from pydes.core.metrics.simulation_metrics import SimulationMetrics
@@ -109,9 +108,8 @@ class Simulation:
     def run(self, outdir=None, show_progress=False):
         """
         Run the simulation.
-        :param outdir (string) the directory for output files (Default: None)
+        :param outdir (string) the directory for output files (Default: None).
         :param show_progress (bool) if True, print the simulation real time progress bar.
-        :param sampling (bool) if True, save samples into a dedicated file. (Default:False)
         :return: None
         """
 
@@ -337,7 +335,7 @@ class Simulation:
 
 
 if __name__ == "__main__":
-    from core.simulation.model.config import get_default_configuration
+    from pydes.core.simulation.model.config import get_default_configuration
 
     mode = SimulationMode.TRANSIENT_ANALYSIS
     # mode = SimulationMode.PERFORMANCE_ANALYSIS

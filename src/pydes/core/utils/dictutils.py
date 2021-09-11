@@ -1,6 +1,3 @@
-from copy import deepcopy
-
-
 def merge(a, b):
     for key in b:
         if key in a:

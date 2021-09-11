@@ -153,6 +153,7 @@ def pascal(n, p, u):
     Generates a Pascal rnd variate.
     :param n: (int) the parameter n. Must be n > 0.
     :param p: (float) the parameter p. Must be 0.0 < p < 1.0.
+    :param u: (float) rnd number in (0,1).
     :return: (float) the Pascal(n,p) rnd variate.
     """
     x = 0
@@ -228,7 +229,6 @@ class DeterministicGenerator:
     def generate(self, **kwargs):
         """
         Generate a rnd variate value.
-        :param u: a rnd generator.
         :param kwargs: distribution parameters.
         :return: the rnd value.
         """

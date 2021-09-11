@@ -4,9 +4,9 @@ Spectral Test
 # Zoom interval
 DEFAULT_INTERVAL = (0.0, 1.0)
 """
-from core.utils.csv_utils import save_csv
-from core.utils.file_utils import empty_file
-from core.utils.guiutils import print_progress
+from pydes.core.utils.csv_utils import save_csv
+from pydes.core.utils.file_utils import empty_file
+from pydes.core.utils.guiutils import print_progress
 
 # Number of observations in memory before flushing into file
 MAX_OBSERVATIONS_BEFORE_FLUSH = 10

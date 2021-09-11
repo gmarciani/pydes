@@ -11,7 +11,7 @@ from os import path
 
 from pydes.core.rnd.inspection import multiplier_check
 from pydes.core.utils.file_utils import save_list_of_numbers
-from pydes.core.utils.logutils import ConsoleHandler, get_logger
+from pydes.core.utils.logutils import get_logger
 from pydes.core.utils.report import SimpleReport
 
 # Logging

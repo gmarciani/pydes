@@ -142,7 +142,6 @@ class MarkovChain:
     def generate_sympy_equations(self):
         """
         Generate sympy flow equations from the Markov chain.
-        :param M: (MarkovChain) the Markov Chain.
         :return: the list of equations
         """
         variables = set()

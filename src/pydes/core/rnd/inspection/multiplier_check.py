@@ -19,9 +19,9 @@ Keep in mind the following table:
 
 import math
 
-from core.utils import mathutils
-from core.utils.guiutils import print_progress
-from core.utils.mathutils import _g
+from pydes.core.utils import mathutils
+from pydes.core.utils.guiutils import print_progress
+from pydes.core.utils.mathutils import _g
 
 
 def get_fp_multipliers(modulus):

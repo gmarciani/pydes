@@ -25,6 +25,7 @@ def run(bits, outdir=DEFAULT_OUTDIR):
     """
     Find a modulus for the given number of bits.
     :param bits: (int) number of bits; must be positive.
+    :param outdir: (str) path to the output directory.
     """
     logger.info("Computing modulus for Bits {}".format(bits))
 

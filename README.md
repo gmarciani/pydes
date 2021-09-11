@@ -25,7 +25,7 @@ Launch a simulation, running:
     $> python simulation.py [MY_SIMULATION] --config [MY_CONFIGURATION]
 
 where
-*[MY_SIMULATION]* is the name of the simulation to launch, i.e. the package name contained in pydes.simulations, and
+*[MY_SIMULATION]* is the name of the simulation to launch, i.e. the package name contained in pydes.exp.simulation, and
 *[MY_CONFIGURATION]* is the relative path to the YAML configuration file for the simulation.
 
 For example, to launch the cloud simulation, run:

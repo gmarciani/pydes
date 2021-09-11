@@ -1,10 +1,7 @@
 from copy import deepcopy
 from enum import Enum, unique
 
-from pydes.core.rnd.rndcmp import RandomComponent
-from pydes.core.rnd.rndvar import Variate
-from pydes.core.simulation.model.event import EventType
-from pydes.core.simulation.model.scope import ActionScope, SystemScope, TaskScope
+from pydes.core.simulation.model.scope import TaskScope
 from pydes.core.utils.logutils import get_logger
 
 # Logging

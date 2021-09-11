@@ -1,7 +1,5 @@
-from pydes.core.simulation.model.controller import ControllerAlgorithm
 from pydes.core.simulation.model.scope import SystemScope, TaskScope
 from pydes.core.utils.csv_utils import read_csv
-from pydes.core.utils.report import SimpleReport as Report
 
 INDICES = ["population", "response", "throughput"]
 # SYSTEM_SCOPES = [scope.name.lower() for scope in SystemScope]

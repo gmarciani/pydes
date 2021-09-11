@@ -40,7 +40,6 @@ class ExponentialTaskgen:
         """
         Generate a new rnd arrival.
         :param t_clock: (float) the current time.
-        :param tsk: (TaskType) the type of the task. Default: None
         :return: (SimpleEvent) a new rnd arrival.
         """
         # Select the type of arrival and the corresponding arrival time
@@ -76,8 +75,8 @@ class ExponentialTaskgen:
 
 
 if __name__ == "__main__":
-    from core.rnd.rndgen import MarcianiMultiStream
-    from core.simulation.model import config
+    from pydes.core.rnd.rndgen import MarcianiMultiStream
+    from pydes.core.simulation.model import config
 
     rndgenerator = MarcianiMultiStream(123456789)
     configuration = config.get_default_configuration()
