@@ -26,5 +26,8 @@ jobs:
       - name: Install pip
         run: pip install --upgrade pip
 
+      - name: Install build script
+        run: pip install --upgrade build
+
       - name: Build wheels
         run: python -m build
