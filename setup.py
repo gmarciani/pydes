@@ -31,7 +31,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "pydes = pydes:main",
+            "pydes = pydes.cli:main",
         ]
     },
     include_package_data=True,
