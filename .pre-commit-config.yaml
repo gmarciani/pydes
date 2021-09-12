@@ -10,7 +10,6 @@ repos:
       - id: check-merge-conflict
       - id: check-xml
       - id: check-yaml
-        args: ['--unsafe']  # necessary for jinja-templated yaml files
       - id: debug-statements
       - id: detect-private-key
       - id: check-symlinks
