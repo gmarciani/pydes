@@ -1,6 +1,7 @@
 click~=8.0.1
 colored~=1.4.2
 graphviz~=0.17
+markov-solver~=1.0.0
 numpy~=1.21.2
 pyfiglet~=0.7.6
 pyyaml~=5.4.1
