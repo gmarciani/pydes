@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 # Defaults
 DEFAULT_CONFIG_PATH = "analytical_solution.yaml"
 DEFAULT_OUTDIR = "out/analytical_solution"
-DEFAULT_PARAMETERS = {}
+DEFAULT_PARAMETERS: dict = {}
 
 
 def run(config_path=DEFAULT_CONFIG_PATH, outdir=DEFAULT_OUTDIR, parameters=DEFAULT_PARAMETERS):

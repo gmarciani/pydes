@@ -4,6 +4,7 @@ Spectral Test
 # Zoom interval
 DEFAULT_INTERVAL = (0.0, 1.0)
 """
+
 from pydes.core.utils.csv_utils import save_csv
 from pydes.core.utils.file_utils import empty_file
 from pydes.core.utils.guiutils import print_progress

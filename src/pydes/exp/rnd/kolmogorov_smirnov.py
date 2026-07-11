@@ -14,6 +14,7 @@ Output: the extreme behaviour of the generator for each of its stream.
 
 Notes: results are stored in folder 'out/kolmogorov-smirnov'.
 """
+
 from os import path
 
 from pydes.core.rnd.randomness import extremes

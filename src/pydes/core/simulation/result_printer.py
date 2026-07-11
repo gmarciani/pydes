@@ -18,9 +18,9 @@ def build_latex_table(analytical_result_path, simulation_result_path):
     simulation_result = read_csv(simulation_result_path)[0]
 
     table = """
-\hline
+\\hline
 Measure & Theoretical & Experimental \\\\
-\hline
+\\hline
 """
 
     for system_scope in SYSTEM_SCOPES:
@@ -33,10 +33,10 @@ Measure & Theoretical & Experimental \\\\
                 simulation_mean = float(simulation_result[mean_key])
                 simulation_cint = float(simulation_result[cint_key])
                 index_symbol = get_index_symbol(index, system_scope, task_scope)
-                table += "${}$  & ${}$ & ${}\pm {}$ \\\\ \n".format(
+                table += "${}$  & ${}$ & ${}\\pm {}$ \\\\ \n".format(
                     index_symbol, analytical_mean, simulation_mean, simulation_cint
                 )
-        table += "\hline \n"
+        table += "\\hline \n"
 
     return table
 

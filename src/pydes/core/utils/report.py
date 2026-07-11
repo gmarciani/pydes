@@ -2,7 +2,6 @@
 Utility classes that realize reports for experiments.
 """
 
-
 from collections import OrderedDict
 
 from pydes.core.utils.csv_utils import save_csv

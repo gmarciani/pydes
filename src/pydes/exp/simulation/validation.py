@@ -26,7 +26,9 @@ def run(analytical_result_path, simulation_result_path, outdir=DEFAULT_OUTDIR):
     """
 
     logger.info(
-        "Launching validation with configuration:\n{}".format(analytical_result_path, simulation_result_path, outdir)
+        "Launching validation with configuration:\nanalytical_result_path={} | simulation_result_path={} | outdir={}".format(
+            analytical_result_path, simulation_result_path, outdir
+        )
     )
 
     report = result_validator.validate(analytical_result_path, simulation_result_path)

@@ -67,7 +67,7 @@ class Simulation:
             raise RuntimeError("The current version supports only TRANSIENT_ANALYSIS and PERFORMANCE_ANALYSIS")
 
         # Configuration - Randomization
-        self.rndgen = getattr(rndgen, config_general["random"]["generator"])(config_general["random"]["seed"])
+        self.rndgen = getattr(rndgen, config_general["rnd"]["generator"])(config_general["rnd"]["seed"])
 
         # The simulation metrics
         self.metrics = SimulationMetrics(self.batchdim)

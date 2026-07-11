@@ -215,7 +215,7 @@ if __name__ == "__main__":
 
     print("MARKOV CHAIN: ALGORITHM 2")
 
-    markov_chain = MarkovChainAlgorithm2(N, S, l1, l2, m1, m2)
+    markov_chain = MarkovChainAlgorithm2(N, S, l1, l2, m1, m2)  # type: ignore[assignment]
     print(markov_chain)
     print(markov_chain.transition_matrix())
     markov_chain.render_graph("MarkovChainAlgorithm2")

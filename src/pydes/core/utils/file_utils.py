@@ -1,6 +1,7 @@
 """
 Utilities for file system management.
 """
+
 import os
 
 
@@ -136,7 +137,7 @@ if __name__ == "__main__":
     filename = "./test.txt"
 
     save_list_of_pairs(filename, [])
-    l = [(1, 2)]
-    append_list_of_pairs(filename, l)
-    l = [(2, 4)]
-    append_list_of_pairs(filename, l)
+    pairs = [(1, 2)]
+    append_list_of_pairs(filename, pairs)
+    pairs = [(2, 4)]
+    append_list_of_pairs(filename, pairs)

@@ -7,6 +7,7 @@ Output: FP, MC, FP/MC multipliers and the best FP/MC multiplier, if exists.
 
 Notes: results are stored in folder 'out/mulcheck'.
 """
+
 from os import path
 
 from pydes.core.rnd.inspection import multiplier_check

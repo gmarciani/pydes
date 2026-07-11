@@ -7,6 +7,7 @@ Output: FP, MC, FP/MC multipliers and the smallest/largest FP/MC multiplier, if 
 
 Notes: results are stored in folder 'out/mulfind'.
 """
+
 from os import path
 
 from pydes.core.rnd.inspection import multiplier_check

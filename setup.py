@@ -15,6 +15,21 @@ def requirements():
     return dependencies
 
 
+DEV_REQUIREMENTS = [
+    "autoflake~=2.3",
+    "black~=26.5",
+    "build~=1.5",
+    "flake8~=7.3",
+    "mypy~=2.2",
+    "pre-commit~=4.6",
+    "pytest~=9.1",
+    "pytest-cov~=7.1",
+    "tox~=4.56",
+    "twine~=6.2",
+    "types-PyYAML~=6.0",
+]
+
+
 setup(
     name="pydes",
     version="0.0.1",
@@ -24,8 +39,9 @@ setup(
     license="MIT License",
     package_dir={"": "src"},
     packages=find_packages("src"),
-    python_requires=">=3.6",
+    python_requires=">=3.10",
     install_requires=requirements(),
+    extras_require={"dev": DEV_REQUIREMENTS},
     entry_points={
         "console_scripts": [
             "pydes = pydes.cli:main",
@@ -40,10 +56,9 @@ setup(
         "Environment :: Console",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Topic :: Scientific/Engineering",
         "License :: OSI Approved :: MIT License",
     ],

@@ -245,7 +245,7 @@ if __name__ == "__main__":
     if generator.get_seed() != CHECK:
         raise RuntimeError("{} is not correct!".format(generator.__class__.__name__))
 
-    generator = MarcianiMultiStream(iseed=1)
+    generator = MarcianiMultiStream(iseed=1)  # type: ignore[assignment]
     for _ in range(0, 10000):
         generator.rnd()
     if generator.get_seed() != CHECK:

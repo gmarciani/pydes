@@ -92,13 +92,13 @@ class MarkovChain:
             self.symbols[symbol] = value
 
     def in_links(self, state):
-        return list(l for l in self.links if l.head == state)
+        return list(link for link in self.links if link.head == state)
 
     def out_links(self, state):
-        return list(l for l in self.links if l.tail == state)
+        return list(link for link in self.links if link.tail == state)
 
     def find_link(self, state1, state2):
-        return next((l for l in self.out_links(state1) if l.head == state2), None)
+        return next((link for link in self.out_links(state1) if link.head == state2), None)
 
     def get_states(self):
         return sorted(self.states)
