@@ -29,7 +29,7 @@ def is_prime(n):
         return True
     if n % 2 == 0:
         return False
-    max = n ** 0.5 + 1
+    max = n**0.5 + 1
     i = 3
     while i <= max:
         if n % i == 0:

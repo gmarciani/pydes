@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 # Defaults
 DEFAULT_CONFIG_PATH = "performance_analysis.yaml"
 DEFAULT_OUTDIR = "out/performance_analysis"
-DEFAULT_PARAMETERS = {}
+DEFAULT_PARAMETERS: dict = {}
 
 
 def run(config_path=DEFAULT_CONFIG_PATH, outdir=DEFAULT_OUTDIR, parameters=DEFAULT_PARAMETERS):

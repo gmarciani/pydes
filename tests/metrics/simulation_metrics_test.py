@@ -11,16 +11,10 @@ class SimulationMetricsTest(unittest.TestCase):
         for metric in self.simulation_metrics.performance_metrics.__dict__:
             for sys in SystemScope:
                 for tsk in TaskScope:
-                    getattr(self.simulation_metrics.performance_metrics, metric)[sys][tsk].set_value(hash(metric))
+                    getattr(self.simulation_metrics.performance_metrics, metric)[sys][tsk].add_sample(hash(metric))
 
-        self.simulation_metrics.register_batch()
-
-        for metric in self.simulation_metrics.performance_metrics.__dict__:
-            for sys in SystemScope:
-                for tsk in TaskScope:
-                    getattr(self.simulation_metrics.performance_metrics, metric)[sys][tsk].set_value(
-                        hash(metric), batch=0
-                    )
+        self.simulation_metrics._register_batch()
+        self.simulation_metrics.n_batches = 1
 
         self.file_csv = "out/test_simulation_statistics.csv"
 
@@ -36,7 +30,9 @@ class SimulationMetricsTest(unittest.TestCase):
             for sys in SystemScope:
                 for tsk in TaskScope:
                     hdr.append("{}_{}_{}".format(metric, sys.name.lower(), tsk.name.lower()))
-                    row.append(hash(metric))
+                    row.append(
+                        getattr(self.simulation_metrics.performance_metrics, metric)[sys][tsk].get_batch_means()[0]
+                    )
         shdr = ",".join(map(str, hdr))
         srow = ",".join(map(str, row))
         expected = "{}\n{}\n".format(shdr, srow)

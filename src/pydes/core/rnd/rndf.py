@@ -51,7 +51,7 @@ Random variates functions
 from math import exp, fabs, log, sqrt
 
 TINY = 1.0e-10
-SQRT2PI = 2.506628274631  # #/* sqrt(2 * pi) */
+SQRT2PI = 2.506628274631  # sqrt(2 * pi)
 
 # static double pdfStandard(x)
 # static double cdfStandard(x)
@@ -142,7 +142,7 @@ def idfBinomial(n, p, u):
     # * NOTE: use 0 <= n, 0.0 < p < 1.0 and 0.0 < u < 1.0
     # * =================================================
 
-    x = int(n * p)  # /* start searching at the mean */
+    x = int(n * p)  # start searching at the mean
 
     if cdfBinomial(n, p, x) <= u:
         while cdfBinomial(n, p, x) <= u:
@@ -175,7 +175,7 @@ def idfGeometric(p, u):
     # =========================================
     # * NOTE: use 0.0 < p < 1.0 and 0.0 < u < 1.0
     # * =========================================
-    return (long)(log(1.0 - u) / log(p))
+    return int(log(1.0 - u) / log(p))
 
 
 def pdfPascal(n, p, x):
@@ -199,7 +199,7 @@ def idfPascal(n, p, u):
     # * NOTE: use n >= 1, 0.0 < p < 1.0, and 0.0 < u < 1.0
     # * ==================================================
 
-    x = int(n * p / (1.0 - p))  # /* start searching at the mean */
+    x = int(n * p / (1.0 - p))  # start searching at the mean
 
     if cdfPascal(n, p, x) <= u:
         while cdfPascal(n, p, x) <= u:
@@ -232,7 +232,7 @@ def idfPoisson(m, u):
     # ===================================
     # * NOTE: use m > 0 and 0.0 < u < 1.0
     # * ===================================
-    x = int(m)  # /* start searching at the mean */
+    x = int(m)  # start searching at the mean
 
     if cdfPoisson(m, x) <= u:
         while cdfPoisson(m, x) <= u:
@@ -317,7 +317,7 @@ def idfErlang(n, b, u):
     x = n * b
     condition = True
 
-    while condition:  # /* use Newton-Raphson iteration */
+    while condition:  # use Newton-Raphson iteration
         t = x
         x = t + (u - cdfErlang(n, b, t)) / pdfErlang(n, b, t)
         if x <= 0.0:
@@ -353,10 +353,10 @@ def idfStandard(u):
     # * ===================================
 
     t = 0.0
-    x = 0.0  # /* initialize to the mean, then  */
+    x = 0.0  # initialize to the mean, then
     condition = True
 
-    while condition:  # /* use Newton-Raphson iteration  */
+    while condition:  # use Newton-Raphson iteration
         t = x
         x = t + (u - cdfStandard(t)) / pdfStandard(t)
         condition = fabs(x - t) >= TINY
@@ -443,10 +443,10 @@ def idfChisquare(n, u):
     # =====================================
     # * NOTE: use n >= 1 and 0.0 < u < 1.0
     # * =====================================
-    x = n  # /* initialize to the mean, then */
+    x = n  # initialize to the mean, then
     condition = True
 
-    while condition:  # /* use Newton-Raphson iteration */
+    while condition:  # use Newton-Raphson iteration
         t = x
         x = t + (u - cdfChisquare(n, t)) / pdfChisquare(n, t)
         if x <= 0.0:
@@ -484,10 +484,10 @@ def idfStudent(n, u):
     # * NOTE: use n >= 1 and 0.0 < u < 1.0
     # * ===================================
     t = 0.0
-    x = 0.0  # /* initialize to the mean, then */
+    x = 0.0  # initialize to the mean, then
     condition = True
 
-    while condition:  # /* use Newton-Raphson iteration */
+    while condition:  # use Newton-Raphson iteration
         t = x
         # print("t is set to "+ t)
         x = t + (u - cdfStudent(n, t)) / pdfStudent(n, t)
@@ -587,28 +587,28 @@ def InGamma(a, x):
     else:
         factor = 0.0
 
-    if x < a + 1.0:  ##/* evaluate as an infinite series - */
-        t = a  ##/* A & S equation 6.5.29            */
+    if x < a + 1.0:  # evaluate as an infinite series -
+        t = a  # A & S equation 6.5.29
         term = 1.0 / a
         sum = term
-        while term >= TINY * sum:  ##/* sum until 'term' is small */
+        while term >= TINY * sum:  # sum until 'term' is small
             t += 1
             term = term * (x / t)
             sum += term
         # EndWhile
         return factor * sum
 
-    else:  ##/* evaluate as a continued fraction - */
-        p = [0.0, 1.0, -1]  ##/* A & S eqn 6.5.31 with the extended */
-        q = [1.0, x, -1]  ##/* pattern 2-a, 2, 3-a, 3, 4-a, 4,... */
-        ##/* - see also A & S sec 3.10, eqn (3) */
+    else:  # evaluate as a continued fraction -
+        p = [0.0, 1.0, -1]  # A & S eqn 6.5.31 with the extended
+        q = [1.0, x, -1]  # pattern 2-a, 2, 3-a, 3, 4-a, 4,...
+        # - see also A & S sec 3.10, eqn (3)
         f = p[1] / q[1]
         n = 0
 
         condition = True
-        while condition:  ##/* recursively generate the continued */
-            g = f  ##/* fraction 'f' until two consecutive */
-            n += 1  ##/* values are small                   */
+        while condition:  # recursively generate the continued
+            g = f  # fraction 'f' until two consecutive
+            n += 1  # values are small
             if (n % 2) > 0:
                 c = [(((n + 1) / 2.0) - a), 1]
 
@@ -618,7 +618,7 @@ def InGamma(a, x):
             p[2] = c[1] * p[1] + c[0] * p[0]
             q[2] = c[1] * q[1] + c[0] * q[0]
 
-            if q[2] != 0.0:  ##/* rescale to avoid overflow */
+            if q[2] != 0.0:  # rescale to avoid overflow
                 p[0] = p[1] / q[2]
                 q[0] = q[1] / q[2]
                 p[1] = p[2] / q[2]
@@ -641,13 +641,13 @@ def InBeta(a, b, x):
     # * between 0 and 1.
     # * =======================================================================
 
-    if x > (a + 1.0) / (a + b + 1.0):  # #/* to accelerate convergence   */
-        swap = 1  ##/* complement x and swap a & b */
+    if x > (a + 1.0) / (a + b + 1.0):  # to accelerate convergence
+        swap = 1  # complement x and swap a & b
         x = 1.0 - x
         t = a
         a = b
         b = t
-    else:  ##/* do nothing */
+    else:  # do nothing
         swap = 0
 
     if x > 0:
@@ -662,9 +662,9 @@ def InBeta(a, b, x):
 
     condition = True
 
-    while condition:  ##/* recursively generate the continued */
-        g = f  ##/* fraction 'f' until two consecutive */
-        n += 1  ##/* values are small                   */
+    while condition:  # recursively generate the continued
+        g = f  # fraction 'f' until two consecutive
+        n += 1  # values are small
 
         if (n % 2) > 0:
             t = (n - 1) / 2.0
@@ -675,7 +675,7 @@ def InBeta(a, b, x):
 
         p[2] = p[1] + c * p[0]
         q[2] = q[1] + c * q[0]
-        if q[2] != 0.0:  ##/* rescale to avoid overflow */
+        if q[2] != 0.0:  # rescale to avoid overflow
             p[0] = p[1] / q[2]
             q[0] = q[1] / q[2]
             p[1] = p[2] / q[2]

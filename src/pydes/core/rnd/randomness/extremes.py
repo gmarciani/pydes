@@ -6,6 +6,7 @@ BINS = 1000         # BINS >= 1000
 D = 5               # D >= 2
 CONFIDENCE = 0.95   # CONFIDENCE >= 0.95
 """
+
 import math
 
 from pydes.core.rnd.rndf import idfChisquare
@@ -34,7 +35,7 @@ def observations(generator, samsize, bins, d):
             u2 = generator.rnd()
             if u2 > u1:
                 u1 = u2
-        u = u1 ** d
+        u = u1**d
         b = math.floor(u * bins)
         observed[int(b)] += 1
     return observed
@@ -42,7 +43,10 @@ def observations(generator, samsize, bins, d):
 
 def _compute_chisquare_statistic(observed, samsize):
     bins = len(observed)
-    expected = lambda x: samsize / bins
+
+    def expected(x):
+        return samsize / bins
+
     value = mathutils.chisquare_univariate(observed, expected)
     return value
 

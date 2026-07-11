@@ -12,6 +12,7 @@ Output: the distribution of rnd number within the specified interval.
 
 Notes: results are stored in folder 'out/spectral'.
 """
+
 from os import path
 
 from pydes.core.rnd.randomness import spectral as test

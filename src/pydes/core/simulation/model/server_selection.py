@@ -45,7 +45,7 @@ class ServerSelectorOrder(BaseServerSelection):
         Select an idle server, according to the adopted server selection rule.
         :return: (int) the index of the selected server, if present; None, otherwise.
         """
-        for (idx, srv) in enumerate(self._servers):
+        for idx, srv in enumerate(self._servers):
             if srv.state is ServerState.IDLE:
                 return idx
         return None
@@ -56,7 +56,7 @@ class ServerSelectorOrder(BaseServerSelection):
         :param task_type: (TaskType) the type of the task.
         :return: (int) the index of the selected server, if present; None, otherwise.
         """
-        for (idx, srv) in enumerate(self._servers):
+        for idx, srv in enumerate(self._servers):
             if srv.task_type is task_type:
                 return idx
         return None

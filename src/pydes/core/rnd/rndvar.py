@@ -2,7 +2,6 @@
 Random variates.
 """
 
-
 from enum import Enum, unique
 from math import exp, log, sqrt
 
@@ -17,30 +16,30 @@ def bernoulli(p, u):
     return 0 if u < (1 - p) else 1
 
 
-def binomial(n, p, u):
+def binomial(n, p, rng):
     """
     Generates a Binomial rnd variate.
     :param n: (int) the cardinality. Must be n > 0.
     :param p: (float) success probability. Must be 0.0 < p < 1.0.
-    :param u: (float) rnd number in (0,1).
+    :param rng: (rnd generator) generator of rnd numbers in (0,1).
     :return: (float) the Binomial(n,p) rnd variate.
     """
     x = 0
     for i in range(0, n):
-        x += bernoulli(p, u)
+        x += bernoulli(p, rng.rnd())
     return x
 
 
-def chisquare(n, u):
+def chisquare(n, rng):
     """
     Generates a Chi Square rnd variate.
     :param n: (int) degree of freedom. Must be n > 0.
-    :param u: (float) rnd number in (0,1).
+    :param rng: (rnd generator) generator of rnd numbers in (0,1).
     :return: (float) the ChiSquare(n) rnd variate.
     """
     x = 0.0
     for i in range(0, n):
-        z = normal(0.0, 1.0, u)
+        z = normal(0.0, 1.0, rng.rnd())
         x += z * z
     return x
 
@@ -68,17 +67,17 @@ def equilikely(a, b, u):
     return a + int((b - a + 1) * u)
 
 
-def erlang(n, b, u):
+def erlang(n, b, rng):
     """
     Generates an Erlang rnd variate.
     :param n: (int) parameter n. Must be n > 0.
     :param b: (float) parameter b. Must be b > 0.0.
-    :param u: (float) rnd number in (0,1).
+    :param rng: (rnd generator) generator of rnd numbers in (0,1).
     :return: (float) the Erlang(n,b) rnd variate.
     """
     x = 0.0
     for i in range(0, n):
-        x += exponential(b, u)
+        x += exponential(b, rng.rnd())
     return x
 
 
@@ -148,43 +147,43 @@ def normal(m, s, u):
     return m + s * z
 
 
-def pascal(n, p, u):
+def pascal(n, p, rng):
     """
     Generates a Pascal rnd variate.
     :param n: (int) the parameter n. Must be n > 0.
     :param p: (float) the parameter p. Must be 0.0 < p < 1.0.
-    :param u: (float) rnd number in (0,1).
+    :param rng: (rnd generator) generator of rnd numbers in (0,1).
     :return: (float) the Pascal(n,p) rnd variate.
     """
     x = 0
     for i in range(0, n):
-        x += geometric(p, u)
+        x += geometric(p, rng.rnd())
     return x
 
 
-def poisson(m, u):
+def poisson(m, rng):
     """
     Generates a Poisson rnd variate.
     :param m: (float) the mean. Must be m > 0.
-    :param u: (float) rnd number in (0,1).
+    :param rng: (rnd generator) generator of rnd numbers in (0,1).
     :return: (float) the Poisson(m) rnd variate.
     """
     t = 0.0
     x = 0
     while t < m:
-        t += exponential(1.0, u)
+        t += exponential(1.0, rng.rnd())
         x += 1
     return x - 1
 
 
-def student(n, u):
+def student(n, rng):
     """
     Generates a Student rnd variate.
     :param n: (int) degree of freedom. Must be n > 2.
-    :param u: (float) rnd number in (0,1).
+    :param rng: (rnd generator) generator of rnd numbers in (0,1).
     :return: (float) the Student(n) rnd variate.
     """
-    return normal(0.0, 1.0, u) / sqrt(chisquare(n, u) / n)
+    return normal(0.0, 1.0, rng.rnd()) / sqrt(chisquare(n, rng) / n)
 
 
 def uniform(a, b, u):
@@ -197,6 +196,9 @@ def uniform(a, b, u):
     :return: (float) the Uniform(a,b) rnd variate.
     """
     return a + (b - a) * u
+
+
+_COMPOSITE_VARIATES = (binomial, chisquare, erlang, pascal, poisson, student)
 
 
 class VariateGenerator:
@@ -218,6 +220,11 @@ class VariateGenerator:
         :param kwargs: distribution parameters.
         :return: the rnd value.
         """
+        if self.f in _COMPOSITE_VARIATES:
+            # Composite variates are built out of several independent draws,
+            # so they need access to the generator itself, not a single
+            # pre-sampled value.
+            return self.f(rng=u, **kwargs)
         return self.f(u=u.rnd(), **kwargs)
 
 

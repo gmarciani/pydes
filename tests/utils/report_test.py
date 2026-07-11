@@ -1,6 +1,7 @@
 import unittest
 
-from pydes.core.utils.report import SimpleReport
+from pydes.core.utils.csv_utils import str_csv
+from pydes.core.utils.report import PART, WIDTH, SimpleReport
 
 
 class ReportTest(unittest.TestCase):
@@ -10,92 +11,73 @@ class ReportTest(unittest.TestCase):
         :return: None
         """
         self.r = SimpleReport("SAMPLE REPORT")
-        self.r.add("Section-1", "1st Value", 1)
-        self.r.add("Section-1", "2nd Value", 2.123)
-        self.r.add("Section-1", "3rd Value", "Hello World")
-        self.r.add("Section-2/Subsection-1", "1st Value", 1)
-        self.r.add("Section-2/Subsection-1", "2nd Value", 2.123)
-        self.r.add("Section-2/Subsection-1", "3rd Value", "Hello World")
-        self.r.add("Section-3", "1st Value", 1)
-        self.r.add("Section-3", "2nd Value", 2.123)
-        self.r.add("Section-3", "3rd Value", "Hello World")
+        self.sections = [
+            ("Section-1", [("1st Value", 1), ("2nd Value", 2.123), ("3rd Value", "Hello World")]),
+            (
+                "Section-2/Subsection-1",
+                [("1st Value", 1), ("2nd Value", 2.123), ("3rd Value", "Hello World")],
+            ),
+            ("Section-3", [("1st Value", 1), ("2nd Value", 2.123), ("3rd Value", "Hello World")]),
+        ]
+        for section_title, params in self.sections:
+            for param_title, param_value in params:
+                self.r.add(section_title, param_title, param_value)
 
         self.file_txt = "test.txt"
         self.file_csv = "test.csv"
+
+    def _expected_str(self):
+        title_separator = "=" * WIDTH
+        fmt_title = "\n{}\n{:^" + str(WIDTH) + "}\n{}\n"
+        fmt_section = "\n{:^" + str(WIDTH) + "}\n"
+        fmt_value = "{:.<" + str(int(PART * WIDTH)) + "}{:.>" + str(int((1.0 - PART) * WIDTH)) + "}\n"
+
+        s = fmt_title.format(title_separator, self.r.title, title_separator)
+        for section_title, params in self.sections:
+            s += fmt_section.format(section_title)
+            for param_title, param_value in params:
+                s += fmt_value.format(param_title, str(param_value))
+        return s
 
     def test_string_representation(self):
         """
         Test the report string representation.
         :return: None
         """
-        s = "\n"
-        s += "==================================================\n"
-        s += "                  SAMPLE REPORT                   \n"
-        s += "==================================================\n"
-        s += "\n"
-        s += "                    Section-1                     \n"
-        s += "1st Value........................................1\n"
-        s += "2nd Value....................................2.123\n"
-        s += "3rd Value..............................Hello World\n"
-        s += "\n"
-        s += "              Section-2/Subsection-1              \n"
-        s += "1st Value........................................1\n"
-        s += "2nd Value....................................2.123\n"
-        s += "3rd Value..............................Hello World\n"
-        s += "\n"
-        s += "                    Section-3                     \n"
-        s += "1st Value........................................1\n"
-        s += "2nd Value....................................2.123\n"
-        s += "3rd Value..............................Hello World\n"
-
-        self.assertEqual(s, str(self.r), "String representation is not correct.")
+        self.assertEqual(self._expected_str(), str(self.r), "String representation is not correct.")
 
     def test_save_txt(self):
         """
         Test the report saving to a TXT file.
         :return: None
         """
-        s = "\n"
-        s += "==================================================\n"
-        s += "                  SAMPLE REPORT                   \n"
-        s += "==================================================\n"
-        s += "\n"
-        s += "                    Section-1                     \n"
-        s += "1st Value........................................1\n"
-        s += "2nd Value....................................2.123\n"
-        s += "3rd Value..............................Hello World\n"
-        s += "\n"
-        s += "              Section-2/Subsection-1              \n"
-        s += "1st Value........................................1\n"
-        s += "2nd Value....................................2.123\n"
-        s += "3rd Value..............................Hello World\n"
-        s += "\n"
-        s += "                    Section-3                     \n"
-        s += "1st Value........................................1\n"
-        s += "2nd Value....................................2.123\n"
-        s += "3rd Value..............................Hello World\n"
-
         self.r.save_txt(self.file_txt)
 
         with open(self.file_txt, "r") as f:
             actual = f.read()
 
-        self.assertEqual(s, actual, "TXT file representation is not correct.")
+        self.assertEqual(self._expected_str(), actual, "TXT file representation is not correct.")
 
     def test_save_csv(self):
         """
         Test the report saving to a CSV file.
         :return: None
         """
-        s = "name,section-1.1st_value,section-1.2nd_value,section-1.3rd_value,section-2/subsection-1.1st_value,section-2/subsection-1.2nd_value,section-2/subsection-1.3rd_value,section-3.1st_value,section-3.2nd_value,section-3.3rd_value\n"
-        s += "SAMPLE REPORT,1,2.123,Hello World,1,2.123,Hello World,1,2.123,Hello World\n"
+        header = ["name"]
+        row = ["SAMPLE REPORT"]
+        for section_title, params in self.sections:
+            for param_title, param_value in params:
+                header.append(str_csv("{}_{}".format(section_title, param_title)))
+                row.append(str(param_value))
+
+        expected = "{}\n{}\n".format(",".join(header), ",".join(row))
 
         self.r.save_csv(self.file_csv)
 
         with open(self.file_csv, "r") as f:
             actual = f.read()
 
-        self.assertEqual(s, actual, "CSV file representation is not correct.")
+        self.assertEqual(expected, actual, "CSV file representation is not correct.")
 
 
 if __name__ == "__main__":

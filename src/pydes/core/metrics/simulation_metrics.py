@@ -258,7 +258,7 @@ class SimulationMetrics:
                 for sys in SystemScope:
                     for tsk in TaskScope:
                         header.append("{}_{}_{}".format(metric, sys.name.lower(), tsk.name.lower()))
-                        sample.append(getattr(self.performance_metrics, metric)[sys][tsk].get_value(b))
+                        sample.append(getattr(self.performance_metrics, metric)[sys][tsk].get_batch_means()[b])
             data.append(sample)
 
         save_csv(filename, header, data, append, skip_header)

@@ -1,6 +1,7 @@
 """
 Kolmogorov-Smirnov test of randomness.
 """
+
 import math
 
 from pydes.core.rnd.rndf import cdfChisquare

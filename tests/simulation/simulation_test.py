@@ -26,9 +26,9 @@ class SimulationCloudTest(unittest.TestCase):
 
         for ssr in SelectionRule:
             print("Server Selection Rule: ", ssr.name)
-            config["system"]["cloudlet"]["server_selection"] = ssr.name
+            config["system"]["cloudlet"]["server_selection"] = ssr
             simulation = Simulation(config)
-            simulation.run()
+            simulation.run(outdir="out/simulation_test")
 
     @unittest.skip("Under Debugging")
     def test_flow_consistency(self):
