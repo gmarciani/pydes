@@ -121,6 +121,8 @@ def normalize(config):
     :return: None
     """
     config["general"]["mode"] = SimulationMode[config["general"]["mode"]]
+    if "random" in config["general"]:
+        config["general"]["rnd"] = config["general"].pop("random")
     _normalize_random_config(config["arrival"])
     _normalize_random_config(config["system"]["cloudlet"]["service"])
     _normalize_random_config(config["system"]["cloud"]["service"])

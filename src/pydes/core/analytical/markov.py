@@ -39,7 +39,7 @@ class MarkovState:
         return self.value < other.value
 
     def __getitem__(self, item):
-        return self.value
+        return self.value[item]
 
 
 class MarkovLink:

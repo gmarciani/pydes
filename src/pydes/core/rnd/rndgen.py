@@ -213,6 +213,7 @@ class MarcianiSingleStream:
             x %= self._modulus
         else:
             raise ValueError("x must be a positive number in (0, modulus). Found {}".format(x))
+        self._seed = int(x)
 
     def rnd(self):
         """

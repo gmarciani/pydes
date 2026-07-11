@@ -201,7 +201,7 @@ def test_kolmogorov_smirnov(ctx, modulus, multiplier, jumper, streams, test, tes
         )
     )
     generator = MarcianiMultiStream(modulus=modulus, multiplier=multiplier, jumper=jumper, streams=streams)
-    kolmogorov_smirnov.run(generator, test, test_params, path.join(outdir, test))
+    kolmogorov_smirnov.run(generator, test, json.loads(str(test_params)), path.join(outdir, test))
     logger.info("Completed: {}".format(kolmogorov_smirnov.__file__))
 
 

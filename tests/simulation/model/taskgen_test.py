@@ -53,6 +53,14 @@ class TaskgenTest(unittest.TestCase):
         self.assertLessEqual(abs(ratio_generated_tsk_1 - probability_task_1) / probability_task_1, self.error)
         self.assertLessEqual(abs(ratio_generated_tsk_2 - probability_task_2) / probability_task_2, self.error)
 
+    def test_str(self):
+        """
+        Verify the string representation does not raise and contains useful info.
+        :return: None
+        """
+        text = str(self.taskgen)
+        self.assertIn("Taskgen(", text)
+
 
 if __name__ == "__main__":
     unittest.main()
