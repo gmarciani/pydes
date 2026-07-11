@@ -36,7 +36,9 @@ DEFAULT_GENERATOR = MarcianiMultiStream(
     modulus=DEFAULT_MODULUS, multiplier=DEFAULT_MULTIPLIER, jumper=DEFAULT_JUMPER, streams=DEFAULT_STREAMS
 )
 DEFAULT_TEST = "extremes"
-DEFAULT_TEST_PARAMS = dict(samsize=10000, bins=1000, confidence=0.95, d=5)
+# Kept as a JSON string (rather than a dict) since it flows through a Click option of type
+# click.STRING and is later parsed back into a dict with json.loads() in the CLI.
+DEFAULT_TEST_PARAMS = '{"samsize": 10000, "bins": 1000, "confidence": 0.95, "d": 5}'
 DEFAULT_OUTDIR = "out/kolmogorov-smirnov"
 SUPPORTED_TESTS = "extremes"
 

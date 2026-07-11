@@ -49,3 +49,18 @@ class AccumulatorTest(unittest.TestCase):
         print("expected_cint:", expected_cint)
         print("actual_cint:", actual_cint)
         self.assertLessEqual(abs(expected_cint - actual_cint) / expected_cint, ERROR)
+
+    def test_reset(self):
+        self.accumulator.reset()
+        self.assertEqual(0, self.accumulator.samsize())
+        self.assertEqual(0.0, self.accumulator.mean())
+
+    def test_str_and_repr(self):
+        s = str(self.accumulator)
+        r = repr(self.accumulator)
+
+        self.assertEqual(s, r)
+        self.assertIn("SampleMeasure(", s)
+        self.assertIn("_n=", s)
+        self.assertIn("_mean=", s)
+        self.assertIn("_variance=", s)

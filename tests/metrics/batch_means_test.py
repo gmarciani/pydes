@@ -52,3 +52,30 @@ class BatchMeansTest(unittest.TestCase):
             )
         self.assertEqual(round(expected_mean, PRECISION), round(self.metric.mean(), PRECISION))
         self.assertEqual(round(expected_sdev, PRECISION), round(self.metric.sdev(), PRECISION))
+
+    def test_cint(self):
+        cint = self.metric.cint(0.05)
+        self.assertIsInstance(cint, float)
+        self.assertGreaterEqual(cint, 0.0)
+
+    def test_cint_single_batch_is_zero(self):
+        metric = BatchedMeasure()
+        metric.add_sample(1)
+        metric.register_batch()
+        self.assertEqual(0.0, metric.cint(0.05))
+
+    def test_discard_data_clears_batches_but_keeps_value(self):
+        value_before = self.metric.get_value()
+        self.metric.discard_data()
+
+        self.assertEqual(0, self.metric.nbatch())
+        self.assertEqual([], self.metric.get_batch_means())
+        self.assertEqual(0, self.metric.curr_batchdim())
+        self.assertEqual(value_before, self.metric.get_value())
+
+    def test_clear_resets_value_and_batches(self):
+        self.metric.clear()
+
+        self.assertEqual(0.0, self.metric.get_value())
+        self.assertEqual(0, self.metric.nbatch())
+        self.assertEqual([], self.metric.get_batch_means())

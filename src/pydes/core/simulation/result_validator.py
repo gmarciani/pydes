@@ -103,7 +103,7 @@ def __verify_model_settings(analytical_result, simulation_result):
         "system_cloudlet_controller_algorithm",
     ]
 
-    if analytical_result["system_cloudlet_controller_algorithm"] == ControllerAlgorithm.ALGORITHM_2:
+    if analytical_result["system_cloudlet_controller_algorithm"] == ControllerAlgorithm.ALGORITHM_2.name:
         system_keys.append("system_cloudlet_threshold")
 
     for k in system_keys:

@@ -200,7 +200,7 @@ def linear_regression_line(sample):
     variance_u = variance(sample_u)
     variance_v = variance(sample_v)
     c = covariance(sample)
-    theta = 0.5 * math.atan2(variance_u - variance_v, 2 * c)
+    theta = 0.5 * math.atan2(2 * c, variance_u - variance_v)
 
     def line(u):
         return (u - mean_u) * math.tan(theta) + mean_v

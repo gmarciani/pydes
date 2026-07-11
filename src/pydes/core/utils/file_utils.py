@@ -96,6 +96,7 @@ def save_header_csv(filename, list_dict):
     :param list_dict: ([dict]) the list of dictionaries.
     :return: (void)
     """
+    create_dir_tree(filename)
     with open(filename, "w+") as resfile:
         resfile.write(",".join(list_dict.keys()))
         resfile.write("\n")
@@ -108,6 +109,7 @@ def append_csv(filename, list_dict):
     :param list_dict: ([dict]) the list of dictionaries.
     :return: (void)
     """
+    create_dir_tree(filename)
     with open(filename, "a+") as resfile:
         resfile.write(",".join(list_dict.values()))
         resfile.write("\n")

@@ -1,6 +1,7 @@
 import unittest
 
 from pydes.core.rnd.inspection import multiplier_finder
+from pydes.core.rnd.inspection.multiplier_check import is_fp_multiplier, is_mc_multiplier
 
 
 class MultiplierTest(unittest.TestCase):
@@ -55,6 +56,33 @@ class MultiplierTest(unittest.TestCase):
         multiplier = multiplier_finder.find_multiplier(MODULUS)
 
         self.assertEqual(MULTIPLIER, multiplier, "Multiplier (64 bit) not correct.")
+
+    def test_find_multiplier_tiny_modulus(self):
+        """
+        Exercise the actual brute-force search logic with a tiny modulus so it
+        completes near-instantly, instead of skipping it like the 8/16/32/64
+        bit cases above.
+        """
+        MODULUS = 31
+        MULTIPLIER = 3
+
+        multiplier = multiplier_finder.find_multiplier(MODULUS)
+
+        self.assertEqual(MULTIPLIER, multiplier, "Multiplier (tiny modulus) not correct.")
+        self.assertTrue(is_fp_multiplier(multiplier, MODULUS))
+        self.assertTrue(is_mc_multiplier(multiplier, MODULUS))
+
+    def test_find_multiplier_tiny_modulus_few_threads(self):
+        """
+        Same as above, but with a small thread pool to exercise the loop
+        that distributes the search range over fewer worker threads.
+        """
+        MODULUS = 127
+        MULTIPLIER = 3
+
+        multiplier = multiplier_finder.find_multiplier(MODULUS, threads=2)
+
+        self.assertEqual(MULTIPLIER, multiplier, "Multiplier (tiny modulus, few threads) not correct.")
 
 
 if __name__ == "__main__":

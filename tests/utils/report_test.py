@@ -58,6 +58,17 @@ class ReportTest(unittest.TestCase):
 
         self.assertEqual(self._expected_str(), actual, "TXT file representation is not correct.")
 
+    def test_save_txt_empty_clears_existing_content_first(self):
+        with open(self.file_txt, "w") as f:
+            f.write("stale content")
+
+        self.r.save_txt(self.file_txt, empty=True)
+
+        with open(self.file_txt, "r") as f:
+            actual = f.read()
+
+        self.assertEqual(self._expected_str(), actual, "TXT file representation is not correct.")
+
     def test_save_csv(self):
         """
         Test the report saving to a CSV file.
@@ -78,6 +89,51 @@ class ReportTest(unittest.TestCase):
             actual = f.read()
 
         self.assertEqual(expected, actual, "CSV file representation is not correct.")
+
+    def test_get_returns_value_when_present(self):
+        self.assertEqual(1, self.r.get("Section-1", "1st Value"))
+        self.assertEqual(2.123, self.r.get("Section-1", "2nd Value"))
+
+    def test_get_returns_none_when_param_missing(self):
+        self.assertIsNone(self.r.get("Section-1", "Missing Value"))
+
+    def test_add_all(self):
+        class Sample:
+            def __init__(self):
+                self.count = 3
+                self.ratio = 1.23456789012
+                self.label = "hello"
+                self._hidden = "should be skipped"
+
+            def method(self):
+                return None
+
+        r = SimpleReport("ADD ALL REPORT")
+        r.add_all("Section", Sample())
+
+        self.assertEqual("3", r.get("Section", "count"))
+        self.assertEqual(round(1.23456789012, 10), r.get("Section", "ratio"))
+        self.assertEqual("hello", r.get("Section", "label"))
+        self.assertIsNone(r.get("Section", "_hidden"))
+        self.assertIsNone(r.get("Section", "method"))
+
+    def test_add_all_attrs(self):
+        class Sample:
+            def __init__(self):
+                self.count = 3
+                self.ratio = 1.23456789012
+                self.label = "hello"
+
+            def method(self):
+                return None
+
+        r = SimpleReport("ADD ALL ATTRS REPORT")
+        r.add_all_attrs("Section", Sample(), "count", "ratio", "method", "missing")
+
+        self.assertEqual(3, r.get("Section", "count"))
+        self.assertEqual(round(1.23456789012, 10), r.get("Section", "ratio"))
+        self.assertIsNone(r.get("Section", "method"))
+        self.assertIsNone(r.get("Section", "missing"))
 
 
 if __name__ == "__main__":
