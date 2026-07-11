@@ -6,13 +6,13 @@
 
 
 ## Requirements
-* Python 3.6+
+* Python 3.10+
 
 
 ## Build
-Install all required packages with PIP, running:
+Install the package and all required dependencies with PIP, running:
 
-    $> pip3 install -r requirements.txt
+    $> pip3 install .
 
 
 ## Simulations

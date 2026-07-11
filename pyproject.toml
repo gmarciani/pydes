@@ -1,3 +1,67 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pydes"
+version = "0.0.1"
+description = "A discrete-event simulation suite."
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Giacomo Marciani", email = "giacomo.marciani@gmail.com"}
+]
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Environment :: Console",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+    "License :: OSI Approved :: MIT License",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "click~=8.1",
+    "colored~=1.4.2",
+    "graphviz~=0.20",
+    "pyfiglet~=1.0",
+    "pyyaml~=6.0",
+    "sympy~=1.13",
+]
+
+[project.optional-dependencies]
+dev = [
+    "autoflake~=2.3",
+    "black~=26.5",
+    "build~=1.5",
+    "flake8~=7.3",
+    "mypy~=2.2",
+    "numpy~=2.2",
+    "pre-commit~=4.6",
+    "pytest~=9.1",
+    "pytest-cov~=7.1",
+    "scipy~=1.14",
+    "tox~=4.56",
+    "twine~=6.2",
+    "types-PyYAML~=6.0",
+]
+
+[project.scripts]
+pydes = "pydes.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/gmarciani/pydes"
+Repository = "https://github.com/gmarciani/pydes"
+Issues = "https://github.com/gmarciani/pydes/issues"
+Changelog = "https://github.com/gmarciani/pydes/CHANGELOG.md"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["pydes*"]
+
 [tool.black]
 line-length = 120
 target-version = ['py310']
