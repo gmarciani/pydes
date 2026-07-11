@@ -11,6 +11,8 @@ Unreleased
   a broken __getitem__ on MarkovState, an Enum-vs-string comparison in result_validator, a
   crashing test-kolmogorov-smirnov CLI subcommand, swapped atan2 arguments in
   linear_regression_line, and missing parent-directory creation in file_utils csv writers)
+- Migrate packaging from setup.py/requirements.txt to pyproject.toml ([build-system]/[project]
+  tables), mirroring cli-wizard's setup; setup.py and requirements.txt have been removed
 
 0.0.1
 -----
